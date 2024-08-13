@@ -1,0 +1,13 @@
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\bin\Debug\net8.0\RightVisionBotDb.deps.json
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\bin\Debug\net8.0\RightVisionBotDb.dll
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\bin\Debug\net8.0\RightVisionBotDb.pdb
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.csproj.AssemblyReference.cache
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.AssemblyInfoInputs.cache
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.AssemblyInfo.cs
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.csproj.CoreCompileInputs.cache
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.sourcelink.json
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.dll
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\refint\RightVisionBotDb.dll
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\RightVisionBotDb.pdb
+C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb\obj\Debug\net8.0\ref\RightVisionBotDb.dll
