@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = RightVisionBotDb.Bot
-build_property.ProjectDir = C:\Users\Honor\source\repos\ItsRazum\RightVisionBotDb\RightVisionBotDb.Bot\
+build_property.ProjectDir = C:\Other\Проекты\Проекты\RightVisionBotDb\RightVisionBotDb.Bot\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

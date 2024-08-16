@@ -9,8 +9,14 @@ namespace RightVisionBotDb.Core
 {
     public class Core
     {
-        internal static IConfiguration Configuration { get; set; }
+        public IConfiguration Configuration { get; set; }
         private Db _db;
+
+        #region Properties
+
+        public IEnumerable<RvUser> RvUsersList => _db.Context.RvUsers;
+
+        #endregion
 
         #region Methods
 
@@ -32,10 +38,10 @@ namespace RightVisionBotDb.Core
 
         #region Get Methods
 
-        public RvUser GetRvUser(long userId)
+        public RvUser? GetRvUser(long userId)
             => _db.Context
             .RvUsers
-            .First(u => u.UserId == userId);
+            .FirstOrDefault(u => u.UserId == userId);
 
         public CriticForm? GetCriticForm(long userId)
             => _db.Context

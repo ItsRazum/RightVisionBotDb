@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj": {}
+    "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj": {
+    "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj",
+        "projectUniqueName": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj",
         "projectName": "RightVisionBotDb.Bot",
-        "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj",
-        "packagesPath": "C:\\Users\\Honor\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Bot\\obj\\",
+        "projectPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj",
+        "packagesPath": "C:\\Users\\kriso\\.nuget\\packages\\",
+        "outputPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Bot\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Honor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\kriso\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://pkgs.dev.azure.com/SMSLab/SMS/_packaging/SMS_Feed/nuget/v3/index.json": {}
         },
@@ -33,11 +34,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj": {
-                "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj"
+              "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj": {
+                "projectPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj"
               },
-              "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
-                "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj"
+              "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
+                "projectPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj"
               }
             }
           }
@@ -118,24 +119,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj": {
+    "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj",
+        "projectUniqueName": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj",
         "projectName": "RightVisionBotDb.Core",
-        "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj",
-        "packagesPath": "C:\\Users\\Honor\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb.Core\\obj\\",
+        "projectPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Core\\RightVisionBotDb.Core.csproj",
+        "packagesPath": "C:\\Users\\kriso\\.nuget\\packages\\",
+        "outputPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Honor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\kriso\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -144,6 +145,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://pkgs.dev.azure.com/SMSLab/SMS/_packaging/SMS_Feed/nuget/v3/index.json": {}
         },
@@ -151,8 +153,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
-                "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj"
+              "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
+                "projectPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj"
               }
             }
           }
@@ -237,24 +239,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
+    "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
+        "projectUniqueName": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
         "projectName": "RightVisionBotDb",
-        "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
-        "packagesPath": "C:\\Users\\Honor\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\obj\\",
+        "projectPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
+        "packagesPath": "C:\\Users\\kriso\\.nuget\\packages\\",
+        "outputPath": "C:\\Other\\Проекты\\Проекты\\RightVisionBotDb\\RightVisionBotDb\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Honor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\kriso\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -263,6 +265,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://pkgs.dev.azure.com/SMSLab/SMS/_packaging/SMS_Feed/nuget/v3/index.json": {}
         },
@@ -332,7 +335,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

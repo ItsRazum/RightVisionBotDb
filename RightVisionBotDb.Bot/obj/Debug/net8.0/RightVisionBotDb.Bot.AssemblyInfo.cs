@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RightVisionBotDb.Bot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c3febb418a0d3b17a22cf5d3249e94ed6fb686e8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1a729979cbe88cdf531ed68cdc677d57b589daf")]
 [assembly: System.Reflection.AssemblyProductAttribute("RightVisionBotDb.Bot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RightVisionBotDb.Bot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

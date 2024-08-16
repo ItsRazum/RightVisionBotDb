@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DryIoc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Models.Forms;
@@ -29,7 +30,8 @@ internal sealed class ApplicationDbContext : DbContext
             .Property(u => u.Role).HasConversion<string>();
         modelBuilder.Entity<RvUser>()
             .Property(u => u.Location).HasConversion(
-                v => typeof(v),
+                v => v.GetType().Name,
+                v => (RvLocation)App.Container.Resolve(v.GetType())
                 );
 
         //Types

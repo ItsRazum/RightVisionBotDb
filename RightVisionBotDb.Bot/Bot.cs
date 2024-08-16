@@ -1,7 +1,5 @@
 ﻿using DryIoc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyModel.Resolution;
-using Newtonsoft.Json;
 using RightVisionBotDb.Bot.Keyboards.InlineKeyboards;
 using RightVisionBotDb.Bot.Lang;
 using RightVisionBotDb.Bot.Locations;
@@ -16,7 +14,7 @@ namespace RightVisionBotDb.Bot
 {
     public class Bot
     {
-        
+
         public IConfiguration Configuration;
         internal Core.Core Core { get; private set; }
         public ITelegramBotClient Client { get; set; }
@@ -37,14 +35,14 @@ namespace RightVisionBotDb.Bot
             _logger.Information("Готово. Запуск бота...");
             try
             {
-                Client = new TelegramBotClient(Configuration.GetSection(nameof(Bot))["Token"]!);
+                Client = new TelegramBotClient(Core.Configuration.GetSection(nameof(Bot))["Token"]!);
                 var cts = new CancellationTokenSource();
                 var cancellationToken = cts.Token;
                 var receiverOptions = new ReceiverOptions { AllowedUpdates = { } };
                 Client.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cancellationToken);
                 _logger.Information("Готово.");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _logger.Fatal(ex, "Не удалось запустить бота!");
             }
@@ -74,38 +72,65 @@ namespace RightVisionBotDb.Bot
 
             _logger.Information("Регистрация локаций...");
             App.Container.Register<Start>();
-            
+
             App.Container.Resolve<Core.Core>().RegisterTypes();
+
+            Core = App.Container.Resolve<Core.Core>();
+            App.Container.Resolve<Bot>().Build();
         }
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            _logger.Information(JsonConvert.SerializeObject(update));
             var message = update.Message;
-            if (message != null && message.From != null)
-            {
-                var lowercase = message.Text?.ToLower();
-                switch (lowercase)
-                {
-                    case "/start":
-                        var rvUser = Core.GetRvUser(message.From.Id);
-                        if (rvUser is not null) 
-                        {
-                            rvUser.Goto(App.Container.Resolve<Start>());
-                        }
-                        else
-                        {
-                            var newUser = new RvUser(message.From.Id, Enums.Lang.Na, message.From.FirstName, message.From.Username);
+            var callbackQuery = update.CallbackQuery;
 
-                        }
-                        break;
+            RvUser rvUser;
+            if (callbackQuery != null)
+            {
+                _logger.Information($"Входящий Callback:" +
+                    $"\nCallbackId: {callbackQuery.Id}" +
+                    $"\nCallbackData: {callbackQuery.Data}" +
+                    $"\n" +
+                    $"\nId отправителя: {callbackQuery.From.Id}" +
+                    $"\nUsername отправителя: {"@" + callbackQuery.From.Username}" +
+                    $"\nИмя отправителя: {callbackQuery.From.FirstName}" +
+                    $"\n" +
+                    $"\nЧат: {callbackQuery.Message?.Chat.Type}" +
+                    $"\nId чата: {callbackQuery.Message?.Chat.Id}" +
+                    $"\n");
+
+                rvUser = Core.GetRvUser(callbackQuery.From.Id)!;
+                await rvUser.Location.HandleCallbackAsync(botClient, callbackQuery, cancellationToken);
+            }
+            else if (message != null && message.From != null)
+            {
+                _logger.Information($"Входящее сообщение:" +
+                    $"\nId отправителя: {message.From?.Id}" +
+                    $"\nUsername отправителя: {"@" + message.From?.Username}" +
+                    $"\nИмя отправителя: {message.From?.FirstName}" +
+                    $"\n" +
+                    $"\nТекст сообщения: {message.Text}" +
+                    $"\n" +
+                    $"\nЧат: {message.Chat.Type}" +
+                    $"\nId чата: {message.Chat.Id}" +
+                    $"\n");
+
+                if (message.Text == "/start")
+                {
+                    if (Core.GetRvUser(message.From!.Id) == null)
+                    {
+                        var newUser = new RvUser(message.From!.Id, Enums.Lang.Na, message.From!.FirstName, message.From!.Username);
+                        Core.AddNewRvUser(newUser);
+                    }
+
+                    rvUser = Core.GetRvUser(message.From!.Id)!;
+                    rvUser.Goto(App.Container.Resolve<Start>());
                 }
             }
-
         }
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.Error(JsonConvert.SerializeObject(exception));
+            _logger.Error(exception, "Произошла ошибка при обработке входящего обновления!");
             return Task.CompletedTask;
         }
     }

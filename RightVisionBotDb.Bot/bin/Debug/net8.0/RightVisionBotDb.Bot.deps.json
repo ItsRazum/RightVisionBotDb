@@ -512,7 +512,10 @@
           "Telegram.Bot": "19.0.0"
         },
         "runtime": {
-          "RightVisionBotDb.dll": {}
+          "RightVisionBotDb.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "RightVisionBotDb.Core/1.0.0": {
@@ -532,7 +535,10 @@
           "Telegram.Bot": "19.0.0"
         },
         "runtime": {
-          "RightVisionBotDb.Core.dll": {}
+          "RightVisionBotDb.Core.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

@@ -36,6 +36,13 @@
 	
   <ItemGroup>
     <Folder Include="Keyboards\ReplyKeyboards\" />
+	  <Folder Include="Resources\Lang\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Content Include="Resources\Lang\**">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
 
 </Project>
