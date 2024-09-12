@@ -19,13 +19,19 @@ namespace RightVisionBotDb.Types
         private List<Permission> Collection
         {
             get => Permissions.Value["Permissions"];
-            set => Permissions.Value["Permissions"] = value;
+            set
+            {
+                Permissions.Value["Permissions"] = value;
+            }
         }
 
         private List<Permission> Removed
         {
             get => Permissions.Value["Removed"];
-            set => Permissions.Value["Removed"] = value;
+            set
+            {
+                Permissions.Value["Removed"] = value;
+            }
         }
 
         #endregion
@@ -54,19 +60,12 @@ namespace RightVisionBotDb.Types
                     throw new NullReferenceException(nameof(value));
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Log.Logger.Error(ex, "Произошла ошибка при преобразовании строки в права доступа");
-                throw;            
+                throw;
             }
         }
-
-        #endregion
-
-        #region IEnumerable Implementation
-
-        public IEnumerator<Permission> GetEnumerator() => Collection.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
@@ -125,7 +124,6 @@ namespace RightVisionBotDb.Types
                     combinedList.Add(permission);
 
             Collection = combinedList;
-
         }
 
         private void RemoveList(IEnumerable<Permission> list)
@@ -161,6 +159,13 @@ namespace RightVisionBotDb.Types
         }
 
         public bool Contains(Permission permission) => Collection.Contains(permission);
+
+        #endregion
+
+        #region IEnumerable Implementation
+
+        public IEnumerator<Permission> GetEnumerator() => Collection.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 

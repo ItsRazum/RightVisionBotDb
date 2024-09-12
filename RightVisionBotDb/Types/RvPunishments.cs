@@ -84,7 +84,7 @@ namespace RightVisionBotDb.Types
             if (collection != null)
             {
                 var punishments = new RvPunishments();
-                foreach(var item in collection)
+                foreach (var item in collection)
                 {
                     try
                     {
@@ -99,7 +99,7 @@ namespace RightVisionBotDb.Types
                                 );
                         punishments.Add(punishment);
                     }
-                    catch 
+                    catch
                     {
                         Log.Logger.Error($"Не удалось преобразовать строку {item} в RvPunishment");
                     }
@@ -121,7 +121,8 @@ namespace RightVisionBotDb.Types
 
             try
             {
-                sb.Remove(sb.Length - 2, 2);
+                if (Collection.Count > 0)
+                    sb.Remove(sb.Length - 2, 2);
             }
             catch
             {
@@ -135,6 +136,9 @@ namespace RightVisionBotDb.Types
         {
             Collection.Add(punishment);
             Collection.Reverse();
+            PunishmentsUpdated?.Invoke(this, EventArgs.Empty);
         }
+
+        public EventHandler? PunishmentsUpdated;
     }
 }

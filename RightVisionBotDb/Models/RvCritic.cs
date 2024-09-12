@@ -6,7 +6,9 @@ namespace RightVisionBotDb.Models
     {
         #region Constructor
 
-        public RvCritic() { }
+        public RvCritic()
+        {
+        }
         public RvCritic(CriticForm form)
         {
             UserId = form.UserId;

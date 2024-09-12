@@ -4,6 +4,7 @@ namespace RightVisionBotDb.Interfaces
 {
     public interface IForm
     {
+
         #region Properties
 
         public long UserId { get; set; }
@@ -17,9 +18,9 @@ namespace RightVisionBotDb.Interfaces
 
         #region Events
 
-        public event EventHandler<Category>? OnFormAccepted;
-        public event EventHandler? OnFormDenied;
-        public event EventHandler? OnFormReset;
+        public event EventHandler<Category>? FormAccepted;
+        public event EventHandler? FormDenied;
+        public event EventHandler? FormReset;
 
         #endregion
 
@@ -30,5 +31,6 @@ namespace RightVisionBotDb.Interfaces
         public void Reset();
 
         #endregion
+
     }
 }

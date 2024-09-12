@@ -1,0 +1,338 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\services\\locationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\services\\locationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\models\\rvparticipant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\models\\rvparticipant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\models\\rightvisiondbproperties.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\models\\rightvisiondbproperties.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\locations\\start.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj|solutionrelative:rightvisionbotdb.bot\\locations\\start.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\locations\\rvlocationbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\locations\\rvlocationbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\locations\\profile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\locations\\profile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\models\\forms\\participantform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\models\\forms\\participantform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\models\\forms\\criticform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\models\\forms\\criticform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\models\\rvuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.Bot.csproj|solutionrelative:rightvisionbotdb.bot\\models\\rvuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\models\\rvcritic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\models\\rvcritic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\interfaces\\irvlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\interfaces\\irvlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\interfaces\\iform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\interfaces\\iform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\lang\\language.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\lang\\language.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\bot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\bot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\config.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\config.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\permissions\\permissions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\permissions\\permissions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|c:\\other\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\rightvisionbotdb\\rightvisionbotdb.bot\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8EAD7391-6C87-48FA-93FC-6A788AB46292}|RightVisionBotDb.Bot\\RightVisionBotDb.csproj|solutionrelative:rightvisionbotdb.bot\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 423,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "LocationManager.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Services\\LocationManager.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Services\\LocationManager.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Services\\LocationManager.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Services\\LocationManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:21:22.513Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DatabaseService.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Services\\DatabaseService.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Services\\DatabaseService.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Services\\DatabaseService.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Services\\DatabaseService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:21:20.937Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ParticipantForm.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\Forms\\ParticipantForm.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Models\\Forms\\ParticipantForm.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\Forms\\ParticipantForm.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Models\\Forms\\ParticipantForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:20:06.825Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CriticForm.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\Forms\\CriticForm.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Models\\Forms\\CriticForm.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\Forms\\CriticForm.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Models\\Forms\\CriticForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:20:04.993Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "RvParticipant.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RvParticipant.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Models\\RvParticipant.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RvParticipant.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Models\\RvParticipant.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:18:34.29Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "RvCritic.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RvCritic.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Models\\RvCritic.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RvCritic.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Models\\RvCritic.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:18:31.449Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "RightVisionDbProperties.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RightVisionDbProperties.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Models\\RightVisionDbProperties.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RightVisionDbProperties.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Models\\RightVisionDbProperties.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:18:29.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "IForm.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Interfaces\\IForm.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Interfaces\\IForm.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Interfaces\\IForm.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Interfaces\\IForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:17:29.689Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Profile.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Locations\\Profile.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Locations\\Profile.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Locations\\Profile.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Locations\\Profile.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:11:57.114Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Start.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Locations\\Start.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Locations\\Start.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Locations\\Start.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Locations\\Start.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA0AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-11T21:45:27.204Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "RvLocationBase.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Locations\\RvLocationBase.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Locations\\RvLocationBase.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Locations\\RvLocationBase.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Locations\\RvLocationBase.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:10:20.648Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Language.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Lang\\Language.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Lang\\Language.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Lang\\Language.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Lang\\Language.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T00:16:50.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Program.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Program.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Program.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-11T23:48:51.441Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Permissions.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Permissions\\Permissions.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Permissions\\Permissions.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Permissions\\Permissions.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Permissions\\Permissions.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAQwDsAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-11T23:48:32.502Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "config.json",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\config.json",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\config.json",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\config.json",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\config.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-09-11T23:01:41.223Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Bot.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Bot.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Bot.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Bot.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Bot.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-11T23:01:36.998Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IRvLocation.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Interfaces\\IRvLocation.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Interfaces\\IRvLocation.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Interfaces\\IRvLocation.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Interfaces\\IRvLocation.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-11T22:51:36.128Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "RvUser.cs",
+              "DocumentMoniker": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RvUser.cs",
+              "RelativeDocumentMoniker": "RightVisionBotDb.Bot\\Models\\RvUser.cs",
+              "ToolTip": "C:\\Other\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\RightVisionBotDb\\RightVisionBotDb.Bot\\Models\\RvUser.cs",
+              "RelativeToolTip": "RightVisionBotDb.Bot\\Models\\RvUser.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-11T19:21:42.574Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

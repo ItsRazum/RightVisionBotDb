@@ -1,0 +1,12 @@
+{
+  "Bot": {
+    "Token": "6450629882:AAFLdecqtb0qvrLFGE2JHxX8HVMB07fvxZQ",
+    "BuildDate": "19.07.2024"
+  },
+  "Data": {
+    "RightVisionDatabasesPath": "Resources\\Databases\\RightVision"
+  },
+  "Contest": {
+    "DefaultRightVision": "RightVision24"
+  }
+}

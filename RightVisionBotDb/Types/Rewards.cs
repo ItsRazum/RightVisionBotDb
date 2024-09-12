@@ -38,7 +38,8 @@ namespace RightVisionBotDb.Types
 
             try
             {
-                sb.Remove(sb.Length - 2, 2);
+                if (Collection.Count > 0)
+                    sb.Remove(sb.Length - 2, 2);
             }
             catch
             {
@@ -89,6 +90,9 @@ namespace RightVisionBotDb.Types
         public void Add(Reward reward)
         {
             Collection.Add(reward);
+            RewardsUpdated?.Invoke(this, EventArgs.Empty);
         }
+
+        public EventHandler? RewardsUpdated;
     }
 }

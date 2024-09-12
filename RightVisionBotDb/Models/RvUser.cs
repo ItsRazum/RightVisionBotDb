@@ -1,5 +1,5 @@
-﻿using DryIoc;
-using RightVisionBotDb.Enums;
+﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Permissions;
 using RightVisionBotDb.Types;
 using System.ComponentModel.DataAnnotations;
@@ -10,6 +10,13 @@ namespace RightVisionBotDb.Models
 {
     public class RvUser
     {
+
+        #region Fields
+
+        private IRvLocation location;
+
+        #endregion
+
         #region Properties
 
         [Key]
@@ -17,12 +24,20 @@ namespace RightVisionBotDb.Models
         public long UserId { get; set; }
         public string Name { get; set; }
         public string Telegram { get; set; }
-        public Lang Lang { get; set; }
+        public Enums.Lang Lang { get; set; }
         public Status Status { get; set; } = Status.User;
         public Role Role { get; set; } = Role.None;
-        public RvLocation Location { get; set; }
-        public string Profile { get; set; }
-        public UserPermissions UserPermissions { get; set; }
+        public IRvLocation Location
+        {
+            get => location;
+            set
+            {
+                if (location == value) return;
+                LocationChanged?.Invoke(this, (Location, value));
+                location = value;
+            }
+        }
+        public UserPermissions Permissions { get; set; }
         public RvPunishments Punishments { get; set; }
         public Rewards Rewards { get; set; }
 
@@ -31,7 +46,8 @@ namespace RightVisionBotDb.Models
         [NotMapped] public System.Timers.Timer? Cooldown { get; set; }
         [NotMapped] private int Counter { get; set; }
         [NotMapped] private System.Timers.Timer? CounterCooldown { get; set; }
-        [NotMapped] private int TimerInterval 
+        [NotMapped]
+        private int TimerInterval
             => Counter switch
             {
                 < 10 => 1000,
@@ -46,20 +62,26 @@ namespace RightVisionBotDb.Models
 
         #region Constructors
 
-        public RvUser(long userId, Lang lang, string name, string? telegram)
+        public RvUser(long userId, Enums.Lang lang, string name, string? telegram, IRvLocation location)
         {
             UserId = userId;
             Lang = lang;
             Name = name;
+            Location = location;
+
             if (string.IsNullOrEmpty(telegram))
                 Telegram = string.Empty;
             else
                 Telegram = telegram;
+
+            Permissions = new UserPermissions(UserId);
+            Punishments = new RvPunishments(UserId);
+            Rewards = new Rewards(UserId);
         }
 
         public RvUser()
         {
-            UserPermissions = new UserPermissions(UserId);
+            Permissions = new UserPermissions(UserId);
             Punishments = new RvPunishments(UserId);
             Rewards = new Rewards(UserId);
         }
@@ -97,15 +119,16 @@ namespace RightVisionBotDb.Models
 
         #region Public
 
-        public void ResetPermissions() => UserPermissions = new UserPermissions(Permissions.Permissions.Layouts[Status] + Permissions.Permissions.Layouts[Role], UserId);
-        public bool Has(Permission permission) => UserPermissions.Contains(permission);
-        public void Goto(RvLocation location)
-        {
-            location.AddNewUser(this);
-        }
-
+        public void ResetPermissions() => Permissions = new UserPermissions(RightVisionBotDb.Permissions.Permissions.Layouts[Status] + RightVisionBotDb.Permissions.Permissions.Layouts[Role], UserId);
+        public bool Has(Permission permission) => Permissions.Contains(permission);
 
         #endregion
+
+        #endregion
+
+        #region Events
+
+        public EventHandler<(IRvLocation, IRvLocation)>? LocationChanged;
 
         #endregion
 
