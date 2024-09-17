@@ -47,7 +47,7 @@ namespace RightVisionBotDb.Locations
                             callbackQuery.Message!.Chat,
                             callbackQuery.Message.MessageId,
                             string.Format(Language.Phrases[rvUser.Lang].Messages.Common.Greetings, rvUser.Name),
-                            replyMarkup: InlineKeyboards.Hub(rvUser),
+                            replyMarkup: InlineKeyboards.MainMenu(rvUser),
                             cancellationToken: token);
                         break;
                     case "about":
@@ -68,6 +68,11 @@ namespace RightVisionBotDb.Locations
         public Task HandleCommandAsync(Message message, RvUser rvUser, ApplicationDbContext context, CancellationToken token)
         {
             return Task.CompletedTask;
+        }
+
+        public override string ToString()
+        {
+            return LocationManager.LocationToString(this);
         }
 
         #endregion

@@ -38,7 +38,7 @@ namespace RightVisionBotDb.Locations
                         callbackQuery.Message!.Chat,
                         callbackQuery.Message.MessageId,
                         string.Format(Language.Phrases[rvUser.Lang].Messages.Common.Greetings, rvUser.Name),
-                        replyMarkup: InlineKeyboards.Hub(rvUser),
+                        replyMarkup: InlineKeyboards.MainMenu(rvUser),
                         cancellationToken: token);
                     await context.SaveChangesAsync(token);
                     break;
@@ -61,6 +61,10 @@ namespace RightVisionBotDb.Locations
             return Task.CompletedTask;
         }
 
+        public override string ToString()
+        {
+            return LocationManager.LocationToString(this);
+        }
 
         #endregion
 

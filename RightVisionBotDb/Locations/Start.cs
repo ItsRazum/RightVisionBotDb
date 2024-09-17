@@ -55,6 +55,11 @@ namespace RightVisionBotDb.Locations
             }
         }
 
+        public override string ToString()
+        {
+            return LocationManager.LocationToString(this);
+        }
+
         #endregion
 
     }

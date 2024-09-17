@@ -1,4 +1,5 @@
 ﻿using RightVisionBotDb.Lang;
+using RightVisionBotDb.Locations;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Permissions;
 using Telegram.Bot.Types.Enums;
@@ -8,6 +9,13 @@ namespace RightVisionBotDb.Services
 {
     public sealed class Keyboards
     {
+        private LocationManager LocationManager { get; set; }
+
+        public Keyboards(LocationManager locationManager) 
+        {
+            LocationManager = locationManager;
+        }
+
         public InlineKeyboardMarkup СhooseLang => new(new InlineKeyboardButton[][]
         {
             [
@@ -19,8 +27,11 @@ namespace RightVisionBotDb.Services
             ]
         });
 
-        public InlineKeyboardMarkup Hub(RvUser rvUser) => new(new[]
-{
+        public InlineKeyboardMarkup MainMenu(RvUser rvUser)
+        {
+            var rootLocation = LocationManager.LocationToString(LocationManager["MainMenu"]);
+            return new(new[]
+        {
             [
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.About, "about"),
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Apply, "forms")
@@ -32,6 +43,7 @@ namespace RightVisionBotDb.Services
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.MyProfile, "profile")
             }
         });
+        }
 
         public InlineKeyboardMarkup About(RvUser rvUser) => new(new[]
 {

@@ -8,5 +8,6 @@ namespace RightVisionBotDb.Interfaces
     {
         public Task HandleCommandAsync(Message message, RvUser rvUser, ApplicationDbContext context, CancellationToken token);
         public Task HandleCallbackAsync(CallbackQuery callbackQuery, RvUser rvUser, ApplicationDbContext context, CancellationToken token);
+        public string ToString();
     }
 }

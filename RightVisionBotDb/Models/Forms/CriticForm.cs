@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace RightVisionBotDb.Models.Forms
 {
-    public class CriticForm : IForm, INotifyPropertyChanged
+    public class CriticForm : IForm
     {
 
         #region Properties
@@ -61,16 +61,6 @@ namespace RightVisionBotDb.Models.Forms
 
         #endregion
 
-        #region INotifyPropertyChanged Implementation
-
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        #endregion
 
     }
 }

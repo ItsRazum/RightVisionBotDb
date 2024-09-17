@@ -6,7 +6,7 @@ namespace RightVisionBotDb.Services
     public class LocationManager : Dictionary<string, IRvLocation>
     {
 
-        public LocationManager(IContainer container)
+        public LocationManager()
         {
         }
 

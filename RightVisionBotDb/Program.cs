@@ -23,6 +23,7 @@ namespace RightVisionBotDb
             App.Container.Register<ProfileStringService>(Reuse.Singleton);
             App.Container.Register<LogMessages>(Reuse.Singleton);
             App.Container.Register<Keyboards>(Reuse.Singleton);
+            App.Container.Register<LocationsFront>(Reuse.Singleton);
 
             App.Container.Register<Bot>(Reuse.Singleton);
 

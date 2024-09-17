@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using RightVisionBotDb.Data;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
-using Telegram.Bot.Types;
 using Telegram.Bot;
-using RightVisionBotDb.Data;
+using Telegram.Bot.Types;
 
 namespace RightVisionBotDb.Services
 {
@@ -18,7 +17,11 @@ namespace RightVisionBotDb.Services
 
         #endregion
 
-        public LocationsFront(Bot bot, LocationManager locationManager, Keyboards keyboards, ProfileStringService profileStringService) 
+        public LocationsFront(
+            Bot bot, 
+            LocationManager locationManager, 
+            Keyboards keyboards, 
+            ProfileStringService profileStringService)
         {
             Bot = bot;
             LocationManager = locationManager;
@@ -33,7 +36,7 @@ namespace RightVisionBotDb.Services
                 callbackQuery.Message!.Chat,
                 callbackQuery.Message.MessageId,
                 string.Format(Language.Phrases[rvUser.Lang].Messages.Common.Greetings, rvUser.Name),
-                replyMarkup: Keyboards.Hub(rvUser),
+                replyMarkup: Keyboards.MainMenu(rvUser),
                 cancellationToken: token);
             await context.SaveChangesAsync(token);
         }

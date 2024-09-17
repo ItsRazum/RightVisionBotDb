@@ -13,7 +13,9 @@ namespace RightVisionBotDb.Services
         private Bot Bot { get; set; }
         private DatabaseService DatabaseService { get; set; }
 
-        public ProfileStringService(Bot bot, DatabaseService databaseService)
+        public ProfileStringService(
+            Bot bot, 
+            DatabaseService databaseService)
         {
             Bot = bot;
             DatabaseService = databaseService;
