@@ -1,9 +1,7 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.CompilerServices;
 
 namespace RightVisionBotDb.Models.Forms
 {
@@ -16,6 +14,7 @@ namespace RightVisionBotDb.Models.Forms
         public string Link { get; set; }
         public string AboutYou { get; set; }
         public string WhyYou { get; set; }
+
         #region IForm Properties
 
         [Key]
@@ -60,7 +59,6 @@ namespace RightVisionBotDb.Models.Forms
         }
 
         #endregion
-
 
     }
 }

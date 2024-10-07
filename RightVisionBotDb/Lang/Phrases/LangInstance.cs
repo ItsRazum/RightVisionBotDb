@@ -26,6 +26,8 @@
         public string CriticFormVariationTwo { get; set; }
         public string MemberFormVariationOne { get; set; }
         public required string MemberFormVariationTwo { get; set; }
+        public string Minimize { get; set; }
+        public string Maximize { get; set; }
         public required CriticMenu CriticMenu { get; set; }
     }
 
@@ -84,7 +86,7 @@
     public class ProfilePermissions
     {
         public string Header { get; set; }
-        public string Header_Global { get; set; }
+        public string HeaderGlobal { get; set; }
         public string FullList { get; set; }
         public string AddedList { get; set; }
         public string BlockedList { get; set; }

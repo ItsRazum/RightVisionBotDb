@@ -1,81 +1,57 @@
-﻿using RightVisionBotDb.Data;
-using RightVisionBotDb.Interfaces;
+﻿using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
+using RightVisionBotDb.Types;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class MainMenu : RvLocationBase, IRvLocation
+    internal sealed class MainMenu : RvLocationBase
     {
-
-        #region Properties
-
-        public ProfileStringService Profile { get; }
-
-        #endregion
-
-        #region Constructor
-
         public MainMenu(
             Bot bot,
-            Keyboards inlineKeyboards,
+            Keyboards keyboards,
             LocationManager locationManager,
             RvLogger logger,
             LogMessages logMessages,
-            ProfileStringService profile,
             LocationsFront locationsFront)
-            : base(bot, inlineKeyboards, locationManager, logger, logMessages, locationsFront)
+            : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
         {
-            Profile = profile;
+            this
+                .RegisterCallbackCommand("back", BackCallback)
+                .RegisterCallbackCommand("mainmenu", MainMenuCallback)
+                .RegisterCallbackCommand("about", AboutCallback)
+                .RegisterCallbackCommand("profile", ProfileCallback)
+                .RegisterCallbackCommand("forms", FormsCallback);
         }
 
-        #endregion
-
-        #region IRvLocation implementation
-
-        public async Task HandleCallbackAsync(CallbackQuery callbackQuery, RvUser rvUser, ApplicationDbContext context, CancellationToken token)
+        private async Task BackCallback(CallbackContext c, CancellationToken token)
         {
-            if (rvUser != null)
-            {
-                switch (callbackQuery.Data)
-                {
-                    case "mainmenu":
-                        await Bot.Client.EditMessageTextAsync(
-                            callbackQuery.Message!.Chat,
-                            callbackQuery.Message.MessageId,
-                            string.Format(Language.Phrases[rvUser.Lang].Messages.Common.Greetings, rvUser.Name),
-                            replyMarkup: InlineKeyboards.MainMenu(rvUser),
-                            cancellationToken: token);
-                        break;
-                    case "about":
-                        await Bot.Client.EditMessageTextAsync(
-                            callbackQuery.Message!.Chat,
-                            callbackQuery.Message.MessageId,
-                            Language.Phrases[rvUser.Lang].Messages.Common.About,
-                            replyMarkup: InlineKeyboards.About(rvUser),
-                            cancellationToken: token);
-                        break;
-                    case "profile":
-                        await LocationsFront.Profile(rvUser, callbackQuery, context, token);
-                        break;
-                }
-            }
+            await LocationsFront.MainMenu(c, token);
         }
 
-        public Task HandleCommandAsync(Message message, RvUser rvUser, ApplicationDbContext context, CancellationToken token)
+        private async Task MainMenuCallback(CallbackContext c, CancellationToken token)
         {
-            return Task.CompletedTask;
+            await LocationsFront.MainMenu(c, token);
         }
 
-        public override string ToString()
+        private async Task AboutCallback(CallbackContext c, CancellationToken token)
         {
-            return LocationManager.LocationToString(this);
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                Language.Phrases[c.RvUser.Lang].Messages.Common.About,
+                cancellationToken: token);
         }
 
-        #endregion
+        private async Task ProfileCallback(CallbackContext c, CancellationToken token)
+        {
+            await LocationsFront.Profile(c, token);
+        }
 
+        private async Task FormsCallback(CallbackContext c, CancellationToken token)
+        {
+            await LocationsFront.FormSelection(c, token);
+        }
     }
 }

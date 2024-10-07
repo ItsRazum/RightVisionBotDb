@@ -7,10 +7,10 @@ namespace RightVisionBotDb.Lang
 {
     public class Language
     {
-        public static Dictionary<Enums.Lang, LangInstance> Phrases = new();
-        public static void Build(IConfiguration configuration, params Enums.Lang[] lang)
+        public static Dictionary<Enums.Lang, LangInstance> Phrases = [];
+        public static void Build(IConfiguration configuration, params Enums.Lang[] langs)
         {
-            foreach (var l in lang)
+            foreach (var l in langs)
             {
                 Log.Logger?.Information($"Сборка {l} языка...");
 
@@ -19,7 +19,8 @@ namespace RightVisionBotDb.Lang
                 Phrases.Add(l, langInstance ?? throw new NullReferenceException(nameof(langInstance)));
             }
 
-            Log.Logger?.Information("Готово.");
+            App.RegisteredLangs = langs;
+            Log.Logger?.Information("Сборка языковых файлов завершена.");
         }
 
         public static string GetUserStatusString(Status s, Enums.Lang lang) =>

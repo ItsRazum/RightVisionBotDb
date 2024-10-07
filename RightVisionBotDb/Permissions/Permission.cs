@@ -33,7 +33,7 @@ public enum Permission
     /// <summary>
     /// Право на отправку заявки на участие
     /// </summary>
-    SendMemberForm,
+    SendParticipantForm,
     /// <summary>
     /// Право на доступ к чату участников
     /// </summary>

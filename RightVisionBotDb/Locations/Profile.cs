@@ -1,10 +1,6 @@
-﻿using RightVisionBotDb.Data;
-using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Lang;
-using RightVisionBotDb.Models;
+﻿using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Services;
-using Telegram.Bot;
-using Telegram.Bot.Types;
+using RightVisionBotDb.Types;
 
 namespace RightVisionBotDb.Locations
 {
@@ -15,58 +11,54 @@ namespace RightVisionBotDb.Locations
 
         public Profile(
             Bot bot,
-            Keyboards inlineKeyboards,
+            Keyboards keyboards,
             LocationManager locationManager,
             RvLogger logger,
             LogMessages logMessages,
-            LocationsFront locationsFront)
-            : base(bot, inlineKeyboards, locationManager, logger, logMessages, locationsFront)
+            LocationsFront locationsFront,
+            ProfileStringService profileStringService)
+            : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
         {
+            this
+                .RegisterCallbackCommand("back", BackCallback)
+                .RegisterCallbackCommand("mainmenu", MainMenuCallback)
+                .RegisterCallbackCommand("forms", FormsCallback)
+                .RegisterCallbackCommand("permissions_minimized", PermissionsMinimized)
+                .RegisterCallbackCommand("permissions_maximized", PermissionsMaximized)
+                .RegisterCallbackCommand("permissions_back", BackCallback);
         }
 
         #endregion
 
-        #region IRvLocation implementation
+        #region Methods
 
-        public async Task HandleCallbackAsync(CallbackQuery callbackQuery, RvUser rvUser, ApplicationDbContext context, CancellationToken token)
+        private async Task BackCallback(CallbackContext c, CancellationToken token = default)
         {
-            switch (callbackQuery.Data)
-            {
-                case "mainmenu":
-                    rvUser.Location = LocationManager["MainMenu"];
-                    await Bot.Client.EditMessageTextAsync(
-                        callbackQuery.Message!.Chat,
-                        callbackQuery.Message.MessageId,
-                        string.Format(Language.Phrases[rvUser.Lang].Messages.Common.Greetings, rvUser.Name),
-                        replyMarkup: InlineKeyboards.MainMenu(rvUser),
-                        cancellationToken: token);
-                    await context.SaveChangesAsync(token);
-                    break;
-                case "forms":
-                    await Bot.Client.EditMessageTextAsync(
-                        callbackQuery.Message!.Chat,
-                        callbackQuery.Message.MessageId,
-                        Language.Phrases[rvUser.Lang].Messages.Common.SendFormRightNow,
-                        replyMarkup: InlineKeyboards.About(rvUser),
-                        cancellationToken: token);
-                    break;
-                case "back":
-
-                    break;
-            }
+            await LocationsFront.Profile(c, token);
         }
 
-        public Task HandleCommandAsync(Message message, RvUser rvUser, ApplicationDbContext context, CancellationToken token)
+        private async Task MainMenuCallback(CallbackContext c, CancellationToken token = default)
         {
-            return Task.CompletedTask;
+            await LocationsFront.MainMenu(c, token);
         }
 
-        public override string ToString()
+        private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            return LocationManager.LocationToString(this);
+            await LocationsFront.FormSelection(c, token);
+        }
+
+        private async Task PermissionsMinimized(CallbackContext c, CancellationToken token = default)
+        {
+            var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_minimized-", ""));
+            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), true, token);
+        }
+
+        private async Task PermissionsMaximized(CallbackContext c, CancellationToken token = default)
+        {
+            var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_maximized-", ""));
+            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), false, token);
         }
 
         #endregion
-
     }
 }

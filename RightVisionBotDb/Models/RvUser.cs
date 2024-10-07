@@ -74,7 +74,7 @@ namespace RightVisionBotDb.Models
             else
                 Telegram = telegram;
 
-            Permissions = new UserPermissions(UserId);
+            Permissions = new UserPermissions(RightVisionBotDb.Permissions.Permissions.Layouts[Status.User], UserId);
             Punishments = new RvPunishments(UserId);
             Rewards = new Rewards(UserId);
         }

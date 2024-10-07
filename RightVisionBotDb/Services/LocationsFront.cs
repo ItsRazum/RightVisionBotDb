@@ -1,8 +1,7 @@
-﻿using RightVisionBotDb.Data;
-using RightVisionBotDb.Lang;
+﻿using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Types;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace RightVisionBotDb.Services
 {
@@ -29,28 +28,70 @@ namespace RightVisionBotDb.Services
             ProfileStringService = profileStringService;
         }
 
-        public async Task MainMenu(RvUser rvUser, CallbackQuery callbackQuery, ApplicationDbContext context, CancellationToken token = default)
-        {
-            rvUser.Location = LocationManager["MainMenu"];
+        public async Task MainMenu(CallbackContext c, CancellationToken token = default)
+        {            
+            c.RvUser.Location = LocationManager[nameof(Locations.MainMenu)];
             await Bot.Client.EditMessageTextAsync(
-                callbackQuery.Message!.Chat,
-                callbackQuery.Message.MessageId,
-                string.Format(Language.Phrases[rvUser.Lang].Messages.Common.Greetings, rvUser.Name),
-                replyMarkup: Keyboards.MainMenu(rvUser),
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
+                replyMarkup: Keyboards.MainMenu(c.RvUser),
                 cancellationToken: token);
-            await context.SaveChangesAsync(token);
+
+            if (c.DbContext.ChangeTracker.HasChanges())
+                await c.DbContext.SaveChangesAsync(token);
         }
 
-        public async Task Profile(RvUser rvUser, CallbackQuery callbackQuery, ApplicationDbContext context, CancellationToken token = default)
+        public async Task Profile(CallbackContext c, CancellationToken token = default)
         {
-            rvUser.Location = LocationManager["Profile"];
+            c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
             await Bot.Client.EditMessageTextAsync(
-                callbackQuery.Message!.Chat,
-                callbackQuery.Message.MessageId,
-                ProfileStringService.Private(rvUser, App.DefaultRightVision),
-                replyMarkup: Keyboards.Profile(rvUser, callbackQuery.Message!.Chat.Type, rvUser.Lang),
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                ProfileStringService.Private(c.RvUser, App.DefaultRightVision),
+                replyMarkup: Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, c.RvUser.Lang),
                 cancellationToken: token);
-            await context.SaveChangesAsync(token);
+
+            if (c.DbContext.ChangeTracker.HasChanges())
+                await c.DbContext.SaveChangesAsync(token);
+        }
+
+        public async Task FormSelection(CallbackContext c, CancellationToken token = default)
+        {
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                Language.Phrases[c.RvUser.Lang].Messages.Common.SendFormRightNow,
+                replyMarkup: Keyboards.FormSelection(c.RvUser),
+                cancellationToken: token);
+        }
+
+        public async Task PermissionsList(CallbackContext c, RvUser targetRvUser, bool minimize, CancellationToken token = default)
+        {
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                ProfileStringService.Permissions(c, c.DbContext.RvUsers.First(u => u == targetRvUser), minimize, c.RvUser.Lang),
+                replyMarkup: Keyboards.PermissionsList(targetRvUser, minimize, targetRvUser.Permissions.Count > 10, c.RvUser.Lang),
+                cancellationToken: token);
+        }
+
+        public async Task CriticForm(CallbackContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationManager[nameof(Locations.CriticForm)];
+            await Bot.Client.DeleteMessageAsync(
+                c.CallbackQuery.Message!.Chat, 
+                c.CallbackQuery.Message.MessageId, 
+                token);
+
+            await Bot.Client.SendTextMessageAsync(
+                c.CallbackQuery.Message!.Chat,
+                Language.Phrases[c.RvUser.Lang].Messages.Critic.EnterName,
+                replyMarkup: Keyboards.ReplyBack(c.RvUser.Lang),
+                cancellationToken: token);
+
+            if (c.DbContext.ChangeTracker.HasChanges())
+                await c.DbContext.SaveChangesAsync(token);
         }
     }
 }

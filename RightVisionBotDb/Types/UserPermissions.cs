@@ -16,7 +16,7 @@ namespace RightVisionBotDb.Types
 
         public KeyValuePair<long, Dictionary<string, List<Permission>>> Permissions { get; set; } = new();
 
-        private List<Permission> Collection
+        public List<Permission> Collection
         {
             get => Permissions.Value["Permissions"];
             set

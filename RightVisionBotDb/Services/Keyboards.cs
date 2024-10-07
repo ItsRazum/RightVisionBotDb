@@ -1,5 +1,4 @@
 ﻿using RightVisionBotDb.Lang;
-using RightVisionBotDb.Locations;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Permissions;
 using Telegram.Bot.Types.Enums;
@@ -61,7 +60,7 @@ namespace RightVisionBotDb.Services
         {
             InlineKeyboardButton[] top =
             [
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PermissionsList, $"permissions-{rvUser.UserId}"),
+                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PermissionsList, $"permissions_minimized-{rvUser.UserId}"),
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PunishmentsHistory, $"history-{rvUser.UserId}")
             ];
 
@@ -104,9 +103,62 @@ namespace RightVisionBotDb.Services
 
             if (!rvUser.Has(Permission.TrackCard) && !rvUser.Has(Permission.CriticMenu))
                 custom = common;
+
             else if (rvUser.Has(Permission.TrackCard) && rvUser.Has(Permission.CriticMenu))
                 custom = criticAndMember;
+
             return type != ChatType.Private ? top : custom;
         }
+
+        public InlineKeyboardMarkup FormSelection(RvUser rvUser)
+        {
+            var buttons = new List<InlineKeyboardButton[]>();
+
+            var participantButton = InlineKeyboardButton.WithCallbackData(
+                Language.Phrases[rvUser.Lang].KeyboardButtons.MemberFormVariationOne,
+                "participantForm"
+            );
+            var criticButton = InlineKeyboardButton.WithCallbackData(
+                Language.Phrases[rvUser.Lang].KeyboardButtons.CriticFormVariationOne,
+                "criticForm"
+            );
+            var backButton = InlineKeyboardButton.WithCallbackData(
+                Language.Phrases[rvUser.Lang].KeyboardButtons.Back,
+                "back"
+            );
+            
+            var upperFloor = new List<InlineKeyboardButton>();
+
+            if (rvUser.Has(Permission.SendParticipantForm))
+                upperFloor.Add(participantButton);
+
+            if (rvUser.Has(Permission.SendCriticForm))
+                upperFloor.Add(criticButton);
+
+            buttons.Add([.. upperFloor]);
+            buttons.Add([backButton]);
+
+            return new InlineKeyboardMarkup(buttons);
+        }
+
+        public static InlineKeyboardMarkup PermissionsList(RvUser rvUser, bool minimize, bool showAdvancedOptions, Enums.Lang lang)
+        {
+            List<InlineKeyboardButton> buttons = new();
+            if (showAdvancedOptions)
+            {
+                var buttonValues = (Language.Phrases[lang].KeyboardButtons.Minimize + "", $"permissions_minimized-{rvUser.UserId}");
+
+                if (minimize)
+                    buttonValues = (Language.Phrases[lang].KeyboardButtons.Maximize, $"permissions_maximized-{rvUser.UserId}");
+
+                buttons.Add(InlineKeyboardButton.WithCallbackData(buttonValues.Item1, buttonValues.Item2));
+            }
+
+            buttons.Add(InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, $"permissions_back-{rvUser.UserId}"));
+
+            return new(buttons);
+        }
+
+        public ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back));
     }
 }

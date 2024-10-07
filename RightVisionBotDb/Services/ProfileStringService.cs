@@ -4,7 +4,10 @@ using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Models.Forms;
+using RightVisionBotDb.Permissions;
+using RightVisionBotDb.Types;
 using System.Text;
+using System.Linq;
 
 namespace RightVisionBotDb.Services
 {
@@ -12,14 +15,21 @@ namespace RightVisionBotDb.Services
     {
         private Bot Bot { get; set; }
         private DatabaseService DatabaseService { get; set; }
+        private Keyboards Keyboards;
 
         public ProfileStringService(
-            Bot bot, 
-            DatabaseService databaseService)
+            Bot bot,
+            DatabaseService databaseService,
+            Keyboards keyboards)
         {
             Bot = bot;
             DatabaseService = databaseService;
+            Keyboards = keyboards;
         }
+
+        #region Methods
+
+        #region Public methods
 
         public string Public(RvUser user, Enums.Lang lang, string rightvision)
         {
@@ -121,7 +131,7 @@ namespace RightVisionBotDb.Services
 
             sb.AppendLine(
                 phrases.Profile.Properties.Sending
-                + (rvUser.Has(Permissions.Permission.Sending)
+                + (rvUser.Has(Permission.Sending)
                 ? phrases.Profile.Sending.Active
                 : phrases.Profile.Sending.Inactive));
 
@@ -140,6 +150,61 @@ namespace RightVisionBotDb.Services
             return sb.ToString();
         }
 
+        public string Permissions(CallbackContext c, RvUser targetRvUser, bool minimize, Enums.Lang lang)
+        {
+            var rvUser = c.RvUser;
+
+            StringBuilder sb = new(
+                c.RvUser == targetRvUser 
+                ? Language.Phrases[lang].Profile.Permissions.Header 
+                : string.Format(Language.Phrases[lang].Profile.Permissions.HeaderGlobal, targetRvUser.Name));
+
+            IEnumerable<Permission> permissions;
+            UserPermissions layout = new(RightVisionBotDb.Permissions.Permissions.Layouts[rvUser.Status] + RightVisionBotDb.Permissions.Permissions.Layouts[rvUser.Role]);
+
+            sb.AppendLine();
+            if (minimize)
+            {
+                var standartCount = 10;
+                permissions = rvUser.Permissions.Take(standartCount);
+
+                foreach (var permission in permissions)
+                    sb.AppendLine("• " + permission);
+
+                if (rvUser.Permissions.Count >= standartCount)
+                    sb.AppendLine("...");
+            }
+            else
+            {
+                permissions = rvUser.Permissions;
+
+                foreach (var permission in permissions)
+                    sb.AppendLine("• " + permission);
+            }
+
+            var addedList = AddedPermissionsList(layout, rvUser.Permissions);
+            if (addedList.Count > 0)
+            {
+                sb.AppendLine(Language.Phrases[lang].Profile.Permissions.BlockedList);
+                foreach (var permission in addedList)
+                    sb.AppendLine("+ " + permission);
+            }
+
+            var blockedList = BlockedPermissionsList(layout, rvUser.Permissions);
+            if (blockedList.Count > 0)
+            {
+                sb.AppendLine(Language.Phrases[lang].Profile.Permissions.BlockedList);
+                foreach (var permission in blockedList)
+                    sb.AppendLine("- " + permission);
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion
+
+        #region Private methods
+
         private string GetCandidateStatus(Enums.Lang lang, IForm? form = null)
         {
             try
@@ -154,5 +219,27 @@ namespace RightVisionBotDb.Services
                 return Language.Phrases[lang].Profile.Forms.Status.CouldNotGet;
             }
         }
+
+        private List<Permission> AddedPermissionsList(UserPermissions layout, UserPermissions userPermissions)
+        {
+            var addedList = new List<Permission>();
+            foreach (var permission in userPermissions.Where(permission => !layout.Contains(permission)))
+                addedList.Add(permission);
+
+            return addedList;
+        }
+
+        private List<Permission> BlockedPermissionsList(UserPermissions layout, UserPermissions userPermissions)
+        {
+            var blockedList = new List<Permission>();
+            foreach (var permission in layout.Collection.Where(permission => !userPermissions.Contains(permission)))
+                blockedList.Add(permission);
+
+            return blockedList;
+        }
+
+        #endregion
+
+        #endregion
     }
 }
