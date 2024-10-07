@@ -42,12 +42,7 @@ namespace RightVisionBotDb
 
         public void Build()
         {
-            _logger.Information("Загрузка языковых файлов...");
-            Languages = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("Resources/Lang/ru.json", false)
-                .Build();
-            _logger.Information("Готово. Запуск бота...");
+            _logger.Information("Запуск бота...");
             try
             {
                 Client = new TelegramBotClient(App.Configuration.GetSection(nameof(Bot))["Token"]!);
@@ -55,26 +50,26 @@ namespace RightVisionBotDb
                 var cancellationToken = cts.Token;
                 var receiverOptions = new ReceiverOptions { AllowedUpdates = [UpdateType.CallbackQuery, UpdateType.Message, UpdateType.ChatMember] };
                 Client.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cancellationToken);
-                _logger.Information("Готово.");
+                _logger.Information("Бот успешно запущен!");
             }
             catch (Exception ex)
             {
                 _logger.Fatal(ex, "Не удалось запустить бота!");
                 throw;
             }
-
-            BuildLanguage();
-        }
-
-        private void BuildLanguage()
-        {
-            _logger.Information("Сборка языка...");
-            Language.Build(Languages, Enums.Lang.Ru);
-            _logger.Information("Готово.");
         }
 
         public void RegisterBot()
         {
+            _logger.Information("Загрузка языковых файлов...");
+            Languages = new ConfigurationBuilder()
+                .SetBasePath(Environment.CurrentDirectory)
+                .AddJsonFile("Resources/Lang/ru.json", false)
+                .Build();
+
+            Language.Build(Languages, Enums.Lang.Ru);
+            _logger.Information("Сборка языковых файлов завершена.");
+
             _logger.Information("Инициализация RvLogger...");
             RvLogger = App.Container.Resolve<RvLogger>();
 
@@ -87,11 +82,6 @@ namespace RightVisionBotDb
 
             App.DefaultRightVision = App.Configuration.GetSection("Contest")["DefaultRightVision"] ?? throw new NullReferenceException(nameof(App.DefaultRightVision));
 
-            _logger.Information("Регистрация локаций...");
-            App.Container.Register<Start>();
-            App.Container.Register<MainMenu>();
-            App.Container.Register<Profile>();
-
             RegisterLocations();
 
             Build();
@@ -99,6 +89,12 @@ namespace RightVisionBotDb
 
         private void RegisterLocations()
         {
+            _logger.Information("Регистрация локаций...");
+            App.Container.Register<Start>();
+            App.Container.Register<MainMenu>();
+            App.Container.Register<Profile>();
+            App.Container.Register<CriticForm>();
+
             LocationManager
                 .RegisterLocation(nameof(Start), typeof(Start))
                 .RegisterLocation(nameof(MainMenu), typeof(MainMenu))

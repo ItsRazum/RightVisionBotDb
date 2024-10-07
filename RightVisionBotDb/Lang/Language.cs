@@ -20,7 +20,6 @@ namespace RightVisionBotDb.Lang
             }
 
             App.RegisteredLangs = langs;
-            Log.Logger?.Information("Сборка языковых файлов завершена.");
         }
 
         public static string GetUserStatusString(Status s, Enums.Lang lang) =>
