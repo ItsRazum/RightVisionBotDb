@@ -11,6 +11,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb
 {
@@ -35,8 +36,8 @@ namespace RightVisionBotDb
             _logger = logger;
             LocationManager = locationManager ?? throw new NullReferenceException(nameof(locationManager));
             DatabaseService = databaseService ?? throw new NullReferenceException(nameof(databaseService));
-            LogMessages = logMessages ?? throw new NullReferenceException(nameof(logMessages));
-            Keyboards = keyboards ?? throw new NullReferenceException(nameof(keyboards));
+            LogMessages     = logMessages ?? throw new NullReferenceException(nameof(logMessages));
+            Keyboards       = keyboards ?? throw new NullReferenceException(nameof(keyboards));
 
         }
 
@@ -82,24 +83,15 @@ namespace RightVisionBotDb
 
             App.DefaultRightVision = App.Configuration.GetSection("Contest")["DefaultRightVision"] ?? throw new NullReferenceException(nameof(App.DefaultRightVision));
 
-            RegisterLocations();
-
-            Build();
-        }
-
-        private void RegisterLocations()
-        {
             _logger.Information("Регистрация локаций...");
-            App.Container.Register<Start>();
-            App.Container.Register<MainMenu>();
-            App.Container.Register<Profile>();
-            App.Container.Register<CriticForm>();
 
             LocationManager
-                .RegisterLocation(nameof(Start), typeof(Start))
-                .RegisterLocation(nameof(MainMenu), typeof(MainMenu))
-                .RegisterLocation(nameof(Profile), typeof(Profile))
-                .RegisterLocation(nameof(CriticForm), typeof(CriticForm));
+                .RegisterLocation<Start>(nameof(Start))
+                .RegisterLocation<MainMenu>(nameof(MainMenu))
+                .RegisterLocation<Profile>(nameof(Profile))
+                .RegisterLocation<CriticForm>(nameof(CriticForm));
+
+            Build();
         }
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken token)
@@ -172,6 +164,8 @@ namespace RightVisionBotDb
                     $"\n", "Входящее сообщение");
 
                 rvUser = db.RvUsers.FirstOrDefault(u => u.UserId == message.From!.Id);
+                if (message.Text == "/hide")
+                    await Client.SendTextMessageAsync(message.Chat, "спрятано", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
                 if (message.Text == "/start")
                 {
                     var location = LocationManager[nameof(Start)];
@@ -206,6 +200,9 @@ namespace RightVisionBotDb
             {
                 await RvLogger.Log(LogMessages.UserChangedLocation(rvUser, e), rvUser, token);
             }
+
+            if (db.ChangeTracker.HasChanges())
+                await db.SaveChangesAsync(token);
         }
 
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

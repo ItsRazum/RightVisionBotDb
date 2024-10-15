@@ -2,29 +2,37 @@
 using RightVisionBotDb.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EasyForms.Types;
+using EasyForms.Attributes;
+using Serilog;
 
 namespace RightVisionBotDb.Models.Forms
 {
-    public class CriticForm : IForm
+    public class CriticForm : Form, IForm
     {
 
         #region Properties
 
-        public string Name { get; set; }
-        public string Link { get; set; }
-        public string AboutYou { get; set; }
-        public string WhyYou { get; set; }
+        [FormField(1)]
+        public string Name { get; set; } = "0";
+        [FormField(2)]
+        public string Link { get; set; } = "0";
+        [FormField(4)]
+        public string AboutYou { get; set; } = "0";
+        [FormField(5)]
+        public string WhyYou { get; set; } = "0";
 
         #region IForm Properties
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long UserId { get; set; }
-        public string Telegram { get; set; }
-        public int Rate { get; set; }
-        public Category Category { get; set; }
-        public long CuratorId { get; set; }
-        public FormStatus Status { get; set; }
+        public long UserId { get; set; } = 0;
+        public string Telegram { get; set; } = "0";
+        [FormField(3)]
+        public int Rate { get; set; } = 0;
+        public Category Category { get; set; } = Category.None;
+        public long CuratorId { get; set; } = 0;
+        public FormStatus Status { get; set; } = FormStatus.NotFinished;
 
         #endregion
 
@@ -42,13 +50,17 @@ namespace RightVisionBotDb.Models.Forms
 
         public void Accept(Category category)
         {
+            if (Status == FormStatus.Accepted) return;
 
+            Status = FormStatus.Accepted;
             FormAccepted?.Invoke(this, category);
         }
 
         public void Deny()
         {
+            if (Status == FormStatus.Denied) return;
 
+            Status = FormStatus.Denied;
             FormDenied?.Invoke(this, new EventArgs());
         }
 
@@ -60,5 +72,18 @@ namespace RightVisionBotDb.Models.Forms
 
         #endregion
 
+        #region Constructor
+
+        public CriticForm()
+        {
+        }
+
+        public CriticForm(long userId, string telegram)
+        {
+            UserId = userId;
+            Telegram = "@" + telegram;
+        }
+
+        #endregion
     }
 }

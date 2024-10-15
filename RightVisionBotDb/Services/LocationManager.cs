@@ -10,12 +10,10 @@ namespace RightVisionBotDb.Services
         {
         }
 
-        public LocationManager RegisterLocation(string locationName, Type locationType)
+        public LocationManager RegisterLocation<TLocation>(string locationKey) where TLocation : IRvLocation
         {
-            if (!typeof(IRvLocation).IsAssignableFrom(locationType))
-                throw new ArgumentException($"Тип {locationType} не реализует интерфейс IRvLocation");
-
-            Add(locationName, (IRvLocation)App.Container.Resolve(locationType));
+            App.Container.Register<TLocation>(Reuse.Singleton);
+            Add(locationKey, App.Container.Resolve<TLocation>());
 
             return this;
         }

@@ -10,7 +10,7 @@ using Telegram.Bot.Types;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class Start : RvLocationBase
+    internal sealed class Start : RvLocation
     {
 
         #region Constructor

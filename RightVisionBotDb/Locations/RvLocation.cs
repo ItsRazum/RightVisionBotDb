@@ -4,7 +4,7 @@ using RightVisionBotDb.Types;
 
 namespace RightVisionBotDb.Locations
 {
-    public abstract class RvLocationBase : IRvLocation
+    public abstract class RvLocation : IRvLocation
     {
         #region Properties
 
@@ -22,7 +22,7 @@ namespace RightVisionBotDb.Locations
 
         #region Constructor
 
-        public RvLocationBase(
+        public RvLocation(
             Bot bot,
             Keyboards keyboards,
             LocationManager locationManager,

@@ -2,6 +2,7 @@
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Services
 {
@@ -37,9 +38,6 @@ namespace RightVisionBotDb.Services
                 string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
                 replyMarkup: Keyboards.MainMenu(c.RvUser),
                 cancellationToken: token);
-
-            if (c.DbContext.ChangeTracker.HasChanges())
-                await c.DbContext.SaveChangesAsync(token);
         }
 
         public async Task Profile(CallbackContext c, CancellationToken token = default)
@@ -51,9 +49,6 @@ namespace RightVisionBotDb.Services
                 ProfileStringService.Private(c.RvUser, App.DefaultRightVision),
                 replyMarkup: Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, c.RvUser.Lang),
                 cancellationToken: token);
-
-            if (c.DbContext.ChangeTracker.HasChanges())
-                await c.DbContext.SaveChangesAsync(token);
         }
 
         public async Task FormSelection(CallbackContext c, CancellationToken token = default)
@@ -79,19 +74,17 @@ namespace RightVisionBotDb.Services
         public async Task CriticForm(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationManager[nameof(Locations.CriticForm)];
-            await Bot.Client.DeleteMessageAsync(
+            await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat, 
-                c.CallbackQuery.Message.MessageId, 
-                token);
+                c.CallbackQuery.Message.MessageId,
+                Language.Phrases[c.RvUser.Lang].Messages.Common.StartingForm,
+                cancellationToken: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
                 Language.Phrases[c.RvUser.Lang].Messages.Critic.EnterName,
                 replyMarkup: Keyboards.ReplyBack(c.RvUser.Lang),
                 cancellationToken: token);
-
-            if (c.DbContext.ChangeTracker.HasChanges())
-                await c.DbContext.SaveChangesAsync(token);
         }
     }
 }

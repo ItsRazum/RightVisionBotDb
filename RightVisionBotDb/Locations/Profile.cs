@@ -1,11 +1,20 @@
 ﻿using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Lang;
+using RightVisionBotDb.Lang.Phrases;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Types;
+using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class Profile : RvLocationBase, IRvLocation
+    internal sealed class Profile : RvLocation, IRvLocation
     {
+
+        #region Properties
+
+        private DatabaseService DatabaseService { get; }
+
+        #endregion
 
         #region Constructor
 
@@ -16,16 +25,20 @@ namespace RightVisionBotDb.Locations
             RvLogger logger,
             LogMessages logMessages,
             LocationsFront locationsFront,
-            ProfileStringService profileStringService)
+            ProfileStringService profileStringService,
+            DatabaseService databaseService)
             : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
         {
+            DatabaseService = databaseService;
+
             this
                 .RegisterCallbackCommand("back", BackCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
                 .RegisterCallbackCommand("permissions_minimized", PermissionsMinimized)
                 .RegisterCallbackCommand("permissions_maximized", PermissionsMaximized)
-                .RegisterCallbackCommand("permissions_back", BackCallback);
+                .RegisterCallbackCommand("permissions_back", BackCallback)
+                .RegisterCallbackCommand("criticForm", CriticFormCallback);
         }
 
         #endregion
@@ -44,7 +57,20 @@ namespace RightVisionBotDb.Locations
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            await LocationsFront.FormSelection(c, token);
+            using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
+
+            if (rvdb.Status == Enums.RightVisionStatus.Irrelevant) 
+            {
+                await Bot.Client.AnswerCallbackQueryAsync(
+                    c.CallbackQuery.Id, 
+                    Language.Phrases[c.RvUser.Lang].Messages.Common.EnrollmentClosed, 
+                    showAlert: true, 
+                    cancellationToken: token);
+            }
+            else
+            {
+                await LocationsFront.FormSelection(c, token);
+            }
         }
 
         private async Task PermissionsMinimized(CallbackContext c, CancellationToken token = default)
@@ -57,6 +83,14 @@ namespace RightVisionBotDb.Locations
         {
             var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_maximized-", ""));
             await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), false, token);
+        }
+
+        private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationManager["CriticForm"];
+            var criticForm = new Models.Forms.CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username ?? string.Empty);
+            c.DbContext.CriticForms.Add(criticForm);
+            await LocationsFront.CriticForm(c, token);
         }
 
         #endregion

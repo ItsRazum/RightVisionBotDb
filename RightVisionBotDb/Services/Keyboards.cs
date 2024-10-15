@@ -159,6 +159,8 @@ namespace RightVisionBotDb.Services
             return new(buttons);
         }
 
-        public ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back));
+        public ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
+
+        public InlineKeyboardMarkup CriticCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над судьёй", $"c_accept-{userId}"));
     }
 }

@@ -718,6 +718,16 @@
             "related": ".pdb;.xml"
           }
         }
+      },
+      "EasyForms/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/EasyForms.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/EasyForms.dll": {}
+        }
       }
     }
   },
@@ -1787,11 +1797,17 @@
         "telegram.bot.19.0.0.nupkg.sha512",
         "telegram.bot.nuspec"
       ]
+    },
+    "EasyForms/1.0.0": {
+      "type": "project",
+      "path": "../../../../../Users/kriso/source/repos/EasyForms/EasyForms/EasyForms.csproj",
+      "msbuildProject": "../../../../../Users/kriso/source/repos/EasyForms/EasyForms/EasyForms.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "DryIoc.dll >= 5.4.3",
+      "EasyForms >= 1.0.0",
       "Microsoft.EntityFrameworkCore.Sqlite.Core >= 8.0.4",
       "Microsoft.Extensions.Configuration >= 8.0.0",
       "Microsoft.Extensions.Configuration.Binder >= 8.0.2",
@@ -1838,7 +1854,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\kriso\\source\\repos\\EasyForms\\EasyForms\\EasyForms.csproj": {
+              "projectPath": "C:\\Users\\kriso\\source\\repos\\EasyForms\\EasyForms\\EasyForms.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

@@ -1,5 +1,6 @@
 ﻿namespace RightVisionBotDb.Permissions;
 
+[Flags]
 public enum Permission
 {
     /// <summary>

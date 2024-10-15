@@ -6,17 +6,27 @@ using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class MainMenu : RvLocationBase
+    internal sealed class MainMenu : RvLocation
     {
+        #region Properties
+
+        private DatabaseService DatabaseService { get; }
+
+        #endregion
+
+
         public MainMenu(
             Bot bot,
             Keyboards keyboards,
             LocationManager locationManager,
             RvLogger logger,
             LogMessages logMessages,
-            LocationsFront locationsFront)
+            LocationsFront locationsFront,
+            DatabaseService databaseService)
             : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
         {
+            DatabaseService = databaseService;
+
             this
                 .RegisterCallbackCommand("back", BackCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
@@ -49,9 +59,22 @@ namespace RightVisionBotDb.Locations
             await LocationsFront.Profile(c, token);
         }
 
-        private async Task FormsCallback(CallbackContext c, CancellationToken token)
+        private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            await LocationsFront.FormSelection(c, token);
+            using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
+
+            if (rvdb.Status == Enums.RightVisionStatus.Irrelevant)
+            {
+                await Bot.Client.AnswerCallbackQueryAsync(
+                    c.CallbackQuery.Id,
+                    Language.Phrases[c.RvUser.Lang].Messages.Common.EnrollmentClosed,
+                    showAlert: true,
+                    cancellationToken: token);
+            }
+            else
+            {
+                await LocationsFront.FormSelection(c, token);
+            }
         }
     }
 }
