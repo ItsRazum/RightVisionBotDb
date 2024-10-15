@@ -7,6 +7,7 @@ using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Types;
 using Serilog;
+using System;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -82,6 +83,44 @@ namespace RightVisionBotDb
                 .Build();
 
             App.DefaultRightVision = App.Configuration.GetSection("Contest")["DefaultRightVision"] ?? throw new NullReferenceException(nameof(App.DefaultRightVision));
+            App.RightVisionDatabasesPath = App.Configuration.GetSection("Data")["RightVisionDatabasesPath"] ?? throw new NullReferenceException("RightVisionDatabasesPath");
+
+            _logger.Information("Проверка баз данных...");
+            DirectoryInfo? info = null;
+            if (!Directory.Exists(App.RightVisionDatabasesPath))
+            {
+                _logger.Warning("Не удалось найти папку RightVision. Создаётся новая...");
+                info = Directory.CreateDirectory(App.RightVisionDatabasesPath);
+                _logger.Information("Успешно создана папка по пути {0}", info.FullName);
+            }
+
+            info ??= new DirectoryInfo(App.RightVisionDatabasesPath);
+
+            var rightVisions =
+                Directory.GetFiles(info.FullName)
+                .Where(s => s.EndsWith(".db"))
+                .Select(s => s.Split("\\")
+                .Last())
+                .OrderBy(s => s)
+                .ToArray();
+
+            if (rightVisions.Length == 0)
+            {
+                _logger.Warning("В папке нет ни одной базы данных, создаётся база данных с названием {0}...", App.DefaultRightVision);
+                using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
+                rightVisions =
+                    Directory.GetFiles(info.FullName) 
+                    .Where(s => s.EndsWith(".db"))
+                    .Select(s => s.Split("\\")
+                    .Last())
+                    .OrderBy(s => s)
+                    .ToArray();
+            }
+            App.AllRightVisions = 
+                rightVisions
+                .Select(s => s.Replace(".db", string.Empty))
+                .ToArray();
+            
 
             _logger.Information("Регистрация локаций...");
 
@@ -89,7 +128,7 @@ namespace RightVisionBotDb
                 .RegisterLocation<Start>(nameof(Start))
                 .RegisterLocation<MainMenu>(nameof(MainMenu))
                 .RegisterLocation<Profile>(nameof(Profile))
-                .RegisterLocation<CriticForm>(nameof(CriticForm));
+                .RegisterLocation<CriticFormLocation>(nameof(CriticFormLocation));
 
             Build();
         }
@@ -101,113 +140,152 @@ namespace RightVisionBotDb
 
             RvUser? rvUser = null;
             using var db = DatabaseService.GetApplicationDbContext();
-            if (callbackQuery != null)
+
+            ChatType chatType;
+            bool containsArgs = false;
+
+            try
             {
-                _logger.Information("=== {0} ===" +
-                    $"\nCallbackId: {callbackQuery.Id}" +
-                    $"\nCallbackData: {callbackQuery.Data}" +
-                    $"\n" +
-                    $"\nId отправителя: {callbackQuery.From.Id}" +
-                    $"\nUsername отправителя: {"@" + callbackQuery.From.Username}" +
-                    $"\nИмя отправителя: {callbackQuery.From.FirstName}" +
-                    $"\n" +
-                    $"\nЧат: {callbackQuery.Message?.Chat.Type}" +
-                    $"\nId чата: {callbackQuery.Message?.Chat.Id}" +
-                    $"\n", "Входящий Callback");
-                rvUser = db.RvUsers.FirstOrDefault(u => u.UserId == callbackQuery.From.Id);
-                if (rvUser != null)
+                if (callbackQuery != null)
                 {
-                    var callbackContext = new CallbackContext(rvUser, callbackQuery, db);
-                    var containsArgs = false;
-                    if (callbackContext.CallbackQuery.Data!.Contains('-'))
-                        containsArgs = true;
+                    _logger.Information("=== {0} ===" +
+                        $"\nCallbackId: {callbackQuery.Id}" +
+                        $"\nCallbackData: {callbackQuery.Data}" +
+                        $"\n" +
+                        $"\nId отправителя: {callbackQuery.From.Id}" +
+                        $"\nUsername отправителя: {"@" + callbackQuery.From.Username}" +
+                        $"\nИмя отправителя: {callbackQuery.From.FirstName}" +
+                        $"\n" +
+                        $"\nЧат: {callbackQuery.Message?.Chat.Type}" +
+                        $"\nId чата: {callbackQuery.Message?.Chat.Id}" +
+                        $"\n", "Входящий Callback");
 
-                    rvUser.LocationChanged += OnLocationChanged;
-                    await rvUser.Location.HandleCallbackAsync(callbackContext, containsArgs, token);
-                }
-                else
-                {
-                    if (callbackQuery.Message!.Chat.Type == ChatType.Private)
-                        await Client.DeleteMessageAsync(callbackQuery.Message.Chat, callbackQuery.Message.MessageId, token);
+                    rvUser = db.RvUsers.FirstOrDefault(u => u.UserId == callbackQuery.From.Id);
+                    if (rvUser != null)
+                    {
+                        var callbackContext = new CallbackContext(rvUser, callbackQuery, db);
 
-                    await Client.AnswerCallbackQueryAsync(callbackQuery.Id, "Похоже, твои данные повреждены или утеряны. Для дальнейшего взаимодействия с ботом тебе необходимо повторно выбрать свой язык", cancellationToken: token);
-                    rvUser = new RvUser(callbackQuery.From.Id, Enums.Lang.Na, callbackQuery.From.FirstName, callbackQuery.From.Username, LocationManager["Start"]);
-                    var success = false;
-                    try
-                    {
-                        await Client.SendTextMessageAsync(rvUser.UserId, "Choose Lang:", replyMarkup: Keyboards.СhooseLang, cancellationToken: token);
-                        success = true;
-                    }
-                    catch
-                    {
-                        _logger.Warning("Произошла попытка отправить сообщение пользователю, с которым ещё не было чата!");
-                    }
+                        containsArgs = callbackContext.CallbackQuery.Data!.Contains('-');
+                        chatType = callbackQuery.Message!.Chat.Type;
 
-                    if (success)
-                    {
-                        db.RvUsers.Add(rvUser);
-                        await db.SaveChangesAsync(token);
-                    }
-                }
-            }
-            else if (message != null && message.From != null)
-            {
-                _logger.Information("=== {0} ===" +
-                    $"\nId отправителя: {message.From?.Id}" +
-                    $"\nUsername отправителя: {"@" + message.From?.Username}" +
-                    $"\nИмя отправителя: {message.From?.FirstName}" +
-                    $"\n" +
-                    $"\nТекст сообщения: {message.Text}" +
-                    $"\n" +
-                    $"\nЧат: {message.Chat.Type}" +
-                    $"\nId чата: {message.Chat.Id}" +
-                    $"\n", "Входящее сообщение");
+                        rvUser.LocationChanged += OnLocationChanged;
 
-                rvUser = db.RvUsers.FirstOrDefault(u => u.UserId == message.From!.Id);
-                if (message.Text == "/hide")
-                    await Client.SendTextMessageAsync(message.Chat, "спрятано", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
-                if (message.Text == "/start")
-                {
-                    var location = LocationManager[nameof(Start)];
-                    if (rvUser == null)
-                    {
-                        rvUser = new RvUser(message.From!.Id, Enums.Lang.Na, message.From.FirstName, message.From.Username, location);
-                        db.RvUsers.Add(rvUser);
-                        await db.SaveChangesAsync(token);
+                        if (chatType != ChatType.Private)
+                            await LocationManager[nameof(PublicChat)].HandleCallbackAsync(callbackContext, containsArgs, token);
+
+                        else
+                            await rvUser.Location.HandleCallbackAsync(callbackContext, containsArgs, token);
                     }
                     else
                     {
-                        rvUser.Location = location;
-                        await db.SaveChangesAsync(token);
+                        if (callbackQuery.Message!.Chat.Type == ChatType.Private)
+                            await Client.DeleteMessageAsync(callbackQuery.Message.Chat, callbackQuery.Message.MessageId, token);
+
+                        await Client.AnswerCallbackQueryAsync(callbackQuery.Id, "Похоже, твои данные повреждены или утеряны. Для дальнейшего взаимодействия с ботом тебе необходимо повторно выбрать свой язык", cancellationToken: token);
+                        rvUser = new RvUser(callbackQuery.From.Id, Enums.Lang.Na, callbackQuery.From.FirstName, callbackQuery.From.Username, LocationManager["Start"]);
+                        var success = false;
+                        try
+                        {
+                            await Client.SendTextMessageAsync(rvUser.UserId, "Choose Lang:", replyMarkup: Keyboards.СhooseLang, cancellationToken: token);
+                            success = true;
+                        }
+                        catch
+                        {
+                            _logger.Warning("Произошла попытка отправить сообщение пользователю, с которым ещё не было чата!");
+                        }
+
+                        if (success)
+                        {
+                            db.RvUsers.Add(rvUser);
+                            await db.SaveChangesAsync(token);
+                        }
                     }
                 }
+                else if (message != null && message.From != null)
+                {
+                    _logger.Information("=== {0} ===" +
+                        $"\nId отправителя: {message.From?.Id}" +
+                        $"\nUsername отправителя: {"@" + message.From?.Username}" +
+                        $"\nИмя отправителя: {message.From?.FirstName}" +
+                        $"\n" +
+                        $"\nТекст сообщения: {message.Text}" +
+                        $"\n" +
+                        $"\nЧат: {message.Chat.Type}" +
+                        $"\nId чата: {message.Chat.Id}" +
+                        $"\n", "Входящее сообщение");
 
+                    rvUser = db.RvUsers.FirstOrDefault(u => u.UserId == message.From!.Id);
+                    if (message.Text == "/hide")
+                        await Client.SendTextMessageAsync(message.Chat, "спрятано", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
+                    if (message.Text == "/start")
+                    {
+                        if (message.Chat.Type == ChatType.Private)
+                        {
+                            var location = LocationManager[nameof(Start)];
+                            if (rvUser == null)
+                            {
+                                rvUser = new RvUser(message.From!.Id, Enums.Lang.Na, message.From.FirstName, message.From.Username, location);
+                                db.RvUsers.Add(rvUser);
+                                await db.SaveChangesAsync(token);
+                            }
+                            else
+                            {
+                                rvUser.Location = location;
+                                await db.SaveChangesAsync(token);
+                            }
+                        }
+                    }
+
+                    if (rvUser != null)
+                    {
+                        var commandContext = new CommandContext(rvUser, message, db);
+
+                        containsArgs = commandContext.Message.Text != null && commandContext.Message.Text.Contains(' ');
+                        chatType = message.Chat.Type;
+
+                        rvUser.LocationChanged += OnLocationChanged;
+
+                        if (chatType != ChatType.Private)
+                            await LocationManager[nameof(PublicChat)].HandleCommandAsync(commandContext, containsArgs, token);
+
+                        else
+                            await rvUser.Location.HandleCommandAsync(commandContext, containsArgs, token);
+                    }
+                }
+                if (rvUser != null)
+                    rvUser.LocationChanged -= OnLocationChanged;
+
+                async void OnLocationChanged(object? sender, (IRvLocation, IRvLocation) e)
+                {
+                    await RvLogger.Log(LogMessages.UserChangedLocation(rvUser, e), rvUser, token);
+                }
+
+                if (db.ChangeTracker.HasChanges())
+                    await db.SaveChangesAsync(token);
+            }
+            catch (Exception ex) 
+            {
+                _logger.Error(ex, "Произошла ошибка при обработке входящего обновления!");
                 if (rvUser != null)
                 {
-                    var commandContext = new CommandContext(rvUser, message, db);
-                    var containsArgs = false;
-                    if (commandContext.Message.Text != null && commandContext.Message.Text.Contains(' '))
-                        containsArgs = true;
-
-                    rvUser.LocationChanged += OnLocationChanged;
-                    await rvUser.Location.HandleCommandAsync(commandContext, containsArgs, token);
+                    await Client.SendTextMessageAsync(rvUser.UserId, "Произошла непредвиденная ошибка", cancellationToken: token);
+                    await Client.SendTextMessageAsync(901152811, 
+                        $"Произошла ошибка: {ex.Message}" +
+                        $"\n" +
+                        $"\nСтек вызовов:" +
+                        $"\n{ex.StackTrace}" +
+                        $"\n" +
+                        $"\nRvUser Id: {rvUser.UserId}" +
+                        $"\nRvUser Telegram: {rvUser.Telegram}" +
+                        $"\nRvUser Location: {rvUser.Location}" +
+                        $"\nRvUser Lang: {rvUser.Lang}", cancellationToken: token);
                 }
-            }
-            if (rvUser != null)
-                rvUser.LocationChanged -= OnLocationChanged;
 
-            async void OnLocationChanged(object? sender, (IRvLocation, IRvLocation) e)
-            {
-                await RvLogger.Log(LogMessages.UserChangedLocation(rvUser, e), rvUser, token);
             }
-
-            if (db.ChangeTracker.HasChanges())
-                await db.SaveChangesAsync(token);
         }
 
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.Error(exception, "Произошла ошибка при обработке входящего обновления!");
             return Task.CompletedTask;
         }
     }

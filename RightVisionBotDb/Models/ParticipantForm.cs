@@ -3,27 +3,40 @@ using RightVisionBotDb.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RightVisionBotDb.Models.Forms
+namespace RightVisionBotDb.Models
 {
     public class ParticipantForm : IForm
     {
 
         #region Properties
 
-        public string Name { get; set; }
-        public string Link { get; set; }
-        public string Track { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;
+        public string Track { get; set; } = string.Empty;
+
+        #region Legacy
+
+        /// <summary>
+        /// Legacy, размечать в форме не рекомендуется
+        /// </summary>
+        public string? Country { get; set; }
+        /// <summary>
+        /// Legacy, размечать в форме не рекомендуется
+        /// </summary>
+        public string? City { get; set; }
+
+        #endregion
 
         #region IForm Properties
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long UserId { get; set; }
-        public string Telegram { get; set; }
-        public int Rate { get; set; }
-        public Category Category { get; set; }
-        public long CuratorId { get; set; }
-        public FormStatus Status { get; set; }
+        public long UserId { get; set; } = default;
+        public string Telegram { get; set; } = string.Empty;
+        public int Rate { get; set; } = default;
+        public Category Category { get; set; } = Category.None;
+        public long CuratorId { get; set; } = default;
+        public FormStatus Status { get; set; } = FormStatus.NotFinished;
 
         #endregion
 

@@ -1,6 +1,8 @@
-﻿using RightVisionBotDb.Lang;
+﻿using RightVisionBotDb.Data;
+using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Permissions;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -8,11 +10,15 @@ namespace RightVisionBotDb.Services
 {
     public sealed class Keyboards
     {
-        private LocationManager LocationManager { get; set; }
+        private DatabaseService DatabaseService { get; }
+        private LocationManager LocationManager { get; }
 
-        public Keyboards(LocationManager locationManager) 
+        public Keyboards(
+            LocationManager locationManager,
+            DatabaseService databaseService) 
         {
             LocationManager = locationManager;
+            DatabaseService = databaseService;
         }
 
         public InlineKeyboardMarkup СhooseLang => new(new InlineKeyboardButton[][]
@@ -28,7 +34,7 @@ namespace RightVisionBotDb.Services
 
         public InlineKeyboardMarkup MainMenu(RvUser rvUser)
         {
-            var rootLocation = LocationManager.LocationToString(LocationManager["MainMenu"]);
+            var rootLocation = LocationManager.LocationToString(LocationManager[nameof(Locations.MainMenu)]);
             return new(new[]
         {
             [
@@ -56,58 +62,93 @@ namespace RightVisionBotDb.Services
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, "back"),
             };
 
-        public static InlineKeyboardMarkup Profile(RvUser rvUser, ChatType type, Enums.Lang lang)
+        public async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Enums.Lang lang)
         {
-            InlineKeyboardButton[] top =
-            [
+            var userId = rvUser.UserId;
+            var rightVisions = App.AllRightVisions;
+            var participations = new Dictionary<string, ParticipantForm>();
+
+            foreach (var rightvisionName in rightVisions)
+            {
+                using var rvdb = DatabaseService.GetRightVisionContext(rightvisionName);
+                var form = rvdb.ParticipantForms
+                .FirstOrDefault(
+                        p => p.UserId == userId
+                        && p.Status == Enums.FormStatus.Accepted
+                        );
+
+                if (form != null)
+                    participations.Add(rightvisionName, form);
+            }
+
+            List<InlineKeyboardButton[]> keyboardLayers = new()
+            {
+                new [] { InlineKeyboardButton.WithCallbackData(rightvision, "global_rvProperties") }
+            };
+
+            List<InlineKeyboardButton> keyboardButtons = new();
+
+            var keys = participations.Keys.ToList();
+            var index = keys.IndexOf(rightvision);
+
+            if (index == -1)
+                throw new ArgumentException("Ключ не найден");
+
+            var startIndex = Math.Max(0, index - 1);
+            var endIndex = Math.Min(keys.Count - 1, index + 1);
+
+            var result = new Dictionary<string, ParticipantForm>();
+
+            for (var i = startIndex; i < endIndex; i++)
+            {
+                var currentKey = keys[i];
+                result[currentKey] = participations[currentKey];
+            }
+
+            switch (result.Count)
+            {
+                case 2:
+                    (string, string) values = result.Last().Key == rightvision
+                        ? ($"« {result.First().Key}", $"profile-{userId}-{result.First().Key}")
+                        : ($"{result.Last().Key} »", $"profile-{userId}-{result.Last().Key}");
+
+                    keyboardButtons.Add(InlineKeyboardButton.WithCallbackData(values.Item1, values.Item2));
+                    break;
+                case 3:
+                    keyboardButtons.Add(InlineKeyboardButton.WithCallbackData($"« {result.First().Key}", $"profile-{userId}-{result.First().Key}"));
+                    keyboardButtons.Add(InlineKeyboardButton.WithCallbackData($"{result.Last().Key} »", $"profile-{userId}-{result.Last().Key}"));
+                    break;
+            }
+
+            if (keyboardButtons.Count > 0)
+                keyboardLayers.Add([.. keyboardButtons]);
+
+            keyboardLayers.Add(
+                [
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PermissionsList, $"permissions_minimized-{rvUser.UserId}"),
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PunishmentsHistory, $"history-{rvUser.UserId}")
-            ];
+            ]);
 
-            InlineKeyboardButton[] back =
-            [
+            if (type == ChatType.Private) return keyboardLayers.ToArray();
+
+            keyboardLayers.Add([
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "mainmenu")
-            ];
+            ]);
 
-            InlineKeyboardButton[] criticMenu =
-            [
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.CriticMenu.Open, "opencriticmenu")
-            ];
 
-            InlineKeyboardButton[] bottom =
-            [
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Apply, "forms")
-            ];
-
-            InlineKeyboardButton[] memberButtons =
-            [
+            if (rvUser.Has(Permission.TrackCard))
+                keyboardLayers.Add([
                 //InlineKeyboardButton.WithCallbackData("✏️" + Language.GetPhrase("Keyboard_Choice_EditTrack", lang), "m_edittrack"),
                 //InlineKeyboardButton.WithCallbackData("📇" + Language.GetPhrase("Keyboard_Choice_SendTrack", lang), "m_openmenu"),
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.GetVisual, "getvisual")
-            ];
+            ]);
 
-            InlineKeyboardButton[] memberOptions = memberButtons;
-            InlineKeyboardButton[] criticOptions = criticMenu;
-            InlineKeyboardButton[] customOptions = criticOptions;
-            InlineKeyboardMarkup criticAndMember = new(new[] { top, back, criticOptions, memberOptions, bottom });
+            if (rvUser.Has(Permission.CriticMenu))
+                keyboardLayers.Add([
+                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.CriticMenu.Open, "opencriticmenu")
+            ]);
 
-            if (rvUser.Has(Permission.TrackCard) && !rvUser.Has(Permission.CriticMenu))
-                customOptions = memberOptions;
-
-            InlineKeyboardMarkup custom = new(new[]
-            {
-                top, back, customOptions, bottom
-            });
-
-            InlineKeyboardMarkup common = new(new[] { top, back, bottom });
-
-            if (!rvUser.Has(Permission.TrackCard) && !rvUser.Has(Permission.CriticMenu))
-                custom = common;
-
-            else if (rvUser.Has(Permission.TrackCard) && rvUser.Has(Permission.CriticMenu))
-                custom = criticAndMember;
-
-            return type != ChatType.Private ? top : custom;
+            return keyboardLayers.ToArray();
         }
 
         public InlineKeyboardMarkup FormSelection(RvUser rvUser)

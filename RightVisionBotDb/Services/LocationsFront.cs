@@ -47,7 +47,7 @@ namespace RightVisionBotDb.Services
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 ProfileStringService.Private(c.RvUser, App.DefaultRightVision),
-                replyMarkup: Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, c.RvUser.Lang),
+                replyMarkup: Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, c.RvUser.Lang),
                 cancellationToken: token);
         }
 
@@ -73,7 +73,7 @@ namespace RightVisionBotDb.Services
 
         public async Task CriticForm(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager[nameof(Locations.CriticForm)];
+            c.RvUser.Location = LocationManager[nameof(Locations.CriticFormLocation)];
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat, 
                 c.CallbackQuery.Message.MessageId,

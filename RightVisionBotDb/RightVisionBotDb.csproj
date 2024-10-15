@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Users\kriso\source\repos\EasyForms\EasyForms\EasyForms.csproj" />
+    <ProjectReference Include="..\..\EasyForms\EasyForms\EasyForms.csproj" />
   </ItemGroup>
 
 </Project>

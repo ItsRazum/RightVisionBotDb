@@ -7,7 +7,7 @@ using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class CriticForm : RvLocation
+    internal sealed class CriticFormLocation : RvLocation
     {
 
         #region Properties
@@ -23,7 +23,7 @@ namespace RightVisionBotDb.Locations
 
         #endregion
 
-        public CriticForm(
+        public CriticFormLocation(
             Bot bot,
             Keyboards keyboards,
             LocationManager locationManager,

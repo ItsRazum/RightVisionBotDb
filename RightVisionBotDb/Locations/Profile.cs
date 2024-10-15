@@ -1,7 +1,7 @@
 ﻿using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Lang.Phrases;
 using RightVisionBotDb.Services;
+using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
@@ -87,8 +87,8 @@ namespace RightVisionBotDb.Locations
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager["CriticForm"];
-            var criticForm = new Models.Forms.CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username ?? string.Empty);
+            c.RvUser.Location = LocationManager[nameof(CriticFormLocation)];
+            var criticForm = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username ?? string.Empty);
             c.DbContext.CriticForms.Add(criticForm);
             await LocationsFront.CriticForm(c, token);
         }
