@@ -1,4 +1,5 @@
-﻿using RightVisionBotDb.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Data;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Permissions;
@@ -32,10 +33,7 @@ namespace RightVisionBotDb.Services
             ]
         });
 
-        public InlineKeyboardMarkup MainMenu(RvUser rvUser)
-        {
-            var rootLocation = LocationManager.LocationToString(LocationManager[nameof(Locations.MainMenu)]);
-            return new(new[]
+        public InlineKeyboardMarkup MainMenu(RvUser rvUser) => new(new[]
         {
             [
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.About, "about"),
@@ -48,7 +46,6 @@ namespace RightVisionBotDb.Services
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.MyProfile, "profile")
             }
         });
-        }
 
         public InlineKeyboardMarkup About(RvUser rvUser) => new(new[]
 {
@@ -71,8 +68,8 @@ namespace RightVisionBotDb.Services
             foreach (var rightvisionName in rightVisions)
             {
                 using var rvdb = DatabaseService.GetRightVisionContext(rightvisionName);
-                var form = rvdb.ParticipantForms
-                .FirstOrDefault(
+                var form = await rvdb.ParticipantForms
+                .FirstOrDefaultAsync(
                         p => p.UserId == userId
                         && p.Status == Enums.FormStatus.Accepted
                         );
@@ -83,7 +80,7 @@ namespace RightVisionBotDb.Services
 
             List<InlineKeyboardButton[]> keyboardLayers = new()
             {
-                new [] { InlineKeyboardButton.WithCallbackData(rightvision, "global_rvProperties") }
+                new [] { InlineKeyboardButton.WithCallbackData(rightvision, $"rvProperties-{rightvision}") }
             };
 
             List<InlineKeyboardButton> keyboardButtons = new();
@@ -91,37 +88,37 @@ namespace RightVisionBotDb.Services
             var keys = participations.Keys.ToList();
             var index = keys.IndexOf(rightvision);
 
-            if (index == -1)
-                throw new ArgumentException("Ключ не найден");
-
-            var startIndex = Math.Max(0, index - 1);
-            var endIndex = Math.Min(keys.Count - 1, index + 1);
-
-            var result = new Dictionary<string, ParticipantForm>();
-
-            for (var i = startIndex; i < endIndex; i++)
+            if (index != -1)
             {
-                var currentKey = keys[i];
-                result[currentKey] = participations[currentKey];
+                var startIndex = Math.Max(0, index - 1);
+                var endIndex = Math.Min(keys.Count - 1, index + 1);
+
+                var result = new Dictionary<string, ParticipantForm>();
+
+                for (var i = startIndex; i < endIndex; i++)
+                {
+                    var currentKey = keys[i];
+                    result[currentKey] = participations[currentKey];
+                }
+
+                switch (result.Count)
+                {
+                    case 2:
+                        (string, string) values = result.Last().Key == rightvision
+                            ? ($"« {result.First().Key}", $"profile-{userId}-{result.First().Key}")
+                            : ($"{result.Last().Key} »", $"profile-{userId}-{result.Last().Key}");
+
+                        keyboardButtons.Add(InlineKeyboardButton.WithCallbackData(values.Item1, values.Item2));
+                        break;
+                    case 3:
+                        keyboardButtons.Add(InlineKeyboardButton.WithCallbackData($"« {result.First().Key}", $"profile-{userId}-{result.First().Key}"));
+                        keyboardButtons.Add(InlineKeyboardButton.WithCallbackData($"{result.Last().Key} »", $"profile-{userId}-{result.Last().Key}"));
+                        break;
+                }
+
+                if (keyboardButtons.Count > 0)
+                    keyboardLayers.Add([.. keyboardButtons]);
             }
-
-            switch (result.Count)
-            {
-                case 2:
-                    (string, string) values = result.Last().Key == rightvision
-                        ? ($"« {result.First().Key}", $"profile-{userId}-{result.First().Key}")
-                        : ($"{result.Last().Key} »", $"profile-{userId}-{result.Last().Key}");
-
-                    keyboardButtons.Add(InlineKeyboardButton.WithCallbackData(values.Item1, values.Item2));
-                    break;
-                case 3:
-                    keyboardButtons.Add(InlineKeyboardButton.WithCallbackData($"« {result.First().Key}", $"profile-{userId}-{result.First().Key}"));
-                    keyboardButtons.Add(InlineKeyboardButton.WithCallbackData($"{result.Last().Key} »", $"profile-{userId}-{result.Last().Key}"));
-                    break;
-            }
-
-            if (keyboardButtons.Count > 0)
-                keyboardLayers.Add([.. keyboardButtons]);
 
             keyboardLayers.Add(
                 [
@@ -129,7 +126,11 @@ namespace RightVisionBotDb.Services
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PunishmentsHistory, $"history-{rvUser.UserId}")
             ]);
 
-            if (type == ChatType.Private) return keyboardLayers.ToArray();
+            if (type != ChatType.Private) return keyboardLayers.ToArray();
+
+            keyboardLayers.Add([
+                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Apply, "forms")
+            ]);
 
             keyboardLayers.Add([
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "mainmenu")

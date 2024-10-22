@@ -1,9 +1,4 @@
-﻿using RightVisionBotDb.Data;
-using RightVisionBotDb.Models;
-using System;
-using Telegram.Bot.Types;
-
-namespace RightVisionBotDb.Types
+﻿namespace RightVisionBotDb.Types
 {
     public class RvCallbackCommand
     {

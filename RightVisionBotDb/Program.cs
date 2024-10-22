@@ -4,7 +4,7 @@ using Serilog;
 
 namespace RightVisionBotDb
 {
-    internal class Program
+    internal sealed class Program
     {
         public static void Main(string[] args)
         {
@@ -24,10 +24,11 @@ namespace RightVisionBotDb
             App.Container.Register<LogMessages>(Reuse.Singleton);
             App.Container.Register<Keyboards>(Reuse.Singleton);
             App.Container.Register<LocationsFront>(Reuse.Singleton);
+            App.Container.Register<CriticFormService>(Reuse.Singleton);
 
             App.Container.Register<Bot>(Reuse.Singleton);
 
-            App.Container.Resolve<Bot>().RegisterBot();
+            App.Container.Resolve<Bot>().Configure();
 
             Console.ReadLine();
         }

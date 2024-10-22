@@ -14,7 +14,7 @@ namespace RightVisionBotDb.Locations
         protected Bot Bot { get; }
         protected Keyboards Keyboards { get; }
         protected LocationManager LocationManager { get; }
-        protected RvLogger Logger { get; }
+        protected RvLogger RvLogger { get; }
         protected LogMessages LogMessages { get; }
         protected LocationsFront LocationsFront { get; }
 
@@ -30,12 +30,12 @@ namespace RightVisionBotDb.Locations
             LogMessages logMessages,
             LocationsFront locationsFront)
         {
-            Bot = bot ?? throw new ArgumentNullException(nameof(bot));
-            Keyboards = keyboards ?? throw new ArgumentNullException(nameof(keyboards));
-            LocationManager = locationManager ?? throw new ArgumentNullException(nameof(locationManager));
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            LogMessages = logMessages ?? throw new ArgumentNullException(nameof(logMessages));
-            LocationsFront = locationsFront ?? throw new ArgumentNullException(nameof(locationsFront));
+            Bot = bot;
+            Keyboards = keyboards;
+            LocationManager = locationManager;
+            RvLogger = logger;
+            LogMessages = logMessages;
+            LocationsFront = locationsFront;
 
             TextCommands = [];
             CallbackCommands = [];
@@ -87,7 +87,7 @@ namespace RightVisionBotDb.Locations
 
         public IRvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler)
         {
-            if(TextCommands.ContainsKey(command))
+            if (TextCommands.ContainsKey(command))
             {
                 throw new InvalidOperationException($"Команда {command} уже зарегистрирована в локации {this}.");
             }

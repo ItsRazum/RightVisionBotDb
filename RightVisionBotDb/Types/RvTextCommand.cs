@@ -1,8 +1,4 @@
-﻿using RightVisionBotDb.Data;
-using RightVisionBotDb.Models;
-using Telegram.Bot.Types;
-
-namespace RightVisionBotDb.Types
+﻿namespace RightVisionBotDb.Types
 {
     public class RvTextCommand
     {

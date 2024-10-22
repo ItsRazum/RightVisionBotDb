@@ -1,13 +1,15 @@
-﻿using RightVisionBotDb.Interfaces;
+﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
+using System.Globalization;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class Profile : RvLocation, IRvLocation
+    internal sealed class Profile : RvLocation
     {
 
         #region Properties
@@ -25,7 +27,6 @@ namespace RightVisionBotDb.Locations
             RvLogger logger,
             LogMessages logMessages,
             LocationsFront locationsFront,
-            ProfileStringService profileStringService,
             DatabaseService databaseService)
             : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
         {
@@ -59,7 +60,7 @@ namespace RightVisionBotDb.Locations
         {
             using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
 
-            if (rvdb.Status == Enums.RightVisionStatus.Irrelevant) 
+            if (rvdb.Status == RightVisionStatus.Irrelevant) 
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id, 
@@ -87,10 +88,19 @@ namespace RightVisionBotDb.Locations
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
         {
+            CriticForm criticForm;
             c.RvUser.Location = LocationManager[nameof(CriticFormLocation)];
-            var criticForm = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username ?? string.Empty);
-            c.DbContext.CriticForms.Add(criticForm);
-            await LocationsFront.CriticForm(c, token);
+            if (c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId) != null)
+                criticForm = c.DbContext.CriticForms.First(cf => cf.UserId == c.RvUser.UserId);
+
+            else
+            {
+                criticForm = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username ?? string.Empty);
+                c.DbContext.CriticForms.Add(criticForm);
+            }
+            if (criticForm.GetEmptyProperty(out var property))
+                await LocationsFront.CriticForm(c, criticForm.GetPropertyStep(property!.Name), token);
+
         }
 
         #endregion

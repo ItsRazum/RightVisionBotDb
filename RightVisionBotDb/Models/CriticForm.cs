@@ -1,10 +1,9 @@
-﻿using RightVisionBotDb.Enums;
+﻿using EasyForms.Attributes;
+using EasyForms.Types;
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using EasyForms.Types;
-using EasyForms.Attributes;
-using Serilog;
 
 namespace RightVisionBotDb.Models
 {

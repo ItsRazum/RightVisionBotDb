@@ -1,5 +1,4 @@
 ﻿using RightVisionBotDb.Lang;
-using RightVisionBotDb.Models;
 using RightVisionBotDb.Permissions;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Types;
@@ -12,14 +11,7 @@ namespace RightVisionBotDb.Locations
 
         #region Properties
 
-        private static readonly Dictionary<int, Func<Enums.Lang, string>> Messages = new()
-        {
-            { 1, lang => Language.Phrases[lang].Messages.Critic.EnterName },
-            { 2, lang => Language.Phrases[lang].Messages.Critic.EnterLink },
-            { 3, lang => Language.Phrases[lang].Messages.Critic.EnterRate },
-            { 4, lang => Language.Phrases[lang].Messages.Critic.EnterAboutYou },
-            { 5, lang => Language.Phrases[lang].Messages.Critic.EnterWhyYou }
-        };
+        private CriticFormService CriticFormService { get; }
 
         #endregion
 
@@ -29,9 +21,12 @@ namespace RightVisionBotDb.Locations
             LocationManager locationManager,
             RvLogger logger,
             LogMessages logMessages,
-            LocationsFront locationsFront)
+            LocationsFront locationsFront,
+            CriticFormService criticFormService)
             : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
         {
+            CriticFormService = criticFormService;
+
             foreach (var lang in App.RegisteredLangs)
             {
                 RegisterTextCommand(Language.Phrases[lang].KeyboardButtons.Back, BackCommand);
@@ -52,10 +47,9 @@ namespace RightVisionBotDb.Locations
 
             else
             {
-                var property = form.GetEmptyProperty();
-                if (property != null)
+                if (form.GetEmptyProperty(out var property))
                 {
-                    if (property.Name == "Rate")
+                    if (property!.Name == "Rate")
                     {
                         if (int.TryParse(c.Message.Text!, out var rate))
                             form.SetPropertyValue(property.Name, rate);
@@ -69,10 +63,9 @@ namespace RightVisionBotDb.Locations
                     else
                         form.SetPropertyValue(property.Name, c.Message.Text);
 
-                    property = form.GetEmptyProperty();
-                    if (property != null)
+                    if (form.GetEmptyProperty(out property))
                     {
-                        if (Messages.TryGetValue(form.GetPropertyStep(property.Name), out var getMessage))
+                        if (CriticFormService.Messages.TryGetValue(form.GetPropertyStep(property!.Name), out var getMessage))
                             await Bot.Client.SendTextMessageAsync(c.Message.Chat, getMessage(c.RvUser.Lang), cancellationToken: token);
                     }
                     else
@@ -103,11 +96,10 @@ namespace RightVisionBotDb.Locations
             var form = c.DbContext.CriticForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null) return;
 
-            var property = form.GetEmptyProperty();
 
-            if (property != null)
+            if (form.GetEmptyProperty(out var property))
             {
-                var targetPropertyStep = form.GetPropertyStep(property.Name) - 1;
+                var targetPropertyStep = form.GetPropertyStep(property!.Name) - 1;
 
                 if (property.PropertyType == typeof(int))
                     form.SetPropertyValue(targetPropertyStep, 0);
@@ -116,14 +108,12 @@ namespace RightVisionBotDb.Locations
                     form.SetPropertyValue(targetPropertyStep, "0");
 
 
-                property = form.GetEmptyProperty();
-
-                if (property != null)
+                if (form.GetEmptyProperty(out property))
                 {
-                    if (form.GetPropertyStep(property.Name) == -1)
+                    if (form.GetPropertyStep(property!.Name) == -1)
                     {
                         c.DbContext.CriticForms.Remove(form);
-                        c.RvUser.Location = LocationManager["MainMenu"];
+                        c.RvUser.Location = LocationManager[nameof(MainMenu)];
                         await Bot.Client.SendTextMessageAsync(
                             c.Message.Chat,
                             Language.Phrases[c.RvUser.Lang].Messages.Common.SendFormRightNow,
@@ -132,7 +122,7 @@ namespace RightVisionBotDb.Locations
                     }
                     else
                     {
-                        if (Messages.TryGetValue(form.GetPropertyStep(property.Name), out var getMessage))
+                        if (CriticFormService.Messages.TryGetValue(form.GetPropertyStep(property.Name), out var getMessage))
                             await Bot.Client.SendTextMessageAsync(c.Message.Chat, getMessage(c.RvUser.Lang), cancellationToken: token);
                     }
                 }

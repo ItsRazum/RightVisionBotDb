@@ -41,7 +41,7 @@ namespace RightVisionBotDb.Locations
             var rvUser = c.RvUser;
             rvUser.Lang = Enum.Parse<Enums.Lang>(c.CallbackQuery.Data!);
             await LocationsFront.MainMenu(c, token);
-            await Logger.Log(LogMessages.Registration(rvUser), rvUser, token);
+            await RvLogger.Log(LogMessages.Registration(rvUser), rvUser, token);
         }
 
         private async Task StartCommand(CommandContext c, CancellationToken token = default)

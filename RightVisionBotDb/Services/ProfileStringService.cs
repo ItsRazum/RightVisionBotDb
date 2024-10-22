@@ -30,26 +30,32 @@ namespace RightVisionBotDb.Services
 
         #region Public methods
 
-        public string Public(RvUser user, Enums.Lang lang, string rightvision)
+        public string Public(RvUser targetRvUser, RvUser rvUser, string rightvision)
         {
+            var lang = rvUser.Lang;
             var phrases = Language.Phrases[lang];
             StringBuilder sb;
             sb = new StringBuilder();
-            sb.AppendLine(phrases.Profile.Headers.Global);
+
+            string header = targetRvUser == rvUser
+                ? phrases.Profile.Headers.Private
+                : string.Format(phrases.Profile.Headers.Global, targetRvUser.Name);
+
+            sb.AppendLine(header);
 
             sb.AppendLine(
-                "\n———\n"
+                "———\n"
                 + phrases.Profile.Properties.Status
-                + Language.GetUserStatusString(user.Status, lang));
+                + Language.GetUserStatusString(targetRvUser.Status, lang));
 
-            if (user.Role != Role.None)
+            if (targetRvUser.Role != Role.None)
                 sb.AppendLine(
                     phrases.Profile.Properties.Role
-                    + Language.GetUserRoleString(user.Role, lang) + "\n");
+                    + Language.GetUserRoleString(targetRvUser.Role, lang) + "\n");
 
             using (var db = DatabaseService.GetApplicationDbContext())
             {
-                var criticForm = db.CriticForms.FirstOrDefault(c => c.UserId == user.UserId);
+                var criticForm = db.CriticForms.FirstOrDefault(c => c.UserId == targetRvUser.UserId && c.Status == FormStatus.Accepted);
                 if (criticForm != null)
                     sb.AppendLine(
                         phrases.Profile.Properties.CategoryCritic
@@ -58,25 +64,39 @@ namespace RightVisionBotDb.Services
 
             using (var db = DatabaseService.GetRightVisionContext(rightvision))
             {
-                var memberForm = db.ParticipantForms.FirstOrDefault(m => m.Status == FormStatus.Accepted && m.UserId == user.UserId);
+                var memberForm = db.ParticipantForms.FirstOrDefault(m => m.Status == FormStatus.Accepted && m.UserId == targetRvUser.UserId);
                 if (memberForm != null)
                 {
                     sb.AppendLine(
                         phrases.Profile.Properties.CategoryParticipant
                         + Language.GetCategoryString(memberForm.Category));
 
+                    if (memberForm.Country != null)
+                        sb.AppendLine(
+                            phrases.Profile.Properties.Country
+                            + memberForm.Country);
+
+                    if (memberForm.City != null)
+                        sb.AppendLine(
+                            phrases.Profile.Properties.City
+                            + memberForm.City);
+
                     sb.AppendLine(
-                        phrases.Profile.Properties.Track
-                        + phrases.Profile.Track.Hidden);
+                        phrases.Profile.Properties.Track +
+                        (db.Status == RightVisionStatus.Relevant  
+                        ? phrases.Profile.Track.Hidden
+                        : memberForm.Track
+                        )
+                    );
                 }
             }
 
             sb.AppendLine();
 
             sb.AppendLine(phrases.Profile.Rewards.Header);
-            if (user.Rewards.Count > 0)
-                foreach (var reward in user.Rewards.Collection)
-                    sb.AppendLine($"{user.Rewards.Collection.IndexOf(reward)}: [{reward.Icon}] {reward.Description}");
+            if (targetRvUser.Rewards.Count > 0)
+                foreach (var reward in targetRvUser.Rewards.Collection)
+                    sb.AppendLine($"{targetRvUser.Rewards.Collection.IndexOf(reward)}: [{reward.Icon}] {reward.Description}");
 
             else
                 sb.AppendLine(phrases.Profile.Rewards.NoRewards);
@@ -92,7 +112,7 @@ namespace RightVisionBotDb.Services
             var phrases = Language.Phrases[lang];
             StringBuilder sb;
             sb = new StringBuilder();
-            sb.AppendLine(phrases.Profile.Headers.Private);
+            sb.AppendLine(string.Format(phrases.Profile.Headers.Private, rvUser.Name));
 
             sb.AppendLine(
                 "\n———\n"

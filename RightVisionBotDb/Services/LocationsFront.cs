@@ -2,7 +2,6 @@
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Services
 {
@@ -14,6 +13,7 @@ namespace RightVisionBotDb.Services
         private LocationManager LocationManager { get; set; }
         private Keyboards Keyboards { get; set; }
         private ProfileStringService ProfileStringService { get; set; }
+        private CriticFormService CriticFormService { get; set; }
 
         #endregion
 
@@ -21,12 +21,14 @@ namespace RightVisionBotDb.Services
             Bot bot, 
             LocationManager locationManager, 
             Keyboards keyboards, 
-            ProfileStringService profileStringService)
+            ProfileStringService profileStringService,
+            CriticFormService criticFormService)
         {
             Bot = bot;
             LocationManager = locationManager;
             Keyboards = keyboards;
             ProfileStringService = profileStringService;
+            CriticFormService = criticFormService;
         }
 
         public async Task MainMenu(CallbackContext c, CancellationToken token = default)
@@ -47,7 +49,7 @@ namespace RightVisionBotDb.Services
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 ProfileStringService.Private(c.RvUser, App.DefaultRightVision),
-                replyMarkup: Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, c.RvUser.Lang),
+                replyMarkup: await Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, c.RvUser.Lang),
                 cancellationToken: token);
         }
 
@@ -71,7 +73,7 @@ namespace RightVisionBotDb.Services
                 cancellationToken: token);
         }
 
-        public async Task CriticForm(CallbackContext c, CancellationToken token = default)
+        public async Task CriticForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
             c.RvUser.Location = LocationManager[nameof(Locations.CriticFormLocation)];
             await Bot.Client.EditMessageTextAsync(
@@ -82,7 +84,7 @@ namespace RightVisionBotDb.Services
 
             await Bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
-                Language.Phrases[c.RvUser.Lang].Messages.Critic.EnterName,
+                CriticFormService.Messages[messageKey](c.RvUser.Lang),
                 replyMarkup: Keyboards.ReplyBack(c.RvUser.Lang),
                 cancellationToken: token);
         }

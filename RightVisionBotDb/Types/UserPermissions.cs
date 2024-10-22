@@ -40,25 +40,21 @@ namespace RightVisionBotDb.Types
 
         public UserPermissions(long userId = 0) => CreatePermissions(userId, new List<Permission>());
 
-        public UserPermissions(IEnumerable<Permission> permissions, long userId = 0) => CreatePermissions(userId, permissions);
+        public UserPermissions(IEnumerable<Permission> permissions, long userId = 0) => CreatePermissions(userId, permissions.ToList());
 
-        public UserPermissions(long userId = 0, params Permission[] permissions) => CreatePermissions(userId, permissions);
+        public UserPermissions(long userId = 0, params Permission[] permissions) => CreatePermissions(userId, [.. permissions]);
+
+        public UserPermissions(IEnumerable<Permission> permissions, IEnumerable<Permission> removed, long userId = 0) => CreatePermissions(userId, permissions.ToList(), removed.ToList());
 
         public static UserPermissions FromString(string s)
         {
             try
             {
-                var parts = s.Split(':', 2);
+                var parts = s.Split(':');
                 var userId = long.Parse(parts[0]);
-                var value = parts[1];
-                var collection = JsonConvert.DeserializeObject<List<Permission>>(value);
-                if (collection != null)
-                    return new UserPermissions(collection);
-                else
-                {
-                    Log.Logger?.Error("Произошла ошибка при преобразовании строки в права доступа");
-                    throw new NullReferenceException(nameof(value));
-                }
+                var collection = JsonConvert.DeserializeObject<List<Permission>>(parts[1]);
+                var removed = JsonConvert.DeserializeObject<List<Permission>>(parts[2]);
+                return new UserPermissions(collection ?? [], removed ?? [], userId);
             }
             catch (Exception ex)
             {
@@ -107,9 +103,12 @@ namespace RightVisionBotDb.Types
             StringBuilder sb = new("[ ");
             foreach (var perm in Collection)
                 sb.Append($"\"{perm}\",");
+
+            sb.Append(']');
+
+            sb.Append(":[");
             foreach (var blockedPerm in Removed)
-                if (!string.IsNullOrEmpty(blockedPerm.ToString()))
-                    sb.Append($"::\"{blockedPerm}\", ");
+                sb.Append(blockedPerm.ToString());
 
             sb.Append(']');
             return sb.ToString();
@@ -149,12 +148,12 @@ namespace RightVisionBotDb.Types
             Removed.Add(permission);
         }
 
-        private void CreatePermissions(long userId, IEnumerable<Permission> collection)
+        private void CreatePermissions(long userId, List<Permission> collection, List<Permission>? removed = null)
         {
             Permissions = new(userId, new()
             {
-                { "Permissions", new(collection) },
-                { "Removed", new() }
+                { "Permissions", collection },
+                { "Removed", removed ?? [] }
             });
         }
 

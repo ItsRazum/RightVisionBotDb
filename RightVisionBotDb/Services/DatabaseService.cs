@@ -5,9 +5,9 @@ namespace RightVisionBotDb.Services
     public class DatabaseService
     {
         public RightVisionDbContext GetRightVisionContext(string rightvisionName)
-            => new RightVisionDbContext(rightvisionName);
+            => new(rightvisionName);
 
         public ApplicationDbContext GetApplicationDbContext()
-            => new ApplicationDbContext();
+            => new();
     }
 }

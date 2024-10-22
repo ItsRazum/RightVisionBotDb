@@ -80,6 +80,8 @@
         public string Sending { get; set; }
         public string CandidacyStatus { get; set; }
         public string CategoryCritic { get; set; }
+        public string Country { get; set; }
+        public string City { get; set; }
         public string Track { get; set; }
     }
 
@@ -185,6 +187,7 @@
         public string SendFormRightNow { get; set; }
         public string EnrollmentClosed { get; set; }
         public string StartingForm { get; set; }
+        public string UserNotFound { get; set; }
     }
 
     public class MessagesCritic
