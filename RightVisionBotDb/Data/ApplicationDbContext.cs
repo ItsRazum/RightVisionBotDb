@@ -1,7 +1,7 @@
 ﻿using DryIoc;
 using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Models;
-using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 
 
@@ -31,7 +31,7 @@ public sealed class ApplicationDbContext : DbContext
 
         //Types
         modelBuilder.Entity<RvUser>()
-            .Property(u => u.Permissions)
+            .Property(u => u.UserPermissions)
             .HasConversion(
                 v => $"{v.RvUserId}:{v}",
                 v => UserPermissions.FromString(v)

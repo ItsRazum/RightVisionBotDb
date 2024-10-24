@@ -1,7 +1,7 @@
 ﻿using RightVisionBotDb.Models;
 using Telegram.Bot;
 
-namespace RightVisionBotDb.Services
+namespace RightVisionBotDb.Singletons
 {
     public class RvLogger
     {

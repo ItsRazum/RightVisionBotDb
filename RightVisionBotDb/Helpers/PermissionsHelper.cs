@@ -1,14 +1,20 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Types;
 
-namespace RightVisionBotDb.Permissions
+namespace RightVisionBotDb.Helpers
 {
-    public static class Permissions
+    public static class PermissionsHelper
     {
-        public static UserPermissions User = new()
+        public static UserPermissions Default = new()
         {
             Permission.Messaging,            Permission.OpenProfile,
             Permission.SendCriticForm,       Permission.SendParticipantForm
+        };
+
+        public static UserPermissions User = new()
+        {
+            Permission.Messaging,
+            Permission.OpenProfile,
         };
 
         public static UserPermissions Critic = new(User + new UserPermissions

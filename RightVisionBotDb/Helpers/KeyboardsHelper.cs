@@ -1,28 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RightVisionBotDb.Data;
+using RightVisionBotDb.Enums;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
-using RightVisionBotDb.Permissions;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace RightVisionBotDb.Services
+namespace RightVisionBotDb.Helpers
 {
-    public sealed class Keyboards
+    public static class KeyboardsHelper
     {
-        private DatabaseService DatabaseService { get; }
-        private LocationManager LocationManager { get; }
 
-        public Keyboards(
-            LocationManager locationManager,
-            DatabaseService databaseService) 
-        {
-            LocationManager = locationManager;
-            DatabaseService = databaseService;
-        }
-
-        public InlineKeyboardMarkup СhooseLang => new(new InlineKeyboardButton[][]
+        public static InlineKeyboardMarkup СhooseLang = new(new InlineKeyboardButton[][]
         {
             [
                 InlineKeyboardButton.WithCallbackData("🇷🇺RU / CIS", Enums.Lang.Ru.ToString())
@@ -33,7 +22,7 @@ namespace RightVisionBotDb.Services
             ]
         });
 
-        public InlineKeyboardMarkup MainMenu(RvUser rvUser) => new(new[]
+        public static InlineKeyboardMarkup MainMenu(RvUser rvUser) => new(new[]
         {
             [
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.About, "about"),
@@ -47,19 +36,19 @@ namespace RightVisionBotDb.Services
             }
         });
 
-        public InlineKeyboardMarkup About(RvUser rvUser) => new(new[]
+        public static InlineKeyboardMarkup About(RvUser rvUser) => new(new[]
 {
             InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, "mainmenu"),
             InlineKeyboardButton.WithCallbackData("Информация про бота", "aboutBot")
         });
 
-        public InlineKeyboardMarkup InlineBack(RvUser rvUser) =>
+        public static InlineKeyboardMarkup InlineBack(RvUser rvUser) =>
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, "back"),
+                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, "back")
             };
 
-        public async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Enums.Lang lang)
+        public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Enums.Lang lang)
         {
             var userId = rvUser.UserId;
             var rightVisions = App.AllRightVisions;
@@ -67,11 +56,11 @@ namespace RightVisionBotDb.Services
 
             foreach (var rightvisionName in rightVisions)
             {
-                using var rvdb = DatabaseService.GetRightVisionContext(rightvisionName);
+                using var rvdb = DatabaseHelper.GetRightVisionContext(rightvisionName);
                 var form = await rvdb.ParticipantForms
                 .FirstOrDefaultAsync(
                         p => p.UserId == userId
-                        && p.Status == Enums.FormStatus.Accepted
+                        && p.Status == FormStatus.Accepted
                         );
 
                 if (form != null)
@@ -152,7 +141,7 @@ namespace RightVisionBotDb.Services
             return keyboardLayers.ToArray();
         }
 
-        public InlineKeyboardMarkup FormSelection(RvUser rvUser)
+        public static InlineKeyboardMarkup FormSelection(RvUser rvUser)
         {
             var buttons = new List<InlineKeyboardButton[]>();
 
@@ -168,7 +157,7 @@ namespace RightVisionBotDb.Services
                 Language.Phrases[rvUser.Lang].KeyboardButtons.Back,
                 "back"
             );
-            
+
             var upperFloor = new List<InlineKeyboardButton>();
 
             if (rvUser.Has(Permission.SendParticipantForm))
@@ -201,8 +190,46 @@ namespace RightVisionBotDb.Services
             return new(buttons);
         }
 
-        public ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
+        public static ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
 
-        public InlineKeyboardMarkup CriticCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над судьёй", $"c_accept-{userId}"));
+        public static ReplyKeyboardMarkup RateSelection(Enums.Lang lang) => new(new KeyboardButton[][]
+        {
+            [
+                new KeyboardButton("1"), new KeyboardButton("2"), new KeyboardButton("3"), new KeyboardButton("4")
+            ],
+            [
+                new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)
+            ]
+        })
+        { ResizeKeyboard = true };
+
+        public static ReplyKeyboardMarkup ReplyMainMenu => new(new KeyboardButton("/menu")) { ResizeKeyboard = true };
+
+        public static InlineKeyboardMarkup CriticCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над судьёй", $"c_take-{userId}"));
+        
+        public static InlineKeyboardMarkup ParticipantCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над участником", $"p_take-{userId}"));
+
+        public static InlineKeyboardMarkup CandidateOptions(IForm form)
+        {
+            var type = form switch
+            {
+                ParticipantForm => "p_",
+                CriticForm => "c_",
+                _ => "unknown_"
+            };
+
+            return new(new InlineKeyboardButton[][]
+            {
+                [
+                    InlineKeyboardButton.WithCallbackData("❌Отклонить",  $"{type}form-deny-{form.UserId}"),
+                    InlineKeyboardButton.WithCallbackData("⚠️Сбросить",   $"{type}form-reset-{form.UserId}")
+                ],
+                [ InlineKeyboardButton.WithCallbackData("📩Запросить ЛС", $"{type}form-requestPM-{form.UserId}") ],
+                [ InlineKeyboardButton.WithCallbackData("🥉Bronze",       $"{type}form-Bronze-{form.UserId}") ],
+                [ InlineKeyboardButton.WithCallbackData("🥈Silver",       $"{type}form-Silver-{form.UserId}") ],
+                [ InlineKeyboardButton.WithCallbackData("🥇Gold",         $"{type}form-Gold-{form.UserId}") ],
+                [ InlineKeyboardButton.WithCallbackData("💎Brilliant",    $"{type}form-Brilliant-{form.UserId}") ]
+            });
+        }
     }
 }

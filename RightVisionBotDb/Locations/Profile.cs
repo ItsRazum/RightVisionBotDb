@@ -1,37 +1,25 @@
 ﻿using RightVisionBotDb.Enums;
-using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Services;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
-using System.Globalization;
 
 namespace RightVisionBotDb.Locations
 {
     internal sealed class Profile : RvLocation
     {
 
-        #region Properties
-
-        private DatabaseService DatabaseService { get; }
-
-        #endregion
-
         #region Constructor
 
         public Profile(
             Bot bot,
-            Keyboards keyboards,
             LocationManager locationManager,
             RvLogger logger,
-            LogMessages logMessages,
-            LocationsFront locationsFront,
-            DatabaseService databaseService)
-            : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
+            LocationsFront locationsFront)
+            : base(bot, locationManager, logger, locationsFront)
         {
-            DatabaseService = databaseService;
-
             this
                 .RegisterCallbackCommand("back", BackCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
@@ -58,14 +46,14 @@ namespace RightVisionBotDb.Locations
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
+            using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
 
-            if (rvdb.Status == RightVisionStatus.Irrelevant) 
+            if (rvdb.Status == RightVisionStatus.Irrelevant)
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
-                    c.CallbackQuery.Id, 
-                    Language.Phrases[c.RvUser.Lang].Messages.Common.EnrollmentClosed, 
-                    showAlert: true, 
+                    c.CallbackQuery.Id,
+                    Language.Phrases[c.RvUser.Lang].Messages.Common.EnrollmentClosed,
+                    showAlert: true,
                     cancellationToken: token);
             }
             else

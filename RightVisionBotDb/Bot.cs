@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Locations;
-using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -24,25 +25,16 @@ namespace RightVisionBotDb
         public IConfiguration Languages;
         public ITelegramBotClient Client { get; private set; }
         private LocationManager LocationManager { get; }
-        private Keyboards Keyboards { get; }
-        private DatabaseService DatabaseService { get; }
-        private LogMessages LogMessages { get; }
 
         #endregion
 
 
         public Bot(
             ILogger logger,
-            LocationManager locationManager,
-            DatabaseService databaseService,
-            LogMessages logMessages,
-            Keyboards keyboards)
+            LocationManager locationManager)
         {
             _logger = logger;
             LocationManager = locationManager ?? throw new NullReferenceException(nameof(locationManager));
-            DatabaseService = databaseService ?? throw new NullReferenceException(nameof(databaseService));
-            LogMessages     = logMessages ?? throw new NullReferenceException(nameof(logMessages));
-            Keyboards       = keyboards ?? throw new NullReferenceException(nameof(keyboards));
 
         }
 
@@ -51,7 +43,7 @@ namespace RightVisionBotDb
             _logger.Information("Запуск бота...");
             try
             {
-                Client = new TelegramBotClient(App.Configuration.GetSection(nameof(Bot))["Token"]!);
+                Client = new TelegramBotClient(App.Configuration.GetSection(nameof(Bot))["Token"] ?? throw new NullReferenceException("Token"));
                 var cts = new CancellationTokenSource();
                 var cancellationToken = cts.Token;
                 var receiverOptions = new ReceiverOptions { AllowedUpdates = [UpdateType.CallbackQuery, UpdateType.Message, UpdateType.ChatMember] };
@@ -70,7 +62,11 @@ namespace RightVisionBotDb
 
         public void Configure()
         {
-            if (_isInitialized) return;
+            if (_isInitialized)
+            {
+                _logger.Warning("Произошёл повторный вызов Bot.Configure()");
+                return;
+            }
 
             _logger.Information("Загрузка языковых файлов...");
             Languages = new ConfigurationBuilder()
@@ -85,7 +81,7 @@ namespace RightVisionBotDb
 
             App.Configuration = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("config.json")
+                .AddJsonFile("appsettings.json")
                 .Build();
 
             App.DefaultRightVision = App.Configuration.GetSection("Contest")["DefaultRightVision"] ?? throw new NullReferenceException(nameof(App.DefaultRightVision));
@@ -113,20 +109,19 @@ namespace RightVisionBotDb
             if (rightVisions.Length == 0)
             {
                 _logger.Warning("В папке нет ни одной базы данных, создаётся база данных с названием {0}...", App.DefaultRightVision);
-                using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
+                using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
                 rightVisions =
-                    Directory.GetFiles(info.FullName) 
+                    [.. Directory.GetFiles(info.FullName)
                     .Where(s => s.EndsWith(".db"))
                     .Select(s => s.Split("\\")
                     .Last())
-                    .OrderBy(s => s)
-                    .ToArray();
+                    .OrderBy(s => s)];
             }
-            App.AllRightVisions = 
+            App.AllRightVisions =
                 rightVisions
                 .Select(s => s.Replace(".db", string.Empty))
                 .ToArray();
-            
+
 
             _logger.Information("Регистрация локаций...");
 

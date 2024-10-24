@@ -1,7 +1,7 @@
 ﻿using DryIoc;
 using RightVisionBotDb.Interfaces;
 
-namespace RightVisionBotDb.Services
+namespace RightVisionBotDb.Singletons
 {
     public class LocationManager : Dictionary<string, IRvLocation>
     {

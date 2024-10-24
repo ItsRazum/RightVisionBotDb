@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using RightVisionBotDb.Permissions;
-using Serilog;
-
-namespace RightVisionBotDb.Types
+﻿namespace RightVisionBotDb.Types
 {
     /*
     internal class RvUserPermissions

@@ -1,6 +1,6 @@
-﻿using RightVisionBotDb.Interfaces;
+﻿using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
@@ -8,25 +8,14 @@ namespace RightVisionBotDb.Locations
 {
     internal sealed class MainMenu : RvLocation
     {
-        #region Properties
-
-        private DatabaseService DatabaseService { get; }
-
-        #endregion
-
 
         public MainMenu(
             Bot bot,
-            Keyboards keyboards,
             LocationManager locationManager,
             RvLogger logger,
-            LogMessages logMessages,
-            LocationsFront locationsFront,
-            DatabaseService databaseService)
-            : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
+            LocationsFront locationsFront)
+            : base(bot, locationManager, logger, locationsFront)
         {
-            DatabaseService = databaseService;
-
             this
                 .RegisterCallbackCommand("back", BackCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
@@ -61,7 +50,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            using var rvdb = DatabaseService.GetRightVisionContext(App.DefaultRightVision);
+            using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
 
             if (rvdb.Status == Enums.RightVisionStatus.Irrelevant)
             {

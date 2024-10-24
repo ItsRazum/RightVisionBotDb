@@ -18,9 +18,9 @@ namespace RightVisionBotDb.Types
 
         public CallbackContext(RvUser rvUser, CallbackQuery? callbackQuery, ApplicationDbContext dbContext)
         {
-            RvUser = rvUser               ?? throw new NullReferenceException(nameof(rvUser));
+            RvUser = rvUser ?? throw new NullReferenceException(nameof(rvUser));
             CallbackQuery = callbackQuery ?? throw new NullReferenceException(nameof(callbackQuery));
-            DbContext = dbContext         ?? throw new NullReferenceException(nameof(dbContext));
+            DbContext = dbContext ?? throw new NullReferenceException(nameof(dbContext));
         }
 
         #endregion

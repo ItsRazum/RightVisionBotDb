@@ -1,13 +1,10 @@
-﻿using DryIoc;
-using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Models;
-using RightVisionBotDb.Services;
+﻿using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Lang;
+using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Locations
 {
@@ -16,23 +13,18 @@ namespace RightVisionBotDb.Locations
 
         #region Properties
 
-        protected DatabaseService DatabaseService { get; }
         protected readonly ILogger _logger;
 
         #endregion
 
         public RootLocationBase(
             Bot bot,
-            Keyboards keyboards,
             LocationManager locationManager,
             RvLogger rvLogger,
-            LogMessages logMessages,
             LocationsFront locationsFront,
-            ILogger logger,
-            DatabaseService databaseService)
-            : base(bot, keyboards, locationManager, rvLogger, logMessages, locationsFront)
+            ILogger logger)
+            : base(bot, locationManager, rvLogger, locationsFront)
         {
-            DatabaseService = databaseService;
             _logger = logger;
         }
 

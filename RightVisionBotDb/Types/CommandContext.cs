@@ -18,8 +18,8 @@ namespace RightVisionBotDb.Types
 
         public CommandContext(RvUser rvUser, Message message, ApplicationDbContext dbContext)
         {
-            RvUser = rvUser       ?? throw new NullReferenceException(nameof(rvUser));
-            Message = message     ?? throw new NullReferenceException(nameof(message));
+            RvUser = rvUser ?? throw new NullReferenceException(nameof(rvUser));
+            Message = message ?? throw new NullReferenceException(nameof(message));
             DbContext = dbContext ?? throw new NullReferenceException(nameof(dbContext));
         }
 

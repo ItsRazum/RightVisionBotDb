@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using RightVisionBotDb.Permissions;
+using RightVisionBotDb.Enums;
 using Serilog;
 using System.Collections;
 using System.Text;
@@ -108,9 +108,9 @@ namespace RightVisionBotDb.Types
 
             sb.Append(":[");
             foreach (var blockedPerm in Removed)
-                sb.Append(blockedPerm.ToString());
+                sb.Append($"\"{blockedPerm}\",");
 
-            sb.Append(']');
+            sb.Append("]");
             return sb.ToString();
         }
 

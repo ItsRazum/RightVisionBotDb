@@ -3,5 +3,6 @@
 ################################################################################
 
 /.vs
+/.gitignore
 /RightVisionBotDb/bin/Debug/net8.0
 /RightVisionBotDb/obj/Debug/net8.0

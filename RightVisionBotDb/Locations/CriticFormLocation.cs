@@ -1,8 +1,14 @@
-﻿using RightVisionBotDb.Lang;
-using RightVisionBotDb.Permissions;
-using RightVisionBotDb.Services;
+﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Lang;
 using RightVisionBotDb.Types;
+using RightVisionBotDb.Singletons;
 using Telegram.Bot;
+using EasyForms.Types;
+using System.Reflection;
+using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Models;
+using Newtonsoft.Json.Linq;
 
 namespace RightVisionBotDb.Locations
 {
@@ -17,20 +23,15 @@ namespace RightVisionBotDb.Locations
 
         public CriticFormLocation(
             Bot bot,
-            Keyboards keyboards,
             LocationManager locationManager,
             RvLogger logger,
-            LogMessages logMessages,
             LocationsFront locationsFront,
             CriticFormService criticFormService)
-            : base(bot, keyboards, locationManager, logger, logMessages, locationsFront)
+            : base(bot, locationManager, logger, locationsFront)
         {
             CriticFormService = criticFormService;
 
-            foreach (var lang in App.RegisteredLangs)
-            {
-                RegisterTextCommand(Language.Phrases[lang].KeyboardButtons.Back, BackCommand);
-            }
+            this.RegisterTextCommand("«", BackCommand);
         }
 
 
@@ -39,52 +40,52 @@ namespace RightVisionBotDb.Locations
         {
             await base.HandleCommandAsync(c, containsArgs, token);
 
+            if (c.Message.Text!.StartsWith('«')) return;
+
             var form = c.DbContext.CriticForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null)
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Произошла ошибка, вернись в главное меню", cancellationToken: token);
+                return;
             }
 
-            else
+            if (form.GetEmptyProperty(out var property))
             {
-                if (form.GetEmptyProperty(out var property))
+                try
                 {
                     if (property!.Name == "Rate")
                     {
-                        if (int.TryParse(c.Message.Text!, out var rate))
+                        if (int.TryParse(c.Message.Text, out var rate) && rate <= 4 && rate >= 1)
+                        {
                             form.SetPropertyValue(property.Name, rate);
-
+                        }
                         else
                         {
                             await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                             return;
                         }
                     }
+                    else if (property.Name == "Link")
+                    {
+                        if (c.Message.Text.StartsWith("https://"))
+                        {
+                            form.SetPropertyValue(property.Name, c.Message.Text);
+                        }
+                        else
+                        {
+                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.IncorrectFormat, cancellationToken: token);
+                            return;
+                        }
+                    }
                     else
+                    {
                         form.SetPropertyValue(property.Name, c.Message.Text);
-
-                    if (form.GetEmptyProperty(out property))
-                    {
-                        if (CriticFormService.Messages.TryGetValue(form.GetPropertyStep(property!.Name), out var getMessage))
-                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, getMessage(c.RvUser.Lang), cancellationToken: token);
                     }
-                    else
-                    {
-                        await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.FormSubmitted, cancellationToken: token);
-                        await Bot.Client.SendTextMessageAsync(-1001968408177,
-                            $"Пришла новая заявка на должность судьи!\n\n" +
-                            $"Имя: {form.Name}\n" +
-                            $"Тег: {form.Telegram}\n" +
-                            $"Ссылка на канал: {form.Link}\n" +
-                            $"Субъективная оценка навыков: {form.Rate}\n" +
-                            $"Что написал о себе: {form.AboutYou}\n" +
-                            $"Почему мы должны его принять: {form.WhyYou}\n",
-                            replyMarkup: Keyboards.CriticCuratorship(form.UserId),
-                            cancellationToken: token);
-
-                        c.RvUser.Permissions -= Permission.SendCriticForm;
-                        form.Status = Enums.FormStatus.Waiting;
-                    }
+                    await CheckFormCompletion(c, form, token);
+                }
+                catch (ArgumentException)
+                {
+                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                 }
             }
         }
@@ -96,53 +97,50 @@ namespace RightVisionBotDb.Locations
             var form = c.DbContext.CriticForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null) return;
 
-
             if (form.GetEmptyProperty(out var property))
             {
                 var targetPropertyStep = form.GetPropertyStep(property!.Name) - 1;
+                var targetProperty = form.GetProperty(targetPropertyStep);
 
-                if (property.PropertyType == typeof(int))
+                if (targetProperty.PropertyType == typeof(int))
                     form.SetPropertyValue(targetPropertyStep, 0);
+                else if (targetProperty.PropertyType == typeof(string))
+                    form.SetPropertyValue(targetPropertyStep, string.Empty);
 
-                else if (property.PropertyType == typeof(string))
-                    form.SetPropertyValue(targetPropertyStep, "0");
+                await CheckFormCompletion(c, form, token);
+            }
+        }
 
-
-                if (form.GetEmptyProperty(out property))
+        private async Task CheckFormCompletion(CommandContext c, CriticForm form, CancellationToken token)
+        {
+            if (form.GetEmptyProperty(out var property))
+            {
+                if (CriticFormService.Messages.TryGetValue(form.GetPropertyStep(property!.Name), out var getMessage))
                 {
-                    if (form.GetPropertyStep(property!.Name) == -1)
-                    {
-                        c.DbContext.CriticForms.Remove(form);
-                        c.RvUser.Location = LocationManager[nameof(MainMenu)];
-                        await Bot.Client.SendTextMessageAsync(
-                            c.Message.Chat,
-                            Language.Phrases[c.RvUser.Lang].Messages.Common.SendFormRightNow,
-                            replyMarkup: Keyboards.FormSelection(c.RvUser),
-                            cancellationToken: token);
-                    }
-                    else
-                    {
-                        if (CriticFormService.Messages.TryGetValue(form.GetPropertyStep(property.Name), out var getMessage))
-                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, getMessage(c.RvUser.Lang), cancellationToken: token);
-                    }
-                }
-                else
-                {
-                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.FormSubmitted, cancellationToken: token);
-                    await Bot.Client.SendTextMessageAsync(-1001968408177,
-                        $"Пришла новая заявка на должность судьи!\n\n" +
-                        $"Имя: {form.Name}\n" +
-                        $"Тег: {form.Telegram}\n" +
-                        $"Ссылка на канал: {form.Link}\n" +
-                        $"Субъективная оценка навыков: {form.Rate}\n" +
-                        $"Что написал о себе: {form.AboutYou}\n" +
-                        $"Почему мы должны его принять: {form.WhyYou}\n",
-                        replyMarkup: Keyboards.CriticCuratorship(form.UserId),
-                        cancellationToken: token);
+                    var result = getMessage(c.RvUser.Lang);
+                    var message = result.message.Contains('{')
+                        ? string.Format(result.message, form.Name)
+                        : result.message;
 
-                    c.RvUser.Permissions -= Permission.SendCriticForm;
-                    form.Status = Enums.FormStatus.Waiting;
+                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, replyMarkup: result.keyboard, cancellationToken: token);
                 }
+            }
+            else
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(-1001968408177,
+                    $"Пришла новая заявка на должность судьи!\n\n" +
+                    $"Имя: {form.Name}\n" +
+                    $"Тег: {form.Telegram}\n" +
+                    $"Ссылка на канал: {form.Link}\n" +
+                    $"Субъективная оценка навыков: {form.Rate}\n" +
+                    $"Что написал о себе: {form.AboutYou}\n" +
+                    $"Почему мы должны его принять: {form.WhyYou}\n",
+                    replyMarkup: KeyboardsHelper.CriticCuratorship(form.UserId),
+                    cancellationToken: token);
+
+                c.RvUser.UserPermissions -= Permission.SendCriticForm;
+                form.Status = FormStatus.Waiting;
             }
         }
 

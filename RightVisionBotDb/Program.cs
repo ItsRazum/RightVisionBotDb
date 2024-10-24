@@ -1,5 +1,5 @@
 ﻿using DryIoc;
-using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
 using Serilog;
 
 namespace RightVisionBotDb
@@ -17,12 +17,8 @@ namespace RightVisionBotDb
 
             Log.Logger?.Information("Регистрация сервисов...");
             App.Container.RegisterInstance(Log.Logger);
-            App.Container.Register<DatabaseService>(Reuse.Singleton);
             App.Container.Register<LocationManager>(Reuse.Singleton);
             App.Container.Register<RvLogger>(Reuse.Singleton);
-            App.Container.Register<ProfileStringService>(Reuse.Singleton);
-            App.Container.Register<LogMessages>(Reuse.Singleton);
-            App.Container.Register<Keyboards>(Reuse.Singleton);
             App.Container.Register<LocationsFront>(Reuse.Singleton);
             App.Container.Register<CriticFormService>(Reuse.Singleton);
 

@@ -1,4 +1,5 @@
-﻿using RightVisionBotDb.Types;
+﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Types;
 
 namespace RightVisionBotDb.Interfaces
 {
@@ -11,7 +12,7 @@ namespace RightVisionBotDb.Interfaces
         Dictionary<string, RvTextCommand> TextCommands { get; }
         Dictionary<string, RvCallbackCommand> CallbackCommands { get; }
 
-        IRvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler);
-        IRvLocation RegisterCallbackCommand(string command, Func<CallbackContext, CancellationToken, Task> handler);
+        IRvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null);
+        IRvLocation RegisterCallbackCommand(string command, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null);
     }
 }

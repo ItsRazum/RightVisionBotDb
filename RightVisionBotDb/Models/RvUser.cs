@@ -1,6 +1,6 @@
 ﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Permissions;
 using RightVisionBotDb.Types;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -37,7 +37,7 @@ namespace RightVisionBotDb.Models
                 location = value;
             }
         }
-        public UserPermissions Permissions { get; set; }
+        public UserPermissions UserPermissions { get; set; }
         public RvPunishments Punishments { get; set; }
         public Rewards Rewards { get; set; }
 
@@ -74,14 +74,14 @@ namespace RightVisionBotDb.Models
             else
                 Telegram = telegram;
 
-            Permissions = new UserPermissions(RightVisionBotDb.Permissions.Permissions.Layouts[Status.User], UserId);
+            UserPermissions = new UserPermissions(PermissionsHelper.Layouts[Status.User], UserId);
             Punishments = new RvPunishments(UserId);
             Rewards = new Rewards(UserId);
         }
 
         public RvUser()
         {
-            Permissions = new UserPermissions(UserId);
+            UserPermissions = new UserPermissions(UserId);
             Punishments = new RvPunishments(UserId);
             Rewards = new Rewards(UserId);
         }
@@ -119,8 +119,8 @@ namespace RightVisionBotDb.Models
 
         #region Public
 
-        public void ResetPermissions() => Permissions = new UserPermissions(RightVisionBotDb.Permissions.Permissions.Layouts[Status] + RightVisionBotDb.Permissions.Permissions.Layouts[Role], UserId);
-        public bool Has(Permission permission) => Permissions.Contains(permission);
+        public void ResetPermissions() => UserPermissions = new UserPermissions(PermissionsHelper.Layouts[Status] + PermissionsHelper.Layouts[Role], UserId);
+        public bool Has(Permission permission) => UserPermissions.Contains(permission);
 
         #endregion
 

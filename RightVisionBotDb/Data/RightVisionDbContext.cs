@@ -11,13 +11,13 @@ namespace RightVisionBotDb.Data
 
         public string Name { get; }
         public string DatabasesDir { get; }
-        public RightVisionStatus Status 
-        { 
+        public RightVisionStatus Status
+        {
             get => Properties.First().RightVisionStatus;
             protected set => Properties.First().RightVisionStatus = value;
         }
 
-        public EnrollmentStatus EnrollmentStatus 
+        public EnrollmentStatus EnrollmentStatus
         {
             get => Properties.First().EnrollmentStatus;
             protected set => Properties.First().EnrollmentStatus = value;

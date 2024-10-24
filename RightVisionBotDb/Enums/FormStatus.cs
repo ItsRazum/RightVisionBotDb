@@ -7,6 +7,7 @@
         Waiting,
         NotFinished,
         Blocked,
-        UnderConsideration
+        UnderConsideration,
+        Reset
     }
 }

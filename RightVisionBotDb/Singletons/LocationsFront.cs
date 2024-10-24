@@ -1,9 +1,10 @@
-﻿using RightVisionBotDb.Lang;
+﻿using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
-namespace RightVisionBotDb.Services
+namespace RightVisionBotDb.Singletons
 {
     public sealed class LocationsFront
     {
@@ -11,45 +12,40 @@ namespace RightVisionBotDb.Services
 
         private Bot Bot { get; set; }
         private LocationManager LocationManager { get; set; }
-        private Keyboards Keyboards { get; set; }
-        private ProfileStringService ProfileStringService { get; set; }
         private CriticFormService CriticFormService { get; set; }
 
         #endregion
 
         public LocationsFront(
-            Bot bot, 
-            LocationManager locationManager, 
-            Keyboards keyboards, 
-            ProfileStringService profileStringService,
+            Bot bot,
+            LocationManager locationManager,
             CriticFormService criticFormService)
         {
             Bot = bot;
             LocationManager = locationManager;
-            Keyboards = keyboards;
-            ProfileStringService = profileStringService;
             CriticFormService = criticFormService;
         }
 
         public async Task MainMenu(CallbackContext c, CancellationToken token = default)
-        {            
+        {
             c.RvUser.Location = LocationManager[nameof(Locations.MainMenu)];
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
-                replyMarkup: Keyboards.MainMenu(c.RvUser),
+                replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
                 cancellationToken: token);
         }
 
         public async Task Profile(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
+            var profile = await ProfileHelper.Profile(c.RvUser, c.RvUser, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                ProfileStringService.Private(c.RvUser, App.DefaultRightVision),
-                replyMarkup: await Keyboards.Profile(c.RvUser, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, c.RvUser.Lang),
+                profile.content,
+                replyMarkup: profile.keyboard,
                 cancellationToken: token);
         }
 
@@ -59,7 +55,7 @@ namespace RightVisionBotDb.Services
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Language.Phrases[c.RvUser.Lang].Messages.Common.SendFormRightNow,
-                replyMarkup: Keyboards.FormSelection(c.RvUser),
+                replyMarkup: KeyboardsHelper.FormSelection(c.RvUser),
                 cancellationToken: token);
         }
 
@@ -68,8 +64,8 @@ namespace RightVisionBotDb.Services
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                ProfileStringService.Permissions(c, c.DbContext.RvUsers.First(u => u == targetRvUser), minimize, c.RvUser.Lang),
-                replyMarkup: Keyboards.PermissionsList(targetRvUser, minimize, targetRvUser.Permissions.Count > 10, c.RvUser.Lang),
+                ProfileHelper.RvUserPermissions(c, c.DbContext.RvUsers.First(u => u == targetRvUser), minimize, c.RvUser.Lang),
+                replyMarkup: KeyboardsHelper.PermissionsList(targetRvUser, minimize, targetRvUser.UserPermissions.Count > 10, c.RvUser.Lang),
                 cancellationToken: token);
         }
 
@@ -77,15 +73,17 @@ namespace RightVisionBotDb.Services
         {
             c.RvUser.Location = LocationManager[nameof(Locations.CriticFormLocation)];
             await Bot.Client.EditMessageTextAsync(
-                c.CallbackQuery.Message!.Chat, 
+                c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Language.Phrases[c.RvUser.Lang].Messages.Common.StartingForm,
                 cancellationToken: token);
 
+            var result = CriticFormService.Messages[messageKey](c.RvUser.Lang);
+
             await Bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
-                CriticFormService.Messages[messageKey](c.RvUser.Lang),
-                replyMarkup: Keyboards.ReplyBack(c.RvUser.Lang),
+                result.message,
+                replyMarkup: result.keyboard,
                 cancellationToken: token);
         }
     }

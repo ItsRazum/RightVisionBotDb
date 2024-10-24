@@ -42,35 +42,5 @@ namespace RightVisionBotDb.Models
 
         #endregion
 
-        #region IForm Events
-
-        public event EventHandler<Category>? FormAccepted;
-        public event EventHandler? FormDenied;
-        public event EventHandler? FormReset;
-
-        #endregion
-
-        #region IForm Methods
-
-        public void Accept(Category category)
-        {
-
-            FormAccepted?.Invoke(this, category);
-        }
-
-        public void Deny()
-        {
-
-            FormDenied?.Invoke(this, new EventArgs());
-        }
-
-        public void Reset()
-        {
-
-            FormReset?.Invoke(this, new EventArgs());
-        }
-
-        #endregion
-
     }
 }

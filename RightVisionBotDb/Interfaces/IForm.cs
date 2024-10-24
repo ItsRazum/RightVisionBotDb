@@ -16,21 +16,5 @@ namespace RightVisionBotDb.Interfaces
 
         #endregion
 
-        #region Events
-
-        public event EventHandler<Category>? FormAccepted;
-        public event EventHandler? FormDenied;
-        public event EventHandler? FormReset;
-
-        #endregion
-
-        #region Methods
-
-        public void Accept(Category category);
-        public void Deny();
-        public void Reset();
-
-        #endregion
-
     }
 }
