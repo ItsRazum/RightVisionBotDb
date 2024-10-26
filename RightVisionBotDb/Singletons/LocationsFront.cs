@@ -1,6 +1,7 @@
 ﻿using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
@@ -11,19 +12,22 @@ namespace RightVisionBotDb.Singletons
         #region Properties
 
         private Bot Bot { get; set; }
-        private LocationManager LocationManager { get; set; }
-        private CriticFormService CriticFormService { get; set; }
+        private LocationManager LocationManager { get; }
+        private CriticFormService CriticFormService { get; }
+        private ParticipantFormService ParticipantFormService { get; }
 
         #endregion
 
         public LocationsFront(
             Bot bot,
             LocationManager locationManager,
-            CriticFormService criticFormService)
+            CriticFormService criticFormService,
+            ParticipantFormService participantFormService)
         {
             Bot = bot;
             LocationManager = locationManager;
             CriticFormService = criticFormService;
+            ParticipantFormService = participantFormService;
         }
 
         public async Task MainMenu(CallbackContext c, CancellationToken token = default)
@@ -78,12 +82,30 @@ namespace RightVisionBotDb.Singletons
                 Language.Phrases[c.RvUser.Lang].Messages.Common.StartingForm,
                 cancellationToken: token);
 
-            var result = CriticFormService.Messages[messageKey](c.RvUser.Lang);
+            var (message, keyboard) = CriticFormService.Messages[messageKey](c.RvUser.Lang);
 
             await Bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
-                result.message,
-                replyMarkup: result.keyboard,
+                message,
+                replyMarkup: keyboard,
+                cancellationToken: token);
+        }
+
+        public async Task ParticipantForm(CallbackContext c, int messageKey, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationManager[nameof(Locations.ParticipantFormLocation)];
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                Language.Phrases[c.RvUser.Lang].Messages.Common.StartingForm,
+                cancellationToken: token);
+
+            var (message, keyboard) = ParticipantFormService.Messages[messageKey](c.RvUser.Lang);
+
+            await Bot.Client.SendTextMessageAsync(
+                c.CallbackQuery.Message!.Chat,
+                message,
+                replyMarkup: keyboard,
                 cancellationToken: token);
         }
     }

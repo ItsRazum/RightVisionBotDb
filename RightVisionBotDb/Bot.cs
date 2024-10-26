@@ -131,7 +131,8 @@ namespace RightVisionBotDb
                 .RegisterLocation<Start>(nameof(Start))
                 .RegisterLocation<MainMenu>(nameof(MainMenu))
                 .RegisterLocation<Profile>(nameof(Profile))
-                .RegisterLocation<CriticFormLocation>(nameof(CriticFormLocation));
+                .RegisterLocation<CriticFormLocation>(nameof(CriticFormLocation))
+                .RegisterLocation<ParticipantFormLocation>(nameof(ParticipantFormLocation));
 
             Build();
         }

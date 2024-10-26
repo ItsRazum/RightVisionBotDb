@@ -2,7 +2,7 @@ using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace RightVisionBotDb.Singletons
+namespace RightVisionBotDb.Services
 {
     public class CriticFormService
     {

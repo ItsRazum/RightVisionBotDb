@@ -43,10 +43,10 @@ namespace RightVisionBotDb.Models
         {
         }
 
-        public CriticForm(long userId, string telegram)
+        public CriticForm(long userId, string? telegram)
         {
             UserId = userId;
-            Telegram = "@" + telegram;
+            Telegram = telegram ?? string.Empty;
         }
 
         #endregion

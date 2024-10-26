@@ -7,6 +7,7 @@ namespace RightVisionBotDb.Interfaces
 
         #region Properties
 
+        public string Name { get; set; }
         public long UserId { get; set; }
         public string Telegram { get; set; }
         public int Rate { get; set; }
