@@ -43,7 +43,7 @@ namespace RightVisionBotDb.Helpers
         {
             Permission.Mute,                Permission.Unmute,
             Permission.Cancel,              Permission.News,
-            Permission.MemberNews
+            Permission.ParticipantNews
         });
 
         public static UserPermissions SeniorModerator = new(Moderator + new UserPermissions

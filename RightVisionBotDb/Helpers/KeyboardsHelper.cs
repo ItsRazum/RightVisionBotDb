@@ -11,6 +11,8 @@ namespace RightVisionBotDb.Helpers
     public static class KeyboardsHelper
     {
 
+        #region Inline keyboards
+
         public static InlineKeyboardMarkup СhooseLang = new(new InlineKeyboardButton[][]
         {
             [
@@ -190,23 +192,8 @@ namespace RightVisionBotDb.Helpers
             return new(buttons);
         }
 
-        public static ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
-
-        public static ReplyKeyboardMarkup RateSelection(Enums.Lang lang) => new(new KeyboardButton[][]
-        {
-            [
-                new KeyboardButton("1"), new KeyboardButton("2"), new KeyboardButton("3"), new KeyboardButton("4")
-            ],
-            [
-                new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)
-            ]
-        })
-        { ResizeKeyboard = true };
-
-        public static ReplyKeyboardMarkup ReplyMainMenu => new(new KeyboardButton("/menu")) { ResizeKeyboard = true };
-
         public static InlineKeyboardMarkup CriticCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над судьёй", $"c_take-{userId}"));
-        
+
         public static InlineKeyboardMarkup ParticipantCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над участником", $"p_take-{userId}"));
 
         public static InlineKeyboardMarkup CandidateOptions(IForm form)
@@ -231,5 +218,34 @@ namespace RightVisionBotDb.Helpers
                 [ InlineKeyboardButton.WithCallbackData("💎Brilliant",    $"{type}form-Brilliant-{form.UserId}") ]
             });
         }
+
+        public static InlineKeyboardMarkup ControlPanelMainMenu(RvUser rvUser) => new(new InlineKeyboardButton[][]
+        {
+            [ InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreUsers, $"control-{rvUser.UserId}-exploreUsers") ],
+            [ InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreCritics, $"control-{rvUser.UserId}-exploreCritics") ],
+            [ InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreParticipants, $"control-{rvUser.UserId}-exploreParticipants") ]
+        });
+
+        #endregion
+
+        #region Reply keyboards
+
+        public static ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
+
+        public static ReplyKeyboardMarkup RateSelection(Enums.Lang lang) => new(new KeyboardButton[][]
+        {
+            [
+                new KeyboardButton("1"), new KeyboardButton("2"), new KeyboardButton("3"), new KeyboardButton("4")
+            ],
+            [
+                new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)
+            ]
+        })
+        { ResizeKeyboard = true };
+
+        public static ReplyKeyboardMarkup ReplyMainMenu => new(new KeyboardButton("/menu")) { ResizeKeyboard = true };
+
+        #endregion
+
     }
 }

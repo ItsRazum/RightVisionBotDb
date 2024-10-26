@@ -17,7 +17,7 @@ public enum Permission
     /// <summary>
     /// Право на отправку новостей для участников
     /// </summary>
-    MemberNews,
+    ParticipantNews,
     /// <summary>
     /// Право на отправку технических новостей
     /// </summary>
@@ -129,5 +129,9 @@ public enum Permission
     /// <summary>
     /// Право на удаление пользователя из чёрного списка
     /// </summary>
-    BlacklistOff
+    BlacklistOff,
+    /// <summary>
+    /// Право на использование панели управления
+    /// </summary>
+    ControlPanel
 }

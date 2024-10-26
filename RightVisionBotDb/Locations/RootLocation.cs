@@ -1,18 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
+﻿using DryIoc.ImTools;
+using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Data;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Lang.Phrases;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Serilog;
-using System.Data;
 using System.Globalization;
-using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -37,10 +36,12 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/start", StartCommand)
                 .RegisterTextCommand("/hide", HideCommand)
                 .RegisterTextCommand("/menu", MainMenuCommand)
-                .RegisterTextCommand("назначить", AppointCommand);
+                .RegisterTextCommand("назначить", AppointCommand)
+                .RegisterTextCommand("/news", NewsCommand, Permission.News);
 
             this
-                .RegisterCallbackCommand("rvProperties", RvPropertiesCallback);
+                .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
+                .RegisterCallbackCommand("useControlPanel");
         }
 
         #endregion
@@ -93,7 +94,6 @@ namespace RightVisionBotDb.Locations
                     {
                         await Bot.Client.DeleteMessageAsync(callbackQuery.Message!.Chat, callbackQuery.Message.MessageId, token);
                         await Bot.Client.SendTextMessageAsync(callbackQuery.Message.Chat, "Choose Lang:", replyMarkup: KeyboardsHelper.СhooseLang, cancellationToken: token);
-                        return;
                     }
                 }
                 else if (update.Message != null)
@@ -114,19 +114,21 @@ namespace RightVisionBotDb.Locations
 
                     containsArgs = commandContext.Message.Text != null && commandContext.Message.Text.Contains(' ');
 
+                    await HandleCommandAsync(commandContext, containsArgs, token);
+
                     if (chatType == ChatType.Private && rvUser.Lang == Enums.Lang.Na)
                     {
                         await Bot.Client.SendTextMessageAsync(message.Chat, "Choose Lang:", replyMarkup: KeyboardsHelper.СhooseLang, cancellationToken: token);
-                        return;
+                    }
+                    else
+                    {
+                        if (chatType != ChatType.Private)
+                            await LocationManager[nameof(PublicChat)].HandleCommandAsync(commandContext, containsArgs, token);
+
+                        else
+                            await rvUser.Location.HandleCommandAsync(commandContext, containsArgs, token);
                     }
 
-                    await HandleCommandAsync(commandContext, containsArgs, token);
-
-                    if (chatType != ChatType.Private)
-                        await LocationManager[nameof(PublicChat)].HandleCommandAsync(commandContext, containsArgs, token);
-
-                    else
-                        await rvUser.Location.HandleCommandAsync(commandContext, containsArgs, token);
                 }
                 
                 rvUser.LocationChanged -= OnLocationChanged;
@@ -161,7 +163,8 @@ namespace RightVisionBotDb.Locations
 
         public override Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken token = default)
         {
-            return Task.CompletedTask;
+            _logger.Fatal(exception, "Не удалось обработать ошибку внутри работы бота");
+            throw exception;
         }
 
         #endregion
@@ -208,13 +211,12 @@ namespace RightVisionBotDb.Locations
                 if (c.RvUser == null)
                 {
                     var rvUser = new RvUser(c.Message.From!.Id, Enums.Lang.Na, c.Message.From.FirstName, c.Message.From.Username, location);
-                    c.DbContext.RvUsers.Add(rvUser);
-                    await c.DbContext.SaveChangesAsync(token);
+                    await c.DbContext.RvUsers.AddAsync(rvUser, token);
                 }
                 else
                 {
                     c.RvUser.Location = location;
-                    await c.DbContext.SaveChangesAsync(token);
+                    c.RvUser.Lang = Enums.Lang.Na;
                 }
             }
         }
@@ -337,6 +339,82 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
         }
 
+        private async Task NewsCommand(CommandContext c, CancellationToken token)
+        {
+            var argsPattern = @"\/news\(([^)]+)\)";
+            var argsMatch = Regex.Match(c.Message.Text!, argsPattern);
+
+            var targetUsers = new HashSet<long>();
+            var sb = new StringBuilder();
+
+            if (argsMatch.Success)
+            {
+                var commandArgs = argsMatch.Groups[1].Value.Split(',');
+                sb.AppendLine("Распознаны следующие аргументы:");
+
+                if (commandArgs.Contains("-n"))
+                {
+                    sb.AppendLine("- Разослать подписчикам на новости (-n)");
+                    foreach (var rvUser in c.DbContext.RvUsers.Where(u => u.Has(Permission.News)))
+                        targetUsers.Add(rvUser.UserId);
+                }
+
+                if (commandArgs.Contains("-p"))
+                {
+                    sb.AppendLine("- Разослать всем участникам (-p)");
+                    if (!c.RvUser.Has(Permission.ParticipantNews))
+                    {
+                        sb.Append(" (У пользователя нет права)");
+                    }
+                    else
+                    {
+                        using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
+                        foreach (var rvParticipant in rvdb.ParticipantForms.Where(p => p.Status == FormStatus.Accepted))
+                            targetUsers.Add(rvParticipant.UserId);
+                    }
+                }
+
+                if (commandArgs.Contains("-t"))
+                {
+                    sb.AppendLine("- Отправить новость всем пользователям бота (-t)");
+                    if (!c.RvUser.Has(Permission.TechNews))
+                    {
+                        sb.Append(" (У пользователя нет права)");
+                    }
+                    else
+                    {
+                        targetUsers = c.DbContext.RvUsers.Select(u => u.UserId).ToHashSet();
+                    }
+                }
+
+                await RvLogger.Log(LogMessagesHelper.UserStartedNewsSending(c.RvUser, sb.ToString()), c.RvUser, token);
+
+                var message = Regex.Replace(c.Message.Text!, @"^\/news\([^)]+\)\s*", string.Empty).Trim();
+
+                var successCount = 0;
+                var failCount = 0;
+                foreach (var userId in targetUsers)
+                {
+                    try
+                    {
+                        await Bot.Client.SendTextMessageAsync(userId, message, cancellationToken: token);
+                        successCount++;
+                    }
+                    catch (Exception)
+                    {
+                        failCount++;
+                    }
+                }
+
+                await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
+            }
+            else
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Ошибка: аргументы команды не распознаны.", cancellationToken: token);
+            }
+        }
+
+
         private async Task RvPropertiesCallback(CallbackContext c, CancellationToken token = default)
         {
             var rightvision = c.CallbackQuery.Data!.Split('-').Last();
@@ -349,6 +427,11 @@ namespace RightVisionBotDb.Locations
                 $"\nКоличество участников: {rvdb.ParticipantForms.Count(p => p.Status == FormStatus.Accepted)}",
                 true,
                 cancellationToken: token);
+        }
+
+        private async Task UseControlPanelCallback(CommandContext c, CancellationToken token = default)
+        {
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, ),
         }
 
         #endregion
