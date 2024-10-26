@@ -24,10 +24,11 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("back", BackCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
-                .RegisterCallbackCommand("permissions_minimized", PermissionsMinimized)
-                .RegisterCallbackCommand("permissions_maximized", PermissionsMaximized)
+                .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
+                .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
                 .RegisterCallbackCommand("permissions_back", BackCallback)
-                .RegisterCallbackCommand("criticForm", CriticFormCallback);
+                .RegisterCallbackCommand("criticForm", CriticFormCallback)
+                .RegisterCallbackCommand("participantForm", ParticipantFormCallback);
         }
 
         #endregion
@@ -46,9 +47,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
-
-            if (rvdb.Status == RightVisionStatus.Irrelevant)
+            if (c.RvContext.Status == RightVisionStatus.Irrelevant)
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id,
@@ -62,35 +61,39 @@ namespace RightVisionBotDb.Locations
             }
         }
 
-        private async Task PermissionsMinimized(CallbackContext c, CancellationToken token = default)
+        private async Task PermissionsCallback(CallbackContext c, CancellationToken token = default)
         {
             var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_minimized-", ""));
-            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), true, token);
-        }
-
-        private async Task PermissionsMaximized(CallbackContext c, CancellationToken token = default)
-        {
-            var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_maximized-", ""));
-            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), false, token);
+            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), c.CallbackQuery.Data!.Contains("minimized"), token);
         }
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            CriticForm criticForm;
             c.RvUser.Location = LocationManager[nameof(CriticFormLocation)];
-            if (c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId) != null)
-                criticForm = c.DbContext.CriticForms.First(cf => cf.UserId == c.RvUser.UserId);
-
-            else
+            var form = c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId);
+            if (form == null)
             {
-                criticForm = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username ?? string.Empty);
-                c.DbContext.CriticForms.Add(criticForm);
+                form = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
+                c.DbContext.CriticForms.Add(form);
             }
-            if (criticForm.GetEmptyProperty(out var property))
-                await LocationsFront.CriticForm(c, criticForm.GetPropertyStep(property!.Name), token);
 
+            if (form.GetEmptyProperty(out var property))
+                await LocationsFront.CriticForm(c, form.GetPropertyStep(property!.Name), token);
         }
 
+        private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationManager[nameof(ParticipantFormLocation)];
+            var form = c.RvContext.ParticipantForms.FirstOrDefault(pf => pf.UserId == c.RvUser.UserId);
+            if (form == null)
+            {
+                form = new ParticipantForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
+                c.RvContext.ParticipantForms.Add(form);
+            }
+            if (form.GetEmptyProperty(out var property))
+                await LocationsFront.ParticipantForm(c, form.GetPropertyStep(property!.Name), token);
+        }
+ 
         #endregion
     }
 }

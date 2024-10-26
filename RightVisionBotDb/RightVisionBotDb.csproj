@@ -33,7 +33,6 @@
   </ItemGroup>
 	
   <ItemGroup>
-	  <Folder Include="Database\" />
 	  <Folder Include="Resources\Lang\" />
   </ItemGroup>
 
@@ -44,7 +43,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Users\kriso\source\repos\EasyForms\EasyForms\EasyForms.csproj" />
+    <Compile Remove="Database\**" />
+    <EmbeddedResource Remove="Database\**" />
+    <None Remove="Database\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EasyForms\EasyForms\EasyForms.csproj" />
   </ItemGroup>
 
 </Project>

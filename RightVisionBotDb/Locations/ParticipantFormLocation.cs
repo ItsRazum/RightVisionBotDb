@@ -1,41 +1,42 @@
-﻿using RightVisionBotDb.Enums;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Types;
-using RightVisionBotDb.Singletons;
-using Telegram.Bot;
-using EasyForms.Types;
-using System.Reflection;
-using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
-using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Types;
+using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class CriticFormLocation : RvLocation
+    internal class ParticipantFormLocation : RvLocation
     {
 
         #region Properties
 
-        private CriticFormService CriticFormService { get; }
+        public ParticipantFormService ParticipantFormService { get; }
 
         #endregion
 
-        public CriticFormLocation(
-            Bot bot,
-            LocationManager locationManager,
-            RvLogger logger,
+        #region Constructor
+
+        public ParticipantFormLocation(
+            Bot bot, 
+            LocationManager locationManager, 
+            RvLogger logger, 
             LocationsFront locationsFront,
-            CriticFormService criticFormService)
+            ParticipantFormService participantFormService) 
             : base(bot, locationManager, logger, locationsFront)
         {
-            CriticFormService = criticFormService;
+            ParticipantFormService = participantFormService;
 
             this.RegisterTextCommand("«", BackCommand);
         }
 
+        #endregion
 
+        #region RvLocation overrides
 
         public override async Task HandleCommandAsync(CommandContext c, bool containsArgs, CancellationToken token = default)
         {
@@ -43,7 +44,7 @@ namespace RightVisionBotDb.Locations
 
             if (c.Message.Text!.StartsWith('«')) return;
 
-            var form = c.DbContext.CriticForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
+            var form = c.RvContext.ParticipantForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null)
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Произошла ошибка, вернись в главное меню", cancellationToken: token);
@@ -66,18 +67,6 @@ namespace RightVisionBotDb.Locations
                             return;
                         }
                     }
-                    else if (property.Name == "Link")
-                    {
-                        if (c.Message.Text.StartsWith("https://"))
-                        {
-                            form.SetPropertyValue(property.Name, c.Message.Text);
-                        }
-                        else
-                        {
-                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.IncorrectFormat, cancellationToken: token);
-                            return;
-                        }
-                    }
                     else
                     {
                         form.SetPropertyValue(property.Name, c.Message.Text);
@@ -91,11 +80,13 @@ namespace RightVisionBotDb.Locations
             }
         }
 
+        #endregion
+
         #region Methods
 
         private async Task BackCommand(CommandContext c, CancellationToken token = default)
         {
-            var form = c.DbContext.CriticForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
+            var form = c.RvContext.ParticipantForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null) return;
 
             if (form.GetEmptyProperty(out var property))
@@ -112,11 +103,11 @@ namespace RightVisionBotDb.Locations
             }
         }
 
-        private async Task CheckFormCompletion(CommandContext c, CriticForm form, CancellationToken token)
+        private async Task CheckFormCompletion(CommandContext c, ParticipantForm form, CancellationToken token)
         {
             if (form.GetEmptyProperty(out var property))
             {
-                if (CriticFormService.Messages.TryGetValue(form.GetPropertyStep(property!.Name), out var getMessage))
+                if (ParticipantFormService.Messages.TryGetValue(form.GetPropertyStep(property!.Name), out var getMessage))
                 {
                     var result = getMessage(c.RvUser.Lang);
                     var message = result.message.Contains('{')
@@ -128,19 +119,17 @@ namespace RightVisionBotDb.Locations
             }
             else
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Participant.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
                 await Bot.Client.SendTextMessageAsync(-1001968408177,
-                    $"Пришла новая заявка на должность судьи!\n\n" +
+                    $"Пришла новая заявка на участие!\n\n" +
                     $"Имя: {form.Name}\n" +
                     $"Тег: {form.Telegram}\n" +
                     $"Ссылка на канал: {form.Link}\n" +
-                    $"Субъективная оценка навыков: {form.Rate}\n" +
-                    $"Что написал о себе: {form.AboutYou}\n" +
-                    $"Почему мы должны его принять: {form.WhyYou}\n",
+                    $"Субъективная оценка навыков: {form.Rate}\n",
                     replyMarkup: KeyboardsHelper.TakeCuratorship(form),
                     cancellationToken: token);
 
-                c.RvUser.UserPermissions -= Permission.SendCriticForm;
+                c.RvUser.UserPermissions -= Permission.SendParticipantForm;
                 form.Status = FormStatus.Waiting;
             }
         }

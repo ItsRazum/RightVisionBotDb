@@ -1,6 +1,8 @@
-﻿namespace RightVisionBotDb.Lang.Phrases
+﻿using RightVisionBotDb.Lang.Interfaces;
+
+namespace RightVisionBotDb.Lang.Phrases
 {
-    public class MessagesParticipant
+    public class MessagesParticipant : IFormMessages
     {
         public string EnterName { get; set; }
         public string EnterLink { get; set; }

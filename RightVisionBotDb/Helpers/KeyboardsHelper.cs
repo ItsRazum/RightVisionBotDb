@@ -192,9 +192,28 @@ namespace RightVisionBotDb.Helpers
             return new(buttons);
         }
 
-        public static InlineKeyboardMarkup CriticCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над судьёй", $"c_take-{userId}"));
+        public static ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
 
-        public static InlineKeyboardMarkup ParticipantCuratorship(long userId) => new(InlineKeyboardButton.WithCallbackData("Взять кураторство над участником", $"p_take-{userId}"));
+        public static ReplyKeyboardMarkup RateSelection(Enums.Lang lang) => new(new KeyboardButton[][]
+        {
+            [
+                new KeyboardButton("1"), new KeyboardButton("2"), new KeyboardButton("3"), new KeyboardButton("4")
+            ],
+            [
+                new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)
+            ]
+        })
+        { ResizeKeyboard = true };
+
+        public static ReplyKeyboardMarkup ReplyMainMenu => new(new KeyboardButton("/menu")) { ResizeKeyboard = true };
+
+        public static InlineKeyboardMarkup TakeCuratorship(IForm form)
+        {
+            (string userType, string callbackType) = form is CriticForm
+                ? ("судьёй", "c_")
+                : ("участником", "p_");
+            return new(InlineKeyboardButton.WithCallbackData($"Взять кураторство над {userType}", $"{callbackType}take-{form.UserId}"));
+        }
 
         public static InlineKeyboardMarkup CandidateOptions(IForm form)
         {

@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using RightVisionBotDb.Data;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
+using RightVisionBotDb.Lang.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
@@ -16,6 +20,12 @@ namespace RightVisionBotDb.Locations
     internal sealed class PublicChat : RvLocation
     {
 
+        #region Properties
+
+        private Dictionary<Type, Func<Enums.Lang, IFormMessages>> FormHandlerMessages { get; }
+
+        #endregion
+
         #region Constructor
 
         public PublicChat(
@@ -25,14 +35,22 @@ namespace RightVisionBotDb.Locations
             LocationsFront locationsFront)
             : base(bot, locationManager, logger, locationsFront)
         {
+            FormHandlerMessages = new()
+            {
+                { typeof(ParticipantForm), lang => Language.Phrases[lang].Messages.Participant },
+                { typeof(CriticForm), lang => Language.Phrases[lang].Messages.Critic }
+            };
+
             this
                 .RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
-                .RegisterCallbackCommand("permissions_minimized", PermissionsMinimizedCallback)
-                .RegisterCallbackCommand("permissions_maximized", PermissionsMaximizedCallback)
+                .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
+                .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
                 .RegisterCallbackCommand("permissions_back", PermissionsBackCallback)
                 .RegisterCallbackCommand("c_take", CriticTakeCallback, Permission.Curate)
-                .RegisterCallbackCommand("c_form", CriticFormCallback);
+                .RegisterCallbackCommand("p_take", ParticipantTakeCallback, Permission.Curate)
+                .RegisterCallbackCommand("c_form", CriticFormCallback)
+                .RegisterCallbackCommand("p_form", ParticipantFormCallback);
         }
 
         #endregion
@@ -80,7 +98,7 @@ namespace RightVisionBotDb.Locations
                 case 3:
                     break;
                 default:
-                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Слишком много аргументов в команде!");
+                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Слишком много аргументов в команде!", cancellationToken: token);
                     break;
             }
         }
@@ -107,26 +125,96 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
         }
 
-        private async Task PermissionsMinimizedCallback(CallbackContext c, CancellationToken token = default)
+        private async Task PermissionsCallback(CallbackContext c, CancellationToken token = default)
         {
             var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_minimized-", ""));
-            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), true, token);
-        }
-
-        private async Task PermissionsMaximizedCallback(CallbackContext c, CancellationToken token = default)
-        {
-            var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_maximized-", ""));
-            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), false, token);
+            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), c.CallbackQuery.Data!.Contains("minimized"), token);
         }
 
         private async Task CriticTakeCallback(CallbackContext c, CancellationToken token = default)
         {
             var args = c.CallbackQuery.Data!.Split('-');
             var userId = long.Parse(args.Last());
-            var callback = c.CallbackQuery;
 
             var form = await c.DbContext.CriticForms.FirstOrDefaultAsync(c => c.UserId == userId, token);
 
+            await HandleCuratorshipAsync(c.CallbackQuery, form, token);
+        }
+
+        private async Task ParticipantTakeCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var args = c.CallbackQuery.Data!.Split('-');
+            var userId = long.Parse(args.Last());
+
+            var form = await c.RvContext.ParticipantForms.FirstOrDefaultAsync(c => c.UserId == userId, token);
+
+            await HandleCuratorshipAsync(c.CallbackQuery, form, token);
+        }
+
+        private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var args = c.CallbackQuery.Data!.Split('-');
+            var userId = long.Parse(args.Last());
+
+            var targetRvUser = c.DbContext.RvUsers.First(u => u.UserId == userId);
+            var form = c.DbContext.CriticForms.First(c => c.UserId == userId);
+
+            if (form != null)
+            {
+                form.Status = await HandleFormAsync(c, targetRvUser, form, args, token);
+                switch (form.Status)
+                {
+                    case FormStatus.Accepted:
+                        form.Category = Enum.Parse<Category>(args[1]);
+                        targetRvUser.UserPermissions -= Permission.SendCriticForm;
+                        break;
+                    case FormStatus.Reset:
+                        c.DbContext.Remove(form);
+                        break;
+                }
+            }
+            else
+                await Bot.Client.EditMessageTextAsync(
+                    c.CallbackQuery.Message!.Chat,
+                    c.CallbackQuery.Message.MessageId,
+                    "Ошибка: заявки не существует.",
+                    cancellationToken: token);
+        }
+
+        private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var args = c.CallbackQuery.Data!.Split('-');
+            var userId = long.Parse(args.Last());
+
+            var targetRvUser = c.DbContext.RvUsers.First(u => u.UserId == userId);
+            var form = c.RvContext.ParticipantForms.First(c => c.UserId == userId);
+
+            if (form != null)
+            {
+                form.Status = await HandleFormAsync(c, targetRvUser, form, args, token);
+                switch (form.Status)
+                {
+                    case FormStatus.Accepted:
+                        form.Category = Enum.Parse<Category>(args[1]);
+                        targetRvUser.UserPermissions -= Permission.SendCriticForm;
+                        break;
+                    case FormStatus.Reset:
+                        c.RvContext.ParticipantForms.Remove(form);
+                        break;
+                }
+            }
+            else
+                await Bot.Client.EditMessageTextAsync(
+                    c.CallbackQuery.Message!.Chat,
+                    c.CallbackQuery.Message.MessageId,
+                    "Ошибка: заявки не существует.",
+                    cancellationToken: token);
+        }
+
+        #region Handle methods
+
+        private async Task HandleCuratorshipAsync(CallbackQuery callback, IForm? form, CancellationToken token = default)
+        {
             (string message, InlineKeyboardMarkup? keyboard) =
                 form == null
                 ? ("Ошибка: заявки не существует.", null)
@@ -146,103 +234,78 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
         }
 
-        private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
+        private async Task<FormStatus> HandleFormAsync(CallbackContext c, RvUser targetRvUser, IForm form, string[] args, CancellationToken token = default)
         {
-            var args = c.CallbackQuery.Data!.Split('-');
+            if (c.RvUser.UserId != form.CuratorId) return FormStatus.Waiting;
+
             var callbackType = args[1];
-            var userId = long.Parse(args.Last());
-            var callback = c.CallbackQuery;
+            var formattedDate = DateTime.Now.ToString("g", new CultureInfo("ru-RU"));
+            var formHandlerMessages = FormHandlerMessages[form.GetType()](targetRvUser.Lang);
+            var messageText = c.CallbackQuery.Message!.Text;
 
-            var form = c.DbContext.CriticForms.First(c => c.UserId == userId);
-
-            if (form != null)
+            (string messageForSender, string formText, FormStatus formStatus, InlineKeyboardMarkup? keyboard) = callbackType switch
             {
-                if (c.RvUser.UserId != form.CuratorId) return;
-
-                var rvUser = c.DbContext.RvUsers.First(u => u.UserId == userId);
-                var formattedDate = DateTime.Now.ToString("g", new CultureInfo("ru-RU"));
-                var criticMessages = Language.Phrases[rvUser.Lang].Messages.Critic;
-                var messageText = callback.Message!.Text;
-
-                (string messageForSender, string formText, FormStatus formStatus, InlineKeyboardMarkup? keyboard) = callbackType switch
-                {
-                    "deny" =>
-                    (
-                        string.Format(criticMessages.FormDenied, form.Name, $"{c.CallbackQuery.From.Username}"),
-                        $"{messageText}\n[{formattedDate}] ❌Заявка отклонена!",
-                        FormStatus.Denied,
-                        null
-                    ),
-                    "requestPM" =>
-                    (
-                        string.Format(criticMessages.PMRequested, form.Name, $"@{c.CallbackQuery.From.Username}"),
-                        $"{messageText}\n[{formattedDate}] 📩Запрошено личное сообщение",
-                        FormStatus.Waiting,
-                        KeyboardsHelper.CandidateOptions(form)
-                    ),
-                    "reset" =>
-                    (
-                        string.Format(criticMessages.FormCanceled, form.Name, $"{c.CallbackQuery.From.FirstName}"),
-                        $"{messageText}\n[{formattedDate}] ⚠️Заявка сброшена!",
-                        FormStatus.Reset,
-                        null
-                    ),
-                    "Bronze" 
-                    or "Silver" 
-                    or "Gold" 
-                    or "Brilliant" =>
-                    (
-                        string.Format(criticMessages.FormAccepted, form.Name, Language.GetCategoryString(Enum.Parse<Category>(callbackType)), $"{c.CallbackQuery.From.FirstName}"),
-                        $"{messageText}\n[{formattedDate}] ✅Заявка принята! Категория: {Enum.Parse<Category>(callbackType)}",
-                        FormStatus.Accepted,
-                        null
-                    ),
-                    _ => throw new InvalidDataException(nameof(c.CallbackQuery.Data))
-                };
-                try
-                {
-                    await Bot.Client.SendTextMessageAsync(
-                        userId,
-                        messageForSender,
-                        replyMarkup: KeyboardsHelper.ReplyMainMenu,
-                        cancellationToken: token);
-
-                    form.Status = formStatus;
-
-                    switch (formStatus)
-                    {
-                        case FormStatus.Accepted:
-                            form.Category = Enum.Parse<Category>(callbackType);
-                            break;
-                        case FormStatus.Reset:
-                            c.DbContext.CriticForms.Remove(form);
-                            c.RvUser.UserPermissions += Permission.SendCriticForm;
-                            break;
-                    }
-
-                    await Bot.Client.EditMessageTextAsync(
-                        callback.Message!.Chat,
-                        callback.Message.MessageId,
-                        formText,
-                        replyMarkup: keyboard,
-                        cancellationToken: token);
-                }
-                catch (Exception ex)
-                {
-                    await Bot.Client.SendTextMessageAsync(
-                        callback.Message!.Chat,
-                        $"Во время обработки заявки пользователя @{rvUser.Telegram} ({rvUser.UserId}) произошла ошибка!\n{ex.Message}");
-
-                    throw;
-                }
-            }
-            else
-                await Bot.Client.EditMessageTextAsync(
-                    callback.Message!.Chat,
-                    callback.Message.MessageId,
-                    "Ошибка: заявки не существует.",
+                "deny" =>
+                (
+                    string.Format(formHandlerMessages.FormDenied, form.Name, $"{c.CallbackQuery.From.Username}"),
+                    $"{messageText}\n[{formattedDate}] ❌Заявка отклонена!",
+                    FormStatus.Denied,
+                    null
+                ),
+                "requestPM" =>
+                (
+                    string.Format(formHandlerMessages.PMRequested, form.Name, $"@{c.CallbackQuery.From.Username}"),
+                    $"{messageText}\n[{formattedDate}] 📩Запрошено личное сообщение",
+                    FormStatus.Waiting,
+                    KeyboardsHelper.CandidateOptions(form)
+                ),
+                "reset" =>
+                (
+                    string.Format(formHandlerMessages.FormCanceled, form.Name, $"{c.CallbackQuery.From.FirstName}"),
+                    $"{messageText}\n[{formattedDate}] ⚠️Заявка сброшена!",
+                    FormStatus.Reset,
+                    null
+                ),
+                "Bronze"
+                or "Silver"
+                or "Gold"
+                or "Brilliant" =>
+                (
+                    string.Format(formHandlerMessages.FormAccepted, form.Name, Language.GetCategoryString(Enum.Parse<Category>(callbackType)), $"{c.CallbackQuery.From.FirstName}"),
+                    $"{messageText}\n[{formattedDate}] ✅Заявка принята! Категория: {Enum.Parse<Category>(callbackType)}",
+                    FormStatus.Accepted,
+                    null
+                ),
+                _ => throw new InvalidDataException(nameof(c.CallbackQuery.Data))
+            };
+            try
+            {
+                await Bot.Client.SendTextMessageAsync(
+                    form.UserId,
+                    messageForSender,
+                    replyMarkup: KeyboardsHelper.ReplyMainMenu,
                     cancellationToken: token);
+
+                form.Status = formStatus;
+
+                await Bot.Client.EditMessageTextAsync(
+                    c.CallbackQuery.Message!.Chat,
+                    c.CallbackQuery.Message.MessageId,
+                    formText,
+                    replyMarkup: keyboard,
+                    cancellationToken: token);
+            }
+            catch (Exception ex)
+            {
+                await Bot.Client.SendTextMessageAsync(
+                    c.CallbackQuery.Message!.Chat,
+                    $"Во время обработки заявки пользователя @{targetRvUser.Telegram} ({targetRvUser.UserId}) произошла ошибка!\n{ex.Message}",
+                    cancellationToken: token);
+            }
+            return formStatus;
         }
+
+        #endregion
 
         #endregion
     }
