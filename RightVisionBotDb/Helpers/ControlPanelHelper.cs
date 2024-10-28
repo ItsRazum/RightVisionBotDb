@@ -11,9 +11,11 @@ namespace RightVisionBotDb.Helpers
             return (Language.Phrases[rvUser.Lang].ControlPanel.Messages.Welcome, KeyboardsHelper.ControlPanelMainMenu(rvUser));
         }
 
-        public static (string, InlineKeyboardMarkup) UsersExplorer(RvUser rvUser)
+        /*
+        public static (string, InlineKeyboardMarkup) UsersExplorer(RvUser rvUser, int page)
         {
             
         }
+        */
     }
 }

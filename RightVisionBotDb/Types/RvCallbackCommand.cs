@@ -15,13 +15,11 @@ namespace RightVisionBotDb.Types
 
         public async Task<bool> ExecuteAsync(CallbackContext c, CancellationToken token = default)
         {
-            if (c.RvUser.Has(Permission.Messaging))
+            if (c.RvUser.Has(Permission.Messaging)
+                && (_requiredPermission == null || c.RvUser.Has((Permission)_requiredPermission)))
             {
-                if (_requiredPermission == null || c.RvUser.Has((Permission)_requiredPermission))
-                {
-                    await _executeMethod(c, token);
-                    return true;
-                }
+                await _executeMethod(c, token);
+                return true;
             }
             return false;
         }

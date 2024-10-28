@@ -47,7 +47,7 @@ namespace RightVisionBotDb.Locations
             var form = c.RvContext.ParticipantForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null)
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Произошла ошибка, вернись в главное меню", cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Не удалось получить данные твоей заявки. Пожалуйста, вернись в главное меню: /menu", cancellationToken: token);
                 return;
             }
 

@@ -14,6 +14,7 @@ namespace RightVisionBotDb.Models
         #region Fields
 
         private IRvLocation location;
+        private string telegram = string.Empty;
 
         #endregion
 
@@ -23,7 +24,11 @@ namespace RightVisionBotDb.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long UserId { get; set; }
         public string Name { get; set; }
-        public string Telegram { get; set; }
+        public string Telegram 
+        {
+            get => string.IsNullOrEmpty(telegram) ? "x" : telegram;
+            set => telegram = value; 
+        }
         public Enums.Lang Lang { get; set; }
         public Status Status { get; set; } = Status.User;
         public Role Role { get; set; } = Role.None;
@@ -38,8 +43,8 @@ namespace RightVisionBotDb.Models
             }
         }
         public UserPermissions UserPermissions { get; set; }
-        public RvPunishments Punishments { get; set; }
-        public Rewards Rewards { get; set; }
+        public List<RvPunishment> Punishments { get; set; }
+        public List<Reward> Rewards { get; set; }
 
         #region Cooldown Properties
 
@@ -75,47 +80,20 @@ namespace RightVisionBotDb.Models
                 Telegram = telegram;
 
             UserPermissions = new UserPermissions(PermissionsHelper.Default, UserId);
-            Punishments = new RvPunishments(UserId);
-            Rewards = new Rewards(UserId);
+            Punishments = [];
+            Rewards = [];
         }
 
         public RvUser()
         {
             UserPermissions = new UserPermissions(UserId);
-            Punishments = new RvPunishments(UserId);
-            Rewards = new Rewards(UserId);
+            Punishments = [];
+            Rewards = [];
         }
 
         #endregion
 
         #region Methods
-
-        #region Private
-
-        private void CooldownSettings()
-        {
-            Counter++;
-            if (Counter == 1)
-            {
-                CounterCooldown = new System.Timers.Timer(30000);
-                CounterCooldown.Elapsed += CounterCooldownElapsed;
-                CounterCooldown.Start();
-            }
-
-            if (Cooldown is { Enabled: true }) return;
-            Cooldown = new System.Timers.Timer(TimerInterval);
-            Cooldown.Elapsed += CooldownElapsed;
-            Cooldown.Start();
-        }
-
-        private void CooldownElapsed(object? sender, ElapsedEventArgs e) => Cooldown?.Stop();
-        private void CounterCooldownElapsed(object? sender, ElapsedEventArgs e)
-        {
-            CounterCooldown?.Stop();
-            Counter = 0;
-        }
-
-        #endregion
 
         #region Public
 

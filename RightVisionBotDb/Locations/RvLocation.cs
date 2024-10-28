@@ -64,7 +64,7 @@ namespace RightVisionBotDb.Locations
             var commandData = containsArgs ? c.CallbackQuery.Data!.Split('-').First() : c.CallbackQuery.Data!;
 
             if (CallbackCommands.TryGetValue(commandData, out var command) && !await command.ExecuteAsync(c, token))
-                await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, Language.Phrases[c.RvUser.Lang].Messages.Common.NoPermission, cancellationToken: token);
+                await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, Language.Phrases[c.RvUser.Lang].Messages.Common.NoPermission, showAlert: true, cancellationToken: token);
         }
 
         public IRvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)

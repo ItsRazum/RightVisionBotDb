@@ -1,15 +1,11 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Types;
-using RightVisionBotDb.Singletons;
-using Telegram.Bot;
-using EasyForms.Types;
-using System.Reflection;
-using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
-using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Types;
+using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
@@ -46,7 +42,7 @@ namespace RightVisionBotDb.Locations
             var form = c.DbContext.CriticForms.FirstOrDefault(form => form.UserId == c.RvUser.UserId);
             if (form == null)
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Произошла ошибка, вернись в главное меню", cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Не удалось получить данные твоей заявки. Пожалуйста, вернись в главное меню: /menu", cancellationToken: token);
                 return;
             }
 

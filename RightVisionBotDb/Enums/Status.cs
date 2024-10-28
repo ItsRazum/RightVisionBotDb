@@ -3,9 +3,9 @@
 public enum Status
 {
     User,
-    Member,
-    ExMember,
+    Participant,
+    ExParticipant,
     Critic,
-    CriticAndMember,
-    CriticAndExMember
+    CriticAndParticipant,
+    CriticAndExParticipant
 }

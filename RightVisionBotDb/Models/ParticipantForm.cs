@@ -43,6 +43,7 @@ namespace RightVisionBotDb.Models
         public Category Category { get; set; } = Category.None;
         public long CuratorId { get; set; } = default;
         public FormStatus Status { get; set; } = FormStatus.NotFinished;
+        public string CallbackType { get; } = "p_";
 
         #endregion
 

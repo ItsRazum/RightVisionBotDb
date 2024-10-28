@@ -17,8 +17,8 @@ public class KeyboardButtons
     public string Sending_Unsubscribe { get; set; }
     public string CriticFormVariationOne { get; set; }
     public string CriticFormVariationTwo { get; set; }
-    public string MemberFormVariationOne { get; set; }
-    public required string MemberFormVariationTwo { get; set; }
+    public string ParticipantFormVariationOne { get; set; }
+    public required string ParticipantFormVariationTwo { get; set; }
     public string Minimize { get; set; }
     public string Maximize { get; set; }
     public required CriticMenu CriticMenu { get; set; }

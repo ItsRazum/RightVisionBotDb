@@ -104,8 +104,8 @@ namespace RightVisionBotDb.Helpers
                 .AppendLine()
                 .AppendLine(phrases.Profile.Rewards.Header); //Награды
             if (rvUser.Rewards.Count > 0)
-                foreach (var reward in rvUser.Rewards.Collection)
-                    sb.AppendLine($"- {rvUser.Rewards.Collection.IndexOf(reward)}: [{reward.Icon}] {reward.Description}");
+                foreach (var reward in rvUser.Rewards)
+                    sb.AppendLine($"- {rvUser.Rewards.IndexOf(reward)}: [{reward.Icon}] {reward.Description}");
 
             else
                 sb.AppendLine("- " + phrases.Profile.Rewards.NoRewards);

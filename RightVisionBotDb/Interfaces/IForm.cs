@@ -14,6 +14,7 @@ namespace RightVisionBotDb.Interfaces
         public Category Category { get; set; }
         public long CuratorId { get; set; }
         public FormStatus Status { get; set; }
+        public string CallbackType { get; }
 
         #endregion
 

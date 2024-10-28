@@ -19,6 +19,8 @@ namespace RightVisionBotDb.Lang
                 Phrases.Add(l, langInstance ?? throw new NullReferenceException(nameof(langInstance)));
             }
 
+            Phrases.Add(Enums.Lang.Na, Phrases[Enums.Lang.Ru]);
+
             App.RegisteredLangs = langs;
         }
 

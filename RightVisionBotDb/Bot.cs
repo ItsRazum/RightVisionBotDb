@@ -17,12 +17,14 @@ namespace RightVisionBotDb
 
         private readonly ILogger _logger;
         private bool _isInitialized = false;
+        public const long ParticipantChatId = -1002074764678;
+        public const long CriticChatId = -1001968408177;
+        public IConfiguration Languages;
 
         #endregion
 
         #region Properties
 
-        public IConfiguration Languages;
         public ITelegramBotClient Client { get; private set; }
         private LocationManager LocationManager { get; }
 
@@ -43,7 +45,7 @@ namespace RightVisionBotDb
             _logger.Information("Запуск бота...");
             try
             {
-                Client = new TelegramBotClient(App.Configuration.GetSection(nameof(Bot))["Token"] ?? throw new NullReferenceException("Token"));
+                Client = new TelegramBotClient(App.Configuration.BotSettings.Token);
                 var cts = new CancellationTokenSource();
                 var cancellationToken = cts.Token;
                 var receiverOptions = new ReceiverOptions { AllowedUpdates = [UpdateType.CallbackQuery, UpdateType.Message, UpdateType.ChatMember] };
@@ -79,13 +81,15 @@ namespace RightVisionBotDb
 
             _logger.Information("Сборка конфигурации...");
 
-            App.Configuration = new ConfigurationBuilder()
+            var configuration = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            App.DefaultRightVision = App.Configuration.GetSection("Contest")["DefaultRightVision"] ?? throw new NullReferenceException(nameof(App.DefaultRightVision));
-            App.RightVisionDatabasesPath = App.Configuration.GetSection("Data")["RightVisionDatabasesPath"] ?? throw new NullReferenceException("RightVisionDatabasesPath");
+            App.Configuration = new(configuration);
+
+            App.DefaultRightVision = App.Configuration.ContestSettings.DefaultRightVision;
+            App.RightVisionDatabasesPath = App.Configuration.DataSettings.RightVisionDatabasesPath;
 
             _logger.Information("Проверка баз данных...");
             DirectoryInfo? info = null;

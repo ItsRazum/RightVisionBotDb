@@ -37,11 +37,11 @@ public enum Permission
     /// <summary>
     /// Право на доступ к чату участников
     /// </summary>
-    MemberChat,
+    ParticipantChat,
     /// <summary>
     /// Право на отправку сообщений в чате участников
     /// </summary>
-    ChattingInMemberChat,
+    ChattingInParticipantChat,
     /// <summary>
     /// Право на нахождение в чате судей
     /// </summary>

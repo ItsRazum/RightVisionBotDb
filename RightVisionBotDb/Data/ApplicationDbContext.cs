@@ -1,5 +1,6 @@
 ﻿using DryIoc;
 using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
@@ -33,20 +34,20 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.Entity<RvUser>()
             .Property(u => u.UserPermissions)
             .HasConversion(
-                v => $"{v.RvUserId}:{v}",
-                v => UserPermissions.FromString(v)
+                v => ConvertHelper.PermissionsToString(v),
+                v => ConvertHelper.StringToPermissions(v)
             );
         modelBuilder.Entity<RvUser>()
             .Property(u => u.Rewards)
             .HasConversion(
-                v => $"{v.RvUserId}:{v}",
-                v => Rewards.FromString(v)
+                v => ConvertHelper.RewardsToString(v),
+                v => ConvertHelper.StringToRewards(v)
             );
         modelBuilder.Entity<RvUser>()
             .Property(u => u.Punishments)
             .HasConversion(
-                v => $"{v.RvUserId}:{v}",
-                v => RvPunishments.FromString(v)
+                v => ConvertHelper.RvPunishmentsToString(v),
+                v => ConvertHelper.StringToRvPunishments(v)
             );
         modelBuilder.Entity<RvUser>()
             .Property(u => u.Location).HasConversion(

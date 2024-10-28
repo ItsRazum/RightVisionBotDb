@@ -5,10 +5,9 @@ public enum Role
     None,
     Designer,
     Translator,
-    Moderator,
-    SeniorModerator,
-    TechAdmin,
     Curator,
     Developer,
+    Moderator,
+    SeniorModerator,
     Admin
 }

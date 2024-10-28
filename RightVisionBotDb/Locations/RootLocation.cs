@@ -37,11 +37,12 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/hide", HideCommand)
                 .RegisterTextCommand("/menu", MainMenuCommand)
                 .RegisterTextCommand("назначить", AppointCommand)
-                .RegisterTextCommand("/news", NewsCommand, Permission.News);
+                .RegisterTextCommand("/news", NewsCommand, Permission.News)
+                .RegisterTextCommand("+permission", AddPermissionCommand, Permission.GivePermission);
 
             this
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
-                .RegisterCallbackCommand("useControlPanel");
+                .RegisterCallbackCommand("useControlPanel", UseControlPanelCallback);
         }
 
         #endregion
@@ -272,142 +273,51 @@ namespace RightVisionBotDb.Locations
 
         private async Task AppointCommand(CommandContext c, CancellationToken token = default)
         {
-            var args = c.Message.Text!.Trim().Split(' ');
-            RvUser? targetRvUser = null;
-            bool replied = c.Message.ReplyToMessage != null;
-            Role role = Role.None;
+            var (extractedRvUser, args) = CommandFormatHelper.ExtractRvUserFromArgs(c);
 
-            (bool success, string message) result = (false, string.Empty);
+            string message = "Пользователь не найден или не указан!";
 
-            switch (args.Length)
+            if (extractedRvUser != null)
             {
-                case 1:
-                    result = (false, "Для использования этой команды необходимо указать должность!");
-                    break;
-                case 2:
-                    if (!replied)
-                    {
-                        result = (false, "Не указан целевой пользователь! Чтобы его указать - выбери его реплаем или впиши его Юзернейм/Id (что-то одно) перед должностью.");
-                        break;
-                    }
-                    targetRvUser = await c.DbContext.RvUsers.FirstOrDefaultAsync(u => u.UserId == c.Message.ReplyToMessage!.From!.Id);
-
-                    if (targetRvUser == null)
-                    {
-                        result = (false, "Запрашиваемый пользователь не зарегистрирован!");
-                        break;
-                    }
-                    if (Enum.TryParse(args.Last(), out role))
-                    {
-                        result = (true, $"Пользователь успешно назначен на должность {role}!");
-                        break;
-                    }
-                    result = (false, "Запрашиваемая должность не найдена!");
-                    break;
-                case 3:
-                    if (replied)
-                    {
-                        result = (false, "Слишком много аргументов!");
-                        break;
-                    }
-
-                    var userTag = args[1];
-                    targetRvUser = long.TryParse(userTag, out var userId)
-                        ? c.DbContext.RvUsers.FirstOrDefault(u => u.UserId == userId)
-                        : c.DbContext.RvUsers.FirstOrDefault(u => "@" + u.Telegram == userTag);
-
-                    if (targetRvUser == null)
-                    {
-                        result = (false, "Запрашиваемый пользователь не зарегистрирован!");
-                        break;
-                    }
-                    if (Enum.TryParse(args.Last(), out role))
-                    {
-                        result = (true, $"Пользователь успешно назначен на должность {role}!");
-                        break;
-                    }
-                    result = (false, "Запрашиваемая должность не найдена!");
-
-                    break;
-            }
-            if (result.success)
-            {
-                targetRvUser!.Role = role;
-                targetRvUser.ResetPermissions();
-
+                if (Enum.TryParse(args.First(), out Role role))
+                {
+                    extractedRvUser.Role = role;
+                    extractedRvUser.ResetPermissions();
+                    message = $"Пользователь успешно назначен на должность {role}!";
+                    await Bot.Client.SendTextMessageAsync(
+                        extractedRvUser.UserId,
+                        string.Format(Language.Phrases[extractedRvUser.Lang].Messages.Common.UserAppointed, extractedRvUser.Name, role),
+                        cancellationToken: token);
+                }
+                else
+                    message = "Запрашиваемая должность не найдена!";
             }
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
-                result.message,
+                message,
                 cancellationToken: token);
         }
 
         private async Task AddPermissionCommand(CommandContext c, CancellationToken token)
         {
-            var args = c.Message.Text!.Split(' ');
-            var replied = c.Message.ReplyToMessage != null;
-            (RvUser? targetRvUser, Permission? permission, string message) result = (null, null, string.Empty);
-            
-            switch (args.Length)
+            var (extractedRvUser, args) = CommandFormatHelper.ExtractRvUserFromArgs(c);
+
+            string message = "Пользователь не найден или не указан!";
+
+            if (extractedRvUser != null)
             {
-                case 1:
-                    result.message = "Для использования этой команды необходимо указать должность!";
-                    break;
-                case 2:
-                    {
-                        if (!replied)
-                        {
-                            result.message = "Не указан целевой пользователь! Чтобы его указать - выбери его реплаем или впиши его Юзернейм/Id (что-то одно) перед должностью.";
-                        }
-                        else
-                        {
-                            result.targetRvUser = await c.DbContext.RvUsers.FirstOrDefaultAsync(u => u.UserId == c.Message.From!.Id, cancellationToken: token);
-                            if (Enum.TryParse<Permission>(args.Last(), out var permission))
-                            {
-                                result.permission = permission;
-                                result.message = $"Пользователю успешно выдано право Permission.{permission}!";
-                                break;
-                            }
-                            result.message = "Запрашиваемое право не найдено!";
-                        }
-                    }
-                    break;
-                case 3:
-                    {
-                        if (replied)
-                        {
-                            result.message = "Слишком много аргументов!";
-                            break;
-                        }
-
-                        var userTag = args[1];
-                        result.targetRvUser = long.TryParse(userTag, out var userId)
-                            ? c.DbContext.RvUsers.FirstOrDefault(u => u.UserId == userId)
-                            : c.DbContext.RvUsers.FirstOrDefault(u => "@" + u.Telegram == userTag);
-
-                        if (result.targetRvUser == null)
-                        {
-                            result.message = "Запрашиваемый пользователь не зарегистрирован!";
-                            break;
-                        }
-                        if (Enum.TryParse<Permission>(args.Last(), out var permission))
-                        {
-                            result.permission = permission;
-                            result.message = $"Пользователю успешно выдано право Permission.{permission}!";
-                            break;
-                        }
-                        result.message = "Запрашиваемое право не найдено!";
-                    }
-                    break;
+                if (Enum.TryParse(args.Last(), out Permission permission))
+                    extractedRvUser.UserPermissions += permission;
+                else
+                    message = "Запрашиваемое право не найдено!";
             }
+            
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
-                result.message,
+                message,
                 cancellationToken: token);
-
-            if (result.targetRvUser != null && result.permission != null)
-                result.targetRvUser.UserPermissions += (Permission)result.permission;
+                
         }
 
         private async Task NewsCommand(CommandContext c, CancellationToken token)
@@ -500,9 +410,10 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
         }
 
-        private async Task UseControlPanelCallback(CommandContext c, CancellationToken token = default)
+        private async Task UseControlPanelCallback(CallbackContext c, CancellationToken token = default)
         {
-            await Bot.Client.SendTextMessageAsync(c.Message.Chat, ),
+            (var message, var keyboard) = ControlPanelHelper.MainPage(c.RvUser);
+            await Bot.Client.SendTextMessageAsync(c.CallbackQuery.Message!.Chat, message, replyMarkup: keyboard, cancellationToken: token);
         }
 
         #endregion

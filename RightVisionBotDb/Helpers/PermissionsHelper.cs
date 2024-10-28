@@ -23,21 +23,21 @@ namespace RightVisionBotDb.Helpers
             Permission.ChattingInCriticChat, Permission.Evaluation
         });
 
-        public static UserPermissions Member = new(User + new UserPermissions
+        public static UserPermissions Participant = new(User + new UserPermissions
         {
-            Permission.TrackCard,            Permission.MemberChat,
-            Permission.ChattingInMemberChat,
+            Permission.TrackCard,            Permission.ParticipantChat,
+            Permission.ChattingInParticipantChat,
         });
 
-        public static UserPermissions ExMember = new(User + new UserPermissions
+        public static UserPermissions ExParticipant = new(User + new UserPermissions
         {
-            Permission.MemberChat,
-            Permission.ChattingInMemberChat,
+            Permission.ParticipantChat,
+            Permission.ChattingInParticipantChat,
         });
 
-        public static UserPermissions CriticAndMember = new(User + Member + Critic);
+        public static UserPermissions CriticAndParticipant = new(User + Participant + Critic);
 
-        public static UserPermissions CriticAndExMember = new(User + ExMember + Critic);
+        public static UserPermissions CriticAndExParticipant = new(User + ExParticipant + Critic);
 
         public static UserPermissions Moderator = new(User + new UserPermissions
         {
@@ -66,7 +66,7 @@ namespace RightVisionBotDb.Helpers
             Permission.Audit
         };
 
-        public static UserPermissions Admin = new(User + CriticAndMember + SeniorModerator + Curator + Developer + new UserPermissions()
+        public static UserPermissions Admin = new(User + CriticAndParticipant + SeniorModerator + Curator + Developer + new UserPermissions()
         {
             Permission.Degrade,             Permission.DegradePermission,
             Permission.GivePermission,      Permission.Grant,
@@ -77,10 +77,10 @@ namespace RightVisionBotDb.Helpers
         {
             { Status.User, User },
             { Status.Critic, Critic },
-            { Status.Member, Member },
-            { Status.ExMember, ExMember },
-            { Status.CriticAndMember, CriticAndMember },
-            { Status.CriticAndExMember, CriticAndExMember },
+            { Status.Participant, Participant },
+            { Status.ExParticipant, ExParticipant },
+            { Status.CriticAndParticipant, CriticAndParticipant },
+            { Status.CriticAndExParticipant, CriticAndExParticipant },
 
             { Role.Admin, Admin },
             { Role.Curator, Curator },
@@ -88,7 +88,6 @@ namespace RightVisionBotDb.Helpers
             { Role.Moderator, Moderator },
             { Role.SeniorModerator, SeniorModerator },
 
-            { Role.TechAdmin, Empty },
             { Role.Designer, Empty },
             { Role.Translator, Empty },
             { Role.None, Empty }

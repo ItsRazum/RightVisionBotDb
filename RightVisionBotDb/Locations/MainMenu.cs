@@ -17,16 +17,11 @@ namespace RightVisionBotDb.Locations
             : base(bot, locationManager, logger, locationsFront)
         {
             this
-                .RegisterCallbackCommand("back", BackCallback)
+                .RegisterCallbackCommand("back", MainMenuCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("about", AboutCallback)
                 .RegisterCallbackCommand("profile", ProfileCallback)
                 .RegisterCallbackCommand("forms", FormsCallback);
-        }
-
-        private async Task BackCallback(CallbackContext c, CancellationToken token)
-        {
-            await LocationsFront.MainMenu(c, token);
         }
 
         private async Task MainMenuCallback(CallbackContext c, CancellationToken token)
@@ -40,6 +35,7 @@ namespace RightVisionBotDb.Locations
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Language.Phrases[c.RvUser.Lang].Messages.Common.About,
+                replyMarkup: KeyboardsHelper.InlineBack(c.RvUser.Lang),
                 cancellationToken: token);
         }
 

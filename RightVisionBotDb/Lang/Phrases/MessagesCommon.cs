@@ -13,6 +13,7 @@
         public string EnrollmentClosed { get; set; }
         public string StartingForm { get; set; }
         public string UserNotFound { get; set; }
+        public string UserAppointed { get; set; }
         public string LocationError { get; set; }
     }
 }

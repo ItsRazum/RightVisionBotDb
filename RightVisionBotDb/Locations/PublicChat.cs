@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DryIoc.ImTools;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using RightVisionBotDb.Data;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
@@ -10,7 +10,6 @@ using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using System.Globalization;
-using System.Linq.Expressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -44,6 +43,7 @@ namespace RightVisionBotDb.Locations
             this
                 .RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
+                .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
                 .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
                 .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
                 .RegisterCallbackCommand("permissions_back", PermissionsBackCallback)
@@ -59,16 +59,14 @@ namespace RightVisionBotDb.Locations
 
         private async Task ProfileCommand(CommandContext c, CancellationToken token)
         {
-            var targetRvUser = c.Message.ReplyToMessage == null
-                ? c.RvUser
-                : c.DbContext.RvUsers.FirstOrDefault(u => u.UserId == c.Message.ReplyToMessage.From!.Id);
+            var (extractedRvUser, _) = CommandFormatHelper.ExtractRvUserFromArgs(c);
 
-            if (targetRvUser == null)
+            if (extractedRvUser == null)
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.UserNotFound, cancellationToken: token);
                 return;
             }
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(targetRvUser, c.RvUser, c.Message.Chat.Type, App.DefaultRightVision, token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c.RvUser, c.Message.Chat.Type, App.DefaultRightVision, token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -79,28 +77,125 @@ namespace RightVisionBotDb.Locations
 
         private async Task BanCommand(CommandContext c, CancellationToken token)
         {
-            var commandArgs = c.Message.Text!.Trim().Split(' ');
-            switch (commandArgs.Length)
+            var (targetRvUser, message, reason, endDate) = await PrepareRestrictionAsync(c, PunishmentType.Ban, token);
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
+
+            if (targetRvUser != null)
             {
-                case 1:
-                    if (c.Message.ReplyToMessage == null)
-                    {
-                        await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Данная команда используется только по отношению к другому пользователю!", cancellationToken: token);
-                        return;
-                    }
-                    else
-                    {
-                        await Bot.Client.SendTextMessageAsync(c.Message.Chat, "");
-                        break;
-                    }
-                case 2:
-                    break;
-                case 3:
-                    break;
-                default:
-                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Слишком много аргументов в команде!", cancellationToken: token);
-                    break;
+                await Bot.Client.BanChatMemberAsync(c.Message.Chat, targetRvUser.UserId, endDate, cancellationToken: token);
+
+                targetRvUser.Punishments.Add(new(PunishmentType.Ban, c.Message.Chat.Id, reason, DateTime.Now, endDate));
             }
+        }
+
+        private async Task MuteCommand(CommandContext c, CancellationToken token = default)
+        {
+
+            var (targetRvUser, message, reason, endDate) = await PrepareRestrictionAsync(c, PunishmentType.Mute, token);
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
+
+            if (targetRvUser != null)
+            {
+
+                await Bot.Client.RestrictChatMemberAsync(
+                    c.Message.Chat, 
+                    targetRvUser.UserId, 
+                    new ChatPermissions
+                    {
+                        CanSendMessages = false,
+                        CanSendAudios = false,
+                        CanSendPolls = false,
+                        CanSendOtherMessages = false,
+                        CanInviteUsers = false,
+                        CanPinMessages = false,
+                        CanSendDocuments = false,
+                        CanSendPhotos = false,
+                        CanSendVideos = false,
+                        CanSendVoiceNotes = false,
+                        CanSendVideoNotes = false
+                    }, 
+                untilDate: endDate,
+                cancellationToken: token);
+
+                targetRvUser.Punishments.Add(new(PunishmentType.Mute, c.Message.Chat.Id, reason, DateTime.Now, endDate));
+            }
+        }
+
+        private async Task<(RvUser? targetRvUser, string message, string reason, DateTime endDate)> PrepareRestrictionAsync(CommandContext c, PunishmentType punishmentType, CancellationToken token = default)
+        {
+            var (extractedRvUser, args) = CommandFormatHelper.ExtractRvUserFromArgs(c);
+
+
+            string message;
+            if (extractedRvUser == null || extractedRvUser == c.RvUser || c.RvUser.Role <= extractedRvUser.Role)
+            {
+                message = extractedRvUser == null
+                    ? "Пользователь не указан или не найден!"
+                    : extractedRvUser == c.RvUser
+                        ? "Извини, но ты не можешь выдать наказание самому себе!"
+                        : "Извини, но ты не можешь выдать наказание пользователю, должность которого выше твоей!";
+
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
+
+                return (null, message, string.Empty, DateTime.MinValue);
+            }
+            int minutes = 60;
+
+            if (args.Length > 0)
+            {
+                var arg = args.First();
+                if (arg.Length > 1 && char.IsLetter(arg[^1]) && int.TryParse(arg[..^1], out var timeValue))
+                {
+                    minutes = arg[^1] switch
+                    {
+                        'm' => timeValue,
+                        'h' => timeValue * 60,
+                        _ => 60
+                    };
+                    args = args.RemoveAt(0);
+                }
+                else if (int.TryParse(arg, out var plainMinutes))
+                {
+                    minutes = plainMinutes;
+                    args = args.RemoveAt(0);
+                }
+            }
+
+            string reason = args.Length > 0 ? string.Join(" ", args) : Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.NoReason ?? "Не указано";
+
+            var endDate = DateTime.Now.AddMinutes(minutes);
+
+            (string restrictionTypeString, string translatedRestrictionType, string whoGaveRestrictionString) = punishmentType switch
+            {
+                PunishmentType.Ban => ("бан", Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.Ban, "Забанил"),
+                PunishmentType.Mute => ("мут", Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.Mute, "Замутил"),
+                _ => (string.Empty, string.Empty, string.Empty)
+            };
+
+            message = $"Пользователь {extractedRvUser.Name} получает {restrictionTypeString} в группе!\n\n- {whoGaveRestrictionString}: {c.RvUser.Name} (@{c.RvUser.Telegram})\n- По причине: {reason}\n- До: {endDate.ToString("g", new CultureInfo("ru-RU"))}";
+
+
+            var group = c.Message.Chat.Id switch
+            {
+                Bot.CriticChatId => Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.InCritics,
+                Bot.ParticipantChatId => Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.InParticipants,
+                _ => string.Empty
+            };
+
+            await Bot.Client.SendTextMessageAsync(
+                extractedRvUser.UserId,
+                string.Format(
+                    Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Notification,
+                    extractedRvUser.Name,
+                    translatedRestrictionType,
+                    group,
+                    endDate.ToString("g", new CultureInfo("ru-RU")),
+                    reason) + Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Contacts,
+                cancellationToken: token);
+
+            return (extractedRvUser, message, reason, endDate);
         }
 
         private async Task PermissionsBackCallback(CallbackContext c, CancellationToken token = default)
@@ -308,5 +403,6 @@ namespace RightVisionBotDb.Locations
         #endregion
 
         #endregion
+
     }
 }
