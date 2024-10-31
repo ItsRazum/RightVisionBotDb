@@ -132,7 +132,7 @@ namespace RightVisionBotDb.Locations
                     }
 
                 }
-                
+
                 rvUser.LocationChanged -= OnLocationChanged;
 
                 async void OnLocationChanged(object? sender, (IRvLocation, IRvLocation) e)
@@ -143,7 +143,7 @@ namespace RightVisionBotDb.Locations
                 if (db.ChangeTracker.HasChanges())
                     await db.SaveChangesAsync(token);
 
-                if(rvContext.ChangeTracker.HasChanges())
+                if (rvContext.ChangeTracker.HasChanges())
                     await rvContext.SaveChangesAsync(token);
             }
             catch (Exception ex)
@@ -307,17 +307,24 @@ namespace RightVisionBotDb.Locations
 
             if (extractedRvUser != null)
             {
-                if (Enum.TryParse(args.Last(), out Permission permission))
+                if (extractedRvUser == c.RvUser)
+                    message = "Извини, но ты не можешь выдавать права самому себе!";
+
+                else if (Enum.TryParse(args.Last(), out Permission permission))
+                {
                     extractedRvUser.UserPermissions += permission;
+                    message = $"Пользователю успешно выдано право Permission.{permission}";
+                }
+
                 else
                     message = "Запрашиваемое право не найдено!";
             }
-            
+
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
                 message,
                 cancellationToken: token);
-                
+
         }
 
         private async Task NewsCommand(CommandContext c, CancellationToken token)

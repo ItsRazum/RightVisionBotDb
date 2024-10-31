@@ -1,6 +1,5 @@
 ﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
@@ -92,7 +91,6 @@ namespace RightVisionBotDb.Locations
 
         private async Task MuteCommand(CommandContext c, CancellationToken token = default)
         {
-
             var (targetRvUser, message, reason, endDate) = await PrepareRestrictionAsync(c, PunishmentType.Mute, token);
 
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
@@ -127,7 +125,6 @@ namespace RightVisionBotDb.Locations
         private async Task<(RvUser? targetRvUser, string message, string reason, DateTime endDate)> PrepareRestrictionAsync(CommandContext c, PunishmentType punishmentType, CancellationToken token = default)
         {
             var (extractedRvUser, args) = CommandFormatHelper.ExtractRvUserFromArgs(c);
-
 
             string message;
             if (extractedRvUser == null || extractedRvUser == c.RvUser || c.RvUser.Role <= extractedRvUser.Role)
