@@ -46,7 +46,8 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
                 .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
                 .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
-                .RegisterCallbackCommand("permissions_back", PermissionsBackCallback)
+                .RegisterCallbackCommand("punishments_history", PunishmentsHistoryCallback)
+                .RegisterCallbackCommand("backToProfile", BackToProfileCallback)
                 .RegisterCallbackCommand("c_take", CriticTakeCallback, Permission.Curate)
                 .RegisterCallbackCommand("p_take", ParticipantTakeCallback, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
@@ -198,7 +199,7 @@ namespace RightVisionBotDb.Locations
             return (extractedRvUser, message, reason, endDate);
         }
 
-        private async Task PermissionsBackCallback(CallbackContext c, CancellationToken token = default)
+        private async Task BackToProfileCallback(CallbackContext c, CancellationToken token = default)
         {
             var targetRvUser = c.CallbackQuery.Message!.ReplyToMessage == null
             ? c.RvUser
@@ -224,6 +225,12 @@ namespace RightVisionBotDb.Locations
         {
             var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_minimized-", ""));
             await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), c.CallbackQuery.Data!.Contains("minimized"), token);
+        }
+
+        private async Task PunishmentsHistoryCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("punishments_history-", ""));
+
         }
 
         private async Task CriticTakeCallback(CallbackContext c, CancellationToken token = default)

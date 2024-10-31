@@ -17,20 +17,20 @@ namespace RightVisionBotDb.Types
         public PunishmentType Type { get; set; }
         public long GroupId { get; set; }
         public string? Reason { get; set; }
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public DateTime EndDateTime { get; set; }
 
         #endregion
 
         #region Constructor
 
-        public RvPunishment(PunishmentType type, long groupId, string? reason, DateTime from, DateTime to)
+        public RvPunishment(PunishmentType type, long groupId, string? reason, DateTime startDateTime, DateTime endDateTime)
         {
             Type = type;
             GroupId = groupId;
             Reason = reason;
-            From = from;
-            To = to;
+            StartDateTime = startDateTime;
+            EndDateTime = endDateTime;
         }
 
         #endregion
@@ -43,8 +43,8 @@ namespace RightVisionBotDb.Types
             sb.Append($"{Type};");
             sb.Append(GroupId + ";");
             sb.Append(Reason + ";");
-            sb.Append(From.ToString(CultureInfo.GetCultureInfo("en-US").DateTimeFormat) + ";");
-            sb.Append(To.ToString(CultureInfo.GetCultureInfo("en-US").DateTimeFormat) + ",");
+            sb.Append(StartDateTime.ToString(CultureInfo.GetCultureInfo("en-US").DateTimeFormat) + ";");
+            sb.Append(EndDateTime.ToString(CultureInfo.GetCultureInfo("en-US").DateTimeFormat) + ",");
             return sb.ToString();
         }
 

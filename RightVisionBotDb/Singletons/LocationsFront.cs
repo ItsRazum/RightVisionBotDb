@@ -4,6 +4,7 @@ using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Singletons
 {
@@ -64,6 +65,17 @@ namespace RightVisionBotDb.Singletons
         }
 
         public async Task PermissionsList(CallbackContext c, RvUser targetRvUser, bool minimize, CancellationToken token = default)
+        {
+            (string content, InlineKeyboardMarkup? keyboard) = ProfileHelper.RvUserPermissions(c, targetRvUser, minimize);
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                content,
+                replyMarkup: keyboard,
+                cancellationToken: token);
+        }
+
+        public async Task PunishmentsList(CallbackContext c, RvUser targetRvUser, CancellationToken token = default)
         {
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,

@@ -114,7 +114,7 @@ namespace RightVisionBotDb.Helpers
 			keyboardLayers.Add(
 				[
 				InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PermissionsList, $"permissions_minimized-{rvUser.UserId}"),
-				InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PunishmentsHistory, $"history-{rvUser.UserId}")
+				InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.PunishmentsHistory, $"punishments_history-{rvUser.UserId}")
 			]);
 
 			if (type != ChatType.Private) return keyboardLayers.ToArray();
@@ -187,10 +187,48 @@ namespace RightVisionBotDb.Helpers
 				buttons.Add(InlineKeyboardButton.WithCallbackData(buttonValues.Item1, buttonValues.Item2));
 			}
 
-			buttons.Add(InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, $"permissions_back-{rvUser.UserId}"));
+			buttons.Add(InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, $"backToProfile-{rvUser.UserId}"));
 
 			return new(buttons);
 		}
+
+		public static InlineKeyboardMarkup PunishmentsList(RvUser rvUser, bool bansCheckBoxEnabled, bool mutesCheckBoxEnabled, Enums.Lang lang)
+		{
+			var backButton = InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, $"backToProfile-{rvUser.UserId}");
+
+            if (rvUser.Punishments.Count == 0)
+				return new(backButton);
+
+            static (string checkBox, string callback) getButtonParts(bool condition, PunishmentType punishmentType, long userId)
+            {
+				(string checkBox, string prefix) = condition
+					? ("☑", "hide")
+					: ("☐", "show");
+                return (checkBox, $"punishments_{prefix}{punishmentType}-{userId}");
+            }
+
+            List<InlineKeyboardButton[]> layers = [];
+
+			if (rvUser.Punishments.Any(p => p.Type == PunishmentType.Ban) && 
+				rvUser.Punishments.Any(p => p.Type == PunishmentType.Mute)) //true, если у пользователя в наказаниях имеются как бан, так и мут
+            {
+                var (banCheckBox, banCallback) = getButtonParts(bansCheckBoxEnabled, PunishmentType.Ban, rvUser.UserId);
+				layers.Add([InlineKeyboardButton.WithCallbackData(
+					banCheckBox + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowBans, 
+					banCallback)]
+					);
+
+                var (muteCheckBox, muteCallback) = getButtonParts(mutesCheckBoxEnabled, PunishmentType.Mute, rvUser.UserId);
+                layers.Add([InlineKeyboardButton.WithCallbackData(
+                    muteCheckBox + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowMutes,
+                    muteCallback)]
+					);
+            }
+
+            layers.Add([ backButton ]);
+
+			return new(layers);
+        }
 
 		public static InlineKeyboardMarkup TakeCuratorship(IForm form)
 		{

@@ -10,5 +10,6 @@
         public string DateTo { get; set; }
         public string NoReason { get; set; }
         public string NoPunishments { get; set; }
+        public PunishmentButtons Buttons { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Enums;
+using RightVisionBotDb.Exceptions;
 using RightVisionBotDb.Extensions.Enums;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
@@ -48,6 +49,7 @@ namespace RightVisionBotDb.Helpers
             using (var db = DatabaseHelper.GetRightVisionContext(rightvision))
             {
                 participantForm = await db.ParticipantForms.FirstOrDefaultAsync(m => m.UserId == targetRvUser.UserId && m.Status == FormStatus.Accepted, token);
+
                 if (participantForm != null)
                 {
                     if (participantForm.Country != null)
@@ -113,9 +115,10 @@ namespace RightVisionBotDb.Helpers
             return (sb.ToString(), await KeyboardsHelper.Profile(targetRvUser, chatType, rightvision, rvUser.Lang));
         }
 
-        public static string RvUserPermissions(CallbackContext c, RvUser targetRvUser, bool minimize, Enums.Lang lang)
+        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPermissions(CallbackContext c, RvUser targetRvUser, bool minimize)
         {
             var rvUser = c.RvUser;
+            var lang = rvUser.Lang;
 
             StringBuilder sb = new(
                 c.RvUser == targetRvUser
@@ -168,7 +171,21 @@ namespace RightVisionBotDb.Helpers
                     sb.AppendLine("- " + permission);
             }
 
-            return sb.ToString();
+            return (sb.ToString(), KeyboardsHelper.PermissionsList(targetRvUser, minimize, targetRvUser.UserPermissions.Count > 10, c.RvUser.Lang));
+        }
+
+        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPunishments(CallbackContext c, bool showBans, bool showMutes, RvUser targetRvUser)
+        {
+            var sb = new StringBuilder();
+            var filteredPunishments = targetRvUser.Punishments
+                .Where(p => (showBans || p.Type != PunishmentType.Ban) &&
+                             (showMutes || p.Type != PunishmentType.Mute))
+                .OrderByDescending(p => p.StartDateTime);
+
+            foreach (var punishment in filteredPunishments)
+            {
+                sb.AppendLine();
+            }
         }
 
         #endregion
