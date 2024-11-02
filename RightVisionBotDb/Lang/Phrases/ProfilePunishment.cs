@@ -11,5 +11,6 @@
         public string NoReason { get; set; }
         public string NoPunishments { get; set; }
         public PunishmentButtons Buttons { get; set; }
+        public PunishmentTimeLeftFormat TimeLeftFormat { get; set; }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Enums;
-using RightVisionBotDb.Exceptions;
 using RightVisionBotDb.Extensions.Enums;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
+using RightVisionBotDb.Lang.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
+using System.Globalization;
 using System.Text;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -174,18 +175,73 @@ namespace RightVisionBotDb.Helpers
             return (sb.ToString(), KeyboardsHelper.PermissionsList(targetRvUser, minimize, targetRvUser.UserPermissions.Count > 10, c.RvUser.Lang));
         }
 
-        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPunishments(CallbackContext c, bool showBans, bool showMutes, RvUser targetRvUser)
+        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPunishments(CallbackContext c, RvUser targetRvUser, bool showBans, bool showMutes)
         {
             var sb = new StringBuilder();
+            var cultureInfo = new CultureInfo("ru-RU");
             var filteredPunishments = targetRvUser.Punishments
                 .Where(p => (showBans || p.Type != PunishmentType.Ban) &&
                              (showMutes || p.Type != PunishmentType.Mute))
                 .OrderByDescending(p => p.StartDateTime);
 
+
             foreach (var punishment in filteredPunishments)
             {
+                var punishmentType = punishment.Type switch
+                {
+                    PunishmentType.Ban => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Ban,
+                    PunishmentType.Mute => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Mute,
+                    _ => string.Empty
+                };
+
+                var group = punishment.GroupId switch
+                {
+                    Bot.CriticChatId => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.InCritics,
+                    Bot.ParticipantChatId => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.InParticipants,
+                    _ => string.Empty
+                };
+
+                sb.AppendLine($"{punishmentType} {group}{punishment.StartDateTime.ToString("g", new CultureInfo("ru-RU"))}");
+                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Reason}: {punishment.Reason ?? Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoReason}");
+
+                string? timeLeft = null;
+                var punishmentEndDateTime = punishment.EndDateTime.ToString("d", cultureInfo);
+                if (DateTime.Now < punishment.EndDateTime)
+                {
+                    var targetValue = 0;
+                    ITimeFormat format;
+                    var timeSpan = punishment.EndDateTime - DateTime.Now;
+                    if (timeSpan.Days > 0)
+                    {
+                        targetValue = timeSpan.Days;
+                        format = Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.TimeLeftFormat.Days;
+                    }
+                    else if (timeSpan.Hours > 0)
+                    {
+                        targetValue = timeSpan.Hours;
+                        format = Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.TimeLeftFormat.Hours;
+                    }
+                    else if (timeSpan.Minutes > 0)
+                    {
+                        targetValue = timeSpan.Minutes;
+                        format = Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.TimeLeftFormat.Minutes;
+                    }
+                    else throw new InvalidOperationException(nameof(timeSpan));
+
+                    string formattedResult = targetValue.ToString().Last() switch 
+                    {
+                        '1' => format.Singular,
+                        '2' or '3' or '4' => format.Genitive,
+                        _ => format.Plural
+                    };
+
+                    timeLeft = $"{targetValue} {formattedResult}";
+                }
+
+                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.DateTo}: {punishmentEndDateTime}");
                 sb.AppendLine();
             }
+            return (sb.ToString(), KeyboardsHelper.PunishmentsList(targetRvUser, showBans, showMutes, c.RvUser.Lang));
         }
 
         #endregion

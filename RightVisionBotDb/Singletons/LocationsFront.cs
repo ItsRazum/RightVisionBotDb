@@ -12,7 +12,7 @@ namespace RightVisionBotDb.Singletons
     {
         #region Properties
 
-        private Bot Bot { get; set; }
+        private Bot Bot { get; }
         private LocationManager LocationManager { get; }
         private CriticFormService CriticFormService { get; }
         private ParticipantFormService ParticipantFormService { get; }
@@ -75,13 +75,14 @@ namespace RightVisionBotDb.Singletons
                 cancellationToken: token);
         }
 
-        public async Task PunishmentsList(CallbackContext c, RvUser targetRvUser, CancellationToken token = default)
+        public async Task PunishmentsHistory(CallbackContext c, RvUser targetRvUser, bool showBans, bool showMutes, CancellationToken token = default)
         {
+            (string content, InlineKeyboardMarkup? keyboard) = ProfileHelper.RvUserPunishments(c, targetRvUser, showBans, showMutes);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                ProfileHelper.RvUserPermissions(c, c.DbContext.RvUsers.First(u => u == targetRvUser), minimize, c.RvUser.Lang),
-                replyMarkup: KeyboardsHelper.PermissionsList(targetRvUser, minimize, targetRvUser.UserPermissions.Count > 10, c.RvUser.Lang),
+                content,
+                replyMarkup: keyboard,
                 cancellationToken: token);
         }
 

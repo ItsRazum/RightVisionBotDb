@@ -155,7 +155,21 @@
             "ShowMutes": "Показывать муты"
           },
           "TimeLeftFormat": {
-            "Day": "день"
+            "Days": {
+              "Singular": "день",
+              "Plural": "дней",
+              "Genitive": "дня"
+            },
+            "Hours": {
+              "Singular": "час",
+              "Plural": "часов",
+              "Genitive": "часа"
+            },
+            "Minutes": {
+              "Singular": "минута",
+              "Plural": "минут",
+              "Genitive": "минуты"
+            }
           }
         }
       }

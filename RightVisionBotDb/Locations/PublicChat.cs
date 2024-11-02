@@ -200,7 +200,7 @@ namespace RightVisionBotDb.Locations
         {
             var targetRvUser = c.CallbackQuery.Message!.ReplyToMessage == null
             ? c.RvUser
-            : c.DbContext.RvUsers.FirstOrDefault(u => u.UserId == c.CallbackQuery.Message!.ReplyToMessage.From!.Id);
+            : await c.DbContext.RvUsers.FirstOrDefaultAsync(u => u.UserId == c.CallbackQuery.Message!.ReplyToMessage.From!.Id, token);
 
             if (targetRvUser == null)
             {
@@ -221,13 +221,13 @@ namespace RightVisionBotDb.Locations
         private async Task PermissionsCallback(CallbackContext c, CancellationToken token = default)
         {
             var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_minimized-", ""));
-            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), c.CallbackQuery.Data!.Contains("minimized"), token);
+            await LocationsFront.PermissionsList(c, await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c.CallbackQuery.Data!.Contains("minimized"), token);
         }
 
         private async Task PunishmentsHistoryCallback(CallbackContext c, CancellationToken token = default)
         {
             var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("punishments_history-", ""));
-
+            await LocationsFront.PunishmentsHistory(c, await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), true, true, token);
         }
 
         private async Task CriticTakeCallback(CallbackContext c, CancellationToken token = default)
