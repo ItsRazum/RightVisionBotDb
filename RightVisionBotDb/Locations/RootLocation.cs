@@ -11,7 +11,6 @@ using RightVisionBotDb.Types;
 using Serilog;
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -36,13 +35,18 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/start", StartCommand)
                 .RegisterTextCommand("/hide", HideCommand)
                 .RegisterTextCommand("/menu", MainMenuCommand)
-                .RegisterTextCommand("назначить", AppointCommand)
+                .RegisterTextCommand("назначить", AppointCommand, Permission.Grant)
                 .RegisterTextCommand("/news", NewsCommand, Permission.News)
-                .RegisterTextCommand("+permission", AddPermissionCommand, Permission.GivePermission);
-
-            this
+                .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
-                .RegisterCallbackCommand("useControlPanel", UseControlPanelCallback);
+                .RegisterCallbackCommand("useControlPanel", UseControlPanelCallback)
+                .RegisterCallbackCommand("backToProfile", BackToProfileCallback)
+                .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
+                .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
+                .RegisterCallbackCommand("punishments_history", PunishmentsHistoryCallback)
+                .RegisterCallbackCommand("punishments_hide", PunishmentsListActionCallback)
+                .RegisterCallbackCommand("punishments_show", PunishmentsListActionCallback);
         }
 
         #endregion
@@ -94,8 +98,15 @@ namespace RightVisionBotDb.Locations
 
                     if (chatType == ChatType.Private && rvUser.Lang == Enums.Lang.Na)
                     {
-                        await Bot.Client.DeleteMessageAsync(callbackQuery.Message!.Chat, callbackQuery.Message.MessageId, token);
-                        await Bot.Client.SendTextMessageAsync(callbackQuery.Message.Chat, "Choose Lang:", replyMarkup: KeyboardsHelper.СhooseLang, cancellationToken: token);
+                        try
+                        {
+                            await Bot.Client.DeleteMessageAsync(callbackQuery.Message!.Chat, callbackQuery.Message.MessageId, token);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Warning(ex, "Не удалось удалить сообщение!");
+                        }
+                        await Bot.Client.SendTextMessageAsync(callbackQuery.Message!.Chat, "Choose Lang:", replyMarkup: KeyboardsHelper.СhooseLang, cancellationToken: token);
                     }
                 }
                 else if (update.Message != null)
@@ -130,7 +141,6 @@ namespace RightVisionBotDb.Locations
                         else
                             await rvUser.Location.HandleCommandAsync(commandContext, containsArgs, token);
                     }
-
                 }
 
                 rvUser.LocationChanged -= OnLocationChanged;
@@ -204,6 +214,44 @@ namespace RightVisionBotDb.Locations
 
         }
 
+        private async Task PunishmentsListActionCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var args = c.CallbackQuery.Data!.Split('-');
+            var targetUserId = long.Parse(args.Last());
+            var punishmentType = Enum.Parse<PunishmentType>(args[1]);
+
+            bool showBan = true;
+            bool showMute = true;
+
+            if (c.CallbackQuery.Message?.ReplyMarkup != null)
+            {
+                var callbacks = c.CallbackQuery.Message.ReplyMarkup.InlineKeyboard
+                    .SelectMany(row => row)
+                    .Select(button => button.CallbackData)
+                    .Where(callback => callback != null)
+                    .ToList();
+
+                showBan = callbacks.Any(callback => callback!.Contains($"punishments_hide-Ban-{targetUserId}"));
+                showMute = callbacks.Any(callback => callback!.Contains($"punishments_hide-Mute-{targetUserId}"));
+            }
+
+            switch (args.First())
+            {
+                case "punishments_hide":
+                    if (punishmentType == PunishmentType.Ban) showBan = false;
+                    else if (punishmentType == PunishmentType.Mute) showMute = false;
+                    break;
+
+                case "punishments_show":
+                    if (punishmentType == PunishmentType.Ban) showBan = true;
+                    else if (punishmentType == PunishmentType.Mute) showMute = true;
+                    break;
+            }
+
+            var user = await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token);
+            await LocationsFront.PunishmentsHistory(c, user, showBan, showMute, token);
+        }
+
         #endregion
 
         #region Command Methods
@@ -241,7 +289,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c.RvUser, c.Message.Chat.Type, App.DefaultRightVision, token);
+            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.Message.Chat.Type, App.DefaultRightVision, token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -273,21 +321,29 @@ namespace RightVisionBotDb.Locations
 
         private async Task AppointCommand(CommandContext c, CancellationToken token = default)
         {
-            var (extractedRvUser, args) = CommandFormatHelper.ExtractRvUserFromArgs(c);
+            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c);
 
             string message = "Пользователь не найден или не указан!";
 
             if (extractedRvUser != null)
             {
-                if (Enum.TryParse(args.First(), out Role role))
+                if (extractedRvUser == c.RvUser)
+                    message = "Извини, но ты не можешь назначать самого себя!";
+
+                else if (Enum.TryParse(args.First(), out Role role))
                 {
-                    extractedRvUser.Role = role;
-                    extractedRvUser.ResetPermissions();
-                    message = $"Пользователь успешно назначен на должность {role}!";
-                    await Bot.Client.SendTextMessageAsync(
-                        extractedRvUser.UserId,
-                        string.Format(Language.Phrases[extractedRvUser.Lang].Messages.Common.UserAppointed, extractedRvUser.Name, role),
-                        cancellationToken: token);
+                    if (role > c.RvUser.Role)
+                        message = "Извини, но ты не можешь назначать на должность выше своей!";
+                    else
+                    {
+                        extractedRvUser.Role = role;
+                        extractedRvUser.ResetPermissions();
+                        message = $"Пользователь успешно назначен на должность {role}!";
+                        await Bot.Client.SendTextMessageAsync(
+                            extractedRvUser.UserId,
+                            string.Format(Language.Phrases[extractedRvUser.Lang].Messages.Common.UserAppointed, extractedRvUser.Name, role),
+                            cancellationToken: token);
+                    }
                 }
                 else
                     message = "Запрашиваемая должность не найдена!";
@@ -299,107 +355,115 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
         }
 
-        private async Task AddPermissionCommand(CommandContext c, CancellationToken token)
+        private async Task AddOrRemovePermissionCommand(CommandContext c, CancellationToken token = default)
         {
-            var (extractedRvUser, args) = CommandFormatHelper.ExtractRvUserFromArgs(c);
+            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
 
-            string message = "Пользователь не найден или не указан!";
+            string resultMessage = "Пользователь не найден или не указан!";
 
             if (extractedRvUser != null)
             {
                 if (extractedRvUser == c.RvUser)
-                    message = "Извини, но ты не можешь выдавать права самому себе!";
+                    resultMessage = "Извини, но ты не можешь снимать права у самого себя!";
+
+                else if (c.Message.Text!.StartsWith('~'))
+                {
+                    extractedRvUser.ResetPermissions();
+                    resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Status}\n{extractedRvUser.Role}";
+                }
 
                 else if (Enum.TryParse(args.Last(), out Permission permission))
                 {
-                    extractedRvUser.UserPermissions += permission;
-                    message = $"Пользователю успешно выдано право Permission.{permission}";
+                    var actionType = c.Message.Text!.First();
+                    switch (actionType)
+                    {
+                        case '+':
+                            extractedRvUser.UserPermissions += permission;
+                            resultMessage = $"Пользователю успешно выдано право Permission.{permission}";
+                            break;
+                        case '-':
+                            extractedRvUser.UserPermissions -= permission;
+                            resultMessage = $"С пользователя успешно снято право Permission.{permission}";
+                            break;
+                    }
                 }
-
                 else
-                    message = "Запрашиваемое право не найдено!";
+                    resultMessage = "Запрашиваемое право не найдено!";
             }
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
-                message,
+                resultMessage,
                 cancellationToken: token);
-
         }
 
         private async Task NewsCommand(CommandContext c, CancellationToken token)
         {
-            var argsPattern = @"\/news\(([^)]+)\)";
-            var argsMatch = Regex.Match(c.Message.Text!, argsPattern);
-
             var targetUsers = new HashSet<long>();
             var sb = new StringBuilder();
 
-            if (argsMatch.Success)
+            var commandArgs = c.Message.Text!.Split(' ').RemoveAt(0).Take(3).ToList();
+
+            sb.AppendLine("Распознаны следующие аргументы:");
+
+            if (commandArgs.Contains("-n"))
             {
-                var commandArgs = argsMatch.Groups[1].Value.Split(',');
-                sb.AppendLine("Распознаны следующие аргументы:");
+                sb.AppendLine("- Разослать подписчикам на новости (-n)");
+                foreach (var rvUser in (await c.DbContext.RvUsers.ToListAsync(token)).Where(u => u.Has(Permission.News)))
+                    targetUsers.Add(rvUser.UserId);
 
-                if (commandArgs.Contains("-n"))
-                {
-                    sb.AppendLine("- Разослать подписчикам на новости (-n)");
-                    foreach (var rvUser in c.DbContext.RvUsers.Where(u => u.Has(Permission.News)))
-                        targetUsers.Add(rvUser.UserId);
-                }
-
-                if (commandArgs.Contains("-p"))
-                {
-                    sb.AppendLine("- Разослать всем участникам (-p)");
-                    if (!c.RvUser.Has(Permission.ParticipantNews))
-                    {
-                        sb.Append(" (У пользователя нет права)");
-                    }
-                    else
-                    {
-                        using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
-                        foreach (var rvParticipant in rvdb.ParticipantForms.Where(p => p.Status == FormStatus.Accepted))
-                            targetUsers.Add(rvParticipant.UserId);
-                    }
-                }
-
-                if (commandArgs.Contains("-t"))
-                {
-                    sb.AppendLine("- Отправить новость всем пользователям бота (-t)");
-                    if (!c.RvUser.Has(Permission.TechNews))
-                    {
-                        sb.Append(" (У пользователя нет права)");
-                    }
-                    else
-                    {
-                        targetUsers = c.DbContext.RvUsers.Select(u => u.UserId).ToHashSet();
-                    }
-                }
-
-                await RvLogger.Log(LogMessagesHelper.UserStartedNewsSending(c.RvUser, sb.ToString()), c.RvUser, token);
-
-                var message = Regex.Replace(c.Message.Text!, @"^\/news\([^)]+\)\s*", string.Empty).Trim();
-
-                var successCount = 0;
-                var failCount = 0;
-                foreach (var userId in targetUsers)
-                {
-                    try
-                    {
-                        await Bot.Client.SendTextMessageAsync(userId, message, cancellationToken: token);
-                        successCount++;
-                    }
-                    catch (Exception)
-                    {
-                        failCount++;
-                    }
-                }
-
-                await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
+                commandArgs.Remove("-n");
             }
-            else
+
+            if (commandArgs.Contains("-p"))
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Ошибка: аргументы команды не распознаны.", cancellationToken: token);
+                sb.AppendLine("- Разослать всем участникам (-p)");
+                if (!c.RvUser.Has(Permission.ParticipantNews))
+                {
+                    sb.Append(" (У пользователя нет права)");
+                }
+                else
+                {
+                    foreach (var rvParticipant in (await c.RvContext.ParticipantForms.ToListAsync(token)).Where(p => p.Status == FormStatus.Accepted))
+                        targetUsers.Add(rvParticipant.UserId);
+                }
+                commandArgs.Remove("-p");
             }
+
+            if (commandArgs.Contains("-t"))
+            {
+                sb.AppendLine("- Отправить новость всем пользователям бота (-t)");
+                if (!c.RvUser.Has(Permission.TechNews))
+                {
+                    sb.Append(" (У пользователя нет права)");
+                }
+                else
+                {
+                    targetUsers = [.. c.DbContext.RvUsers.Select(u => u.UserId)];
+                }
+                commandArgs.Remove("-t");
+            }
+
+            await RvLogger.Log(LogMessagesHelper.UserStartedNewsSending(c.RvUser, sb.ToString()), c.RvUser, token);
+
+            var message = string.Join(' ', commandArgs);
+
+            var successCount = 0;
+            var failCount = 0;
+            foreach (var userId in targetUsers)
+            {
+                try
+                {
+                    await Bot.Client.SendTextMessageAsync(userId, message, cancellationToken: token);
+                    successCount++;
+                }
+                catch (Exception)
+                {
+                    failCount++;
+                }
+            }
+
+            await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
         }
 
 
@@ -421,6 +485,44 @@ namespace RightVisionBotDb.Locations
         {
             (var message, var keyboard) = ControlPanelHelper.MainPage(c.RvUser);
             await Bot.Client.SendTextMessageAsync(c.CallbackQuery.Message!.Chat, message, replyMarkup: keyboard, cancellationToken: token);
+        }
+
+        private async Task BackToProfileCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var targetUserId = long.Parse(c.CallbackQuery.Data!.Split('-').Last());
+
+            var targetRvUser = await c.DbContext.RvUsers.FirstOrDefaultAsync(u => u.UserId == targetUserId, token);
+
+            if (targetRvUser == null)
+            {
+                await Bot.Client.EditMessageTextAsync(
+                    c.CallbackQuery.Message!.Chat,
+                    c.CallbackQuery.Message.MessageId,
+                    Language.Phrases[c.RvUser.Lang].Messages.Common.UserNotFound,
+                    cancellationToken: token);
+                return;
+            }
+
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token);
+
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                message,
+                replyMarkup: keyboard,
+                cancellationToken: token);
+        }
+
+        private async Task PermissionsCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var targetUserId = long.Parse(c.CallbackQuery.Data!.Split('-').Last());
+            await LocationsFront.PermissionsList(c, await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c.CallbackQuery.Data!.Contains("minimized"), token);
+        }
+
+        private async Task PunishmentsHistoryCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var targetUserId = long.Parse(c.CallbackQuery.Data!.Split('-').Last());
+            await LocationsFront.PunishmentsHistory(c, await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), true, true, token);
         }
 
         #endregion

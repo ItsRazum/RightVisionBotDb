@@ -9,7 +9,7 @@ using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal class ParticipantFormLocation : RvLocation
+    public sealed class ParticipantFormLocation : RvLocation
     {
 
         #region Properties

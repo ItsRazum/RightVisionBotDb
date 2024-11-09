@@ -1,12 +1,9 @@
-﻿using Newtonsoft.Json;
-using RightVisionBotDb.Enums;
-using Serilog;
+﻿using RightVisionBotDb.Enums;
 using System.Collections;
-using System.Text;
 
 namespace RightVisionBotDb.Types
 {
-	public class UserPermissions : IEnumerable<Permission>
+    public class UserPermissions : IEnumerable<Permission>
 	{
 		#region Properties
 
@@ -52,27 +49,35 @@ namespace RightVisionBotDb.Types
 
 		public static UserPermissions operator +(UserPermissions left, UserPermissions right)
 		{
-			left.AddList(right);
-			return left;
-		}
+            var combinedPermissions = new UserPermissions(left.RvUserId);
+            combinedPermissions.AddList(left.Collection);
+            combinedPermissions.AddList(right.Collection);
+            return combinedPermissions;
+        }
 
 		public static UserPermissions operator +(UserPermissions left, Permission right)
 		{
-			left.Add(right);
-			return left;
-		}
+            var combinedPermissions = new UserPermissions(left.RvUserId);
+            combinedPermissions.AddList(left.Collection);
+            combinedPermissions.Add(right);
+            return combinedPermissions;
+        }
 
 		public static UserPermissions operator -(UserPermissions left, UserPermissions right)
 		{
-			left.RemoveList(right);
-			return left;
-		}
+            var combinedPermissions = new UserPermissions(left.RvUserId);
+            combinedPermissions.AddList(left.Collection);
+            combinedPermissions.RemoveList(right);
+            return combinedPermissions;
+        }
 
 		public static UserPermissions operator -(UserPermissions left, Permission right)
 		{
-			left.Remove(right);
-			return left;
-		}
+            var combinedPermissions = new UserPermissions(left.RvUserId);
+            combinedPermissions.AddList(left.Collection);
+            combinedPermissions.Remove(right);
+            return combinedPermissions;
+        }
 
 		#endregion
 
@@ -80,23 +85,16 @@ namespace RightVisionBotDb.Types
 
 		private void AddList(IEnumerable<Permission> list)
 		{
-			List<Permission> combinedList = new(Collection);
-
 			foreach (var permission in list)
-				if (!combinedList.Contains(permission))
-					combinedList.Add(permission);
-
-			Collection = combinedList;
+				if (!Collection.Contains(permission))
+                    Collection.Add(permission);
 		}
 
 		private void RemoveList(IEnumerable<Permission> list)
 		{
-			List<Permission> combinedList = new(list);
-			foreach (var permission in combinedList.Where(permission => !combinedList.Contains(permission)))
-				combinedList.Remove(permission);
-
-			Collection = combinedList;
-		}
+            foreach (var permission in list)
+                Collection.Remove(permission);
+        }
 
 		public void Add(Permission permission)
 		{

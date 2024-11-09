@@ -1,9 +1,9 @@
 ﻿using RightVisionBotDb.Enums;
-using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
@@ -47,6 +47,9 @@ namespace RightVisionBotDb.Locations
         {
             if (c.Message.Text != null)
             {
+                if (containsArgs)
+                    c.Message.Text = Regex.Replace(c.Message.Text.Trim(), @"\s{2,}", " ");
+
                 var commandData = containsArgs ? c.Message.Text.ToLower().Split(' ').First() : c.Message.Text;
 
                 if (TextCommands.TryGetValue(commandData, out var command) && !await command.ExecuteAsync(c, token))
@@ -86,7 +89,7 @@ namespace RightVisionBotDb.Locations
             CallbackCommands.Add(command, new RvCallbackCommand(handler, requiredPermission));
             return this;
         }
-
+        
         #endregion
     }
 }

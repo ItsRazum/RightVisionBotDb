@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Data;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Extensions.Enums;
 using RightVisionBotDb.Interfaces;
@@ -20,17 +21,20 @@ namespace RightVisionBotDb.Helpers
         #region Public methods
 
         public static async Task<(string content, InlineKeyboardMarkup? keyboard)> Profile(
-            RvUser targetRvUser, 
-            RvUser rvUser, 
-            ChatType chatType, 
+            RvUser targetRvUser,
+            IContext c,
+            ChatType chatType,
             string rightvision,
             CancellationToken token = default)
         {
+            var rvUser = c.RvUser;
             var lang = rvUser.Lang;
             var phrases = Language.Phrases[lang];
             Category? participationCategory;
             ParticipantForm? participantForm;
             CriticForm? criticForm;
+
+            RightVisionDbContext? rvContext = null;
 
             var sb = new StringBuilder(targetRvUser == rvUser
                 ? phrases.Profile.Headers.Private
@@ -47,32 +51,37 @@ namespace RightVisionBotDb.Helpers
                     "- " + phrases.Profile.Properties.Role
                     + Language.GetUserRoleString(targetRvUser.Role, lang) + "\n");
 
-            using (var db = DatabaseHelper.GetRightVisionContext(rightvision))
+            rvContext = c.RvContext.Name == rightvision
+                ? c.RvContext
+                : DatabaseHelper.GetRightVisionContext(rightvision);
+
+            participantForm = await rvContext.ParticipantForms
+                .FirstOrDefaultAsync(m => m.UserId == targetRvUser.UserId && m.Status == FormStatus.Accepted, token);
+
+            if (participantForm != null)
             {
-                participantForm = await db.ParticipantForms.FirstOrDefaultAsync(m => m.UserId == targetRvUser.UserId && m.Status == FormStatus.Accepted, token);
+                if (participantForm.Country != null)
+                    sb.AppendLine( //Страна (легаси)
+                        "- " + phrases.Profile.Properties.Country
+                        + participantForm.Country);
 
-                if (participantForm != null)
-                {
-                    if (participantForm.Country != null)
-                        sb.AppendLine( //Страна (легаси)
-                            "- " + phrases.Profile.Properties.Country
-                            + participantForm.Country);
+                if (participantForm.City != null)
+                    sb.AppendLine( //Город (легаси)
+                        "- " + phrases.Profile.Properties.City
+                        + participantForm.City);
 
-                    if (participantForm.City != null)
-                        sb.AppendLine( //Город (легаси)
-                            "- " + phrases.Profile.Properties.City
-                            + participantForm.City);
-
-                    sb.AppendLine( //Трек
-                        "- " + phrases.Profile.Properties.Track +
-                        (db.Status == RightVisionStatus.Relevant
-                        ? phrases.Profile.Track.Hidden
-                        : participantForm.Track
-                        )
-                    );
-                    participationCategory = participantForm?.Category;
-                }
+                sb.AppendLine( //Трек
+                    "- " + phrases.Profile.Properties.Track +
+                    (rvContext.Status == RightVisionStatus.Relevant
+                    ? phrases.Profile.Track.Hidden
+                    : participantForm.Track
+                    )
+                );
+                participationCategory = participantForm?.Category;
             }
+
+            if (rvContext != c.RvContext)
+                rvContext?.Dispose();
 
             if (chatType == ChatType.Private)
                 sb.AppendLine( //Подписка на новости
@@ -81,16 +90,13 @@ namespace RightVisionBotDb.Helpers
                         ? phrases.Profile.Sending.Active
                         : phrases.Profile.Sending.Inactive));
 
-            using (var db = DatabaseHelper.GetApplicationDbContext())
-            {
-                criticForm = await db.CriticForms.FirstOrDefaultAsync(c => c.UserId == targetRvUser.UserId && c.Status == FormStatus.Accepted, token);
-                if (criticForm != null)
-                    sb.AppendLine( //Категория оценивания
-                        phrases.Profile.Properties.CategoryCritic
-                        + Language.GetCategoryString(criticForm.Category));
-            }
+            criticForm = await c.DbContext.CriticForms.FirstOrDefaultAsync(c => c.UserId == targetRvUser.UserId && c.Status == FormStatus.Accepted, token);
+            if (criticForm != null)
+                sb.AppendLine( //Категория оценивания
+                    phrases.Profile.Properties.CategoryCritic
+                    + Language.GetCategoryString(criticForm.Category));
 
-            if(participantForm != null)
+            if (participantForm != null)
                 sb.AppendLine( //Категория участия
                     phrases.Profile.Properties.CategoryParticipant
                     + Language.GetCategoryString(participantForm.Category));
@@ -132,14 +138,14 @@ namespace RightVisionBotDb.Helpers
             sb.AppendLine();
             if (minimize)
             {
-                var standartCount = 10;
+                var standartCount = App.Configuration.UISettings.ProfileSettings.PermissionsMinimizedUnitsCount;
                 permissions = rvUser.UserPermissions.Take(standartCount);
 
                 foreach (var permission in permissions)
                     sb.AppendLine("• " + permission);
 
                 if (rvUser.UserPermissions.Count >= standartCount)
-                    sb.AppendLine($"... ({Language.Phrases[lang].Profile.Permissions.HowMuchLeft} {rvUser.UserPermissions.Count})");
+                    sb.AppendLine($"... ({Language.Phrases[lang].Messages.Additional.HowMuchLeft} {rvUser.UserPermissions.Count - standartCount})");
             }
             else
             {
@@ -189,8 +195,8 @@ namespace RightVisionBotDb.Helpers
             {
                 var punishmentType = punishment.Type switch
                 {
-                    PunishmentType.Ban => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Ban,
-                    PunishmentType.Mute => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Mute,
+                    PunishmentType.Ban => "🔒" + Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Ban,
+                    PunishmentType.Mute => "🔇" + Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Mute,
                     _ => string.Empty
                 };
 
@@ -202,10 +208,10 @@ namespace RightVisionBotDb.Helpers
                 };
 
                 sb.AppendLine($"{punishmentType} {group}{punishment.StartDateTime.ToString("g", new CultureInfo("ru-RU"))}");
-                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Reason}: {punishment.Reason ?? Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoReason}");
+                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Reason} {punishment.Reason ?? Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoReason}");
 
                 string? timeLeft = null;
-                var punishmentEndDateTime = punishment.EndDateTime.ToString("d", cultureInfo);
+                var punishmentEndDateTime = punishment.EndDateTime.ToString("g", cultureInfo);
                 if (DateTime.Now < punishment.EndDateTime)
                 {
                     var targetValue = 0;
@@ -228,19 +234,21 @@ namespace RightVisionBotDb.Helpers
                     }
                     else throw new InvalidOperationException(nameof(timeSpan));
 
-                    string formattedResult = targetValue.ToString().Last() switch 
+                    string formattedResult = targetValue.ToString().Last() switch
                     {
                         '1' => format.Singular,
                         '2' or '3' or '4' => format.Genitive,
                         _ => format.Plural
                     };
 
-                    timeLeft = $"{targetValue} {formattedResult}";
+                    timeLeft = $" ({Language.Phrases[c.RvUser.Lang].Messages.Additional.HowMuchLeft} {targetValue} {formattedResult})";
                 }
 
-                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.DateTo}: {punishmentEndDateTime}");
+                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.DateTo} {punishmentEndDateTime}{timeLeft ?? string.Empty}");
                 sb.AppendLine();
             }
+            if (string.IsNullOrEmpty(sb.ToString()))
+                sb.AppendLine("¯\\_(ツ)_/¯");
             return (sb.ToString(), KeyboardsHelper.PunishmentsList(targetRvUser, showBans, showMutes, c.RvUser.Lang));
         }
 
@@ -252,10 +260,9 @@ namespace RightVisionBotDb.Helpers
         {
             try
             {
-                if (form != null)
-                    return form.Status.ToString(lang);
-                else
-                    return Language.Phrases[lang].Profile.Forms.Status.Allowed;
+                return form != null 
+                    ? form.Status.ToString(lang)
+                    : Language.Phrases[lang].Profile.Forms.Status.Allowed;
             }
             catch
             {

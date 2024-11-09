@@ -1,13 +1,17 @@
-﻿using RightVisionBotDb.Helpers;
+﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
+using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class MainMenu : RvLocation
+    public sealed class MainMenu : RvLocation
     {
+
+        #region Constructor
 
         public MainMenu(
             Bot bot,
@@ -21,8 +25,14 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("about", AboutCallback)
                 .RegisterCallbackCommand("profile", ProfileCallback)
-                .RegisterCallbackCommand("forms", FormsCallback);
+                .RegisterCallbackCommand("forms", FormsCallback)
+                .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
+                .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
         }
+
+        #endregion
+
+        #region Methods
 
         private async Task MainMenuCallback(CallbackContext c, CancellationToken token)
         {
@@ -35,7 +45,7 @@ namespace RightVisionBotDb.Locations
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Language.Phrases[c.RvUser.Lang].Messages.Common.About,
-                replyMarkup: KeyboardsHelper.InlineBack(c.RvUser.Lang),
+                replyMarkup: KeyboardsHelper.About(c.RvUser.Lang),
                 cancellationToken: token);
         }
 
@@ -48,7 +58,7 @@ namespace RightVisionBotDb.Locations
         {
             using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
 
-            if (rvdb.Status == Enums.RightVisionStatus.Irrelevant)
+            if (rvdb.Status == RightVisionStatus.Irrelevant)
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id,
@@ -61,5 +71,35 @@ namespace RightVisionBotDb.Locations
                 await LocationsFront.FormSelection(c, token);
             }
         }
+
+        private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationManager[nameof(CriticFormLocation)];
+            var form = c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId);
+            if (form == null)
+            {
+                form = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
+                c.DbContext.CriticForms.Add(form);
+            }
+
+            if (form.GetEmptyProperty(out var property))
+                await LocationsFront.CriticForm(c, form.GetPropertyStep(property!.Name), token);
+        }
+
+        private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationManager[nameof(ParticipantFormLocation)];
+            var form = c.RvContext.ParticipantForms.FirstOrDefault(pf => pf.UserId == c.RvUser.UserId);
+            if (form == null)
+            {
+                form = new ParticipantForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
+                c.RvContext.ParticipantForms.Add(form);
+            }
+            if (form.GetEmptyProperty(out var property))
+                await LocationsFront.ParticipantForm(c, form.GetPropertyStep(property!.Name), token);
+        }
+
+        #endregion
+
     }
 }

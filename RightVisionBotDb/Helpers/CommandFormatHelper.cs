@@ -1,4 +1,5 @@
 ﻿using DryIoc.ImTools;
+using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 
@@ -6,7 +7,7 @@ namespace RightVisionBotDb.Helpers
 {
     internal class CommandFormatHelper
     {
-        public static (RvUser? extractedRvUser, string[] args) ExtractRvUserFromArgs(CommandContext c)
+        public static async Task<(RvUser? extractedRvUser, string[] args)> ExtractRvUserFromArgs(CommandContext c, CancellationToken token = default)
         {
             var args = c.Message.Text!
                 .Trim()
@@ -19,13 +20,16 @@ namespace RightVisionBotDb.Helpers
 
             RvUser? rvUser = null;
 
+            var filteredRvUsers = await c.DbContext.RvUsers
+                .Where(u => u.Lang != Enums.Lang.Na)
+                .ToListAsync(token);
+
             if (userTag != null)
             {
                 rvUser = long.TryParse(userTag, out var userId)
-                    ? c.DbContext.RvUsers.FirstOrDefault(u => u.UserId == userId)
-                    : c.DbContext.RvUsers.FirstOrDefault(u => "@" + u.Telegram == userTag);
+                    ? filteredRvUsers.FirstOrDefault(u => u.UserId == userId)
+                    : filteredRvUsers.FirstOrDefault(u => "@" + u.Telegram == userTag);
             }
-
             args = args.RemoveAt(0);
 
             if (!replied && args.Length > 0)

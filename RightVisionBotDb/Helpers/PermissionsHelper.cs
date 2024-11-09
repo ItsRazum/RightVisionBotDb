@@ -5,68 +5,69 @@ namespace RightVisionBotDb.Helpers
 {
     public static class PermissionsHelper
     {
-        public static UserPermissions Default = new()
-        {
+        public static readonly UserPermissions Default =
+        [
             Permission.Messaging,            Permission.OpenProfile,
             Permission.SendCriticForm,       Permission.SendParticipantForm
-        };
+        ];
 
-        public static UserPermissions User = new()
-        {
+        public static readonly UserPermissions User =
+        [
             Permission.Messaging,
             Permission.OpenProfile,
-        };
+        ];
 
-        public static UserPermissions Critic = new(User + new UserPermissions
+        public static readonly UserPermissions Critic = new(User + new UserPermissions
         {
-            Permission.CriticMenu,           Permission.CriticChat,
-            Permission.ChattingInCriticChat, Permission.Evaluation
+            Permission.CriticMenu,
+            Permission.CriticChat,
+            Permission.Evaluation
         });
 
-        public static UserPermissions Participant = new(User + new UserPermissions
+        public static readonly UserPermissions Participant = new(User + new UserPermissions
         {
-            Permission.TrackCard,            Permission.ParticipantChat,
-            Permission.ChattingInParticipantChat,
+            Permission.TrackCard,
+            Permission.ParticipantChat
         });
 
-        public static UserPermissions ExParticipant = new(User + new UserPermissions
+        public static readonly UserPermissions ExParticipant = new(User + new UserPermissions
         {
-            Permission.ParticipantChat,
-            Permission.ChattingInParticipantChat,
+            Permission.ParticipantChat
         });
 
-        public static UserPermissions CriticAndParticipant = new(User + Participant + Critic);
+        public static readonly UserPermissions CriticAndParticipant = new(User + Participant + Critic);
 
-        public static UserPermissions CriticAndExParticipant = new(User + ExParticipant + Critic);
+        public static readonly UserPermissions CriticAndExParticipant = new(User + ExParticipant + Critic);
 
-        public static UserPermissions Moderator = new(User + new UserPermissions
+        public static readonly UserPermissions Moderator = new(User + new UserPermissions
         {
             Permission.Mute,                Permission.Unmute,
             Permission.Cancel,              Permission.News,
             Permission.ParticipantNews
         });
 
-        public static UserPermissions SeniorModerator = new(Moderator + new UserPermissions
+        public static readonly UserPermissions SeniorModerator = new(Moderator + new UserPermissions
         {
             Permission.Ban,                 Permission.Unban,
             Permission.BlacklistOn,         Permission.BlacklistOff,
             Permission.EditPermissions,     Permission.Block
         });
 
-        public static UserPermissions Curator = new()
-        {
-            Permission.PreListening,        Permission.Curate,
+        public static readonly UserPermissions Curator =
+        [
+            Permission.PreListening,
+            Permission.Curate,
             Permission.Rewarding
-        };
+        ];
 
-        public static UserPermissions Empty = new();
+        public static readonly UserPermissions Empty = [];
 
-        public static UserPermissions Developer = new()
-        {
+        public static readonly UserPermissions Developer =
+        [
             Permission.Audit
-        };
+        ];
 
-        public static UserPermissions Admin = new(User + CriticAndParticipant + SeniorModerator + Curator + Developer + new UserPermissions()
+        public static readonly UserPermissions Admin = new(User + CriticAndParticipant + SeniorModerator + Curator + Developer + new UserPermissions()
         {
             Permission.Degrade,             Permission.DegradePermission,
             Permission.GivePermission,      Permission.Grant,

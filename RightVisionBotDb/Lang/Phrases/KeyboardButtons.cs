@@ -11,6 +11,7 @@ public class KeyboardButtons
     public string PunishmentsHistory { get; set; }
     public string Back { get; set; }
     public string About { get; set; }
+    public string AboutBot { get; set; }
     public string Apply { get; set; }
     public string Academy { get; set; }
     public string Sending_Subscribe { get; set; }

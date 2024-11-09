@@ -1,5 +1,4 @@
 ﻿using RightVisionBotDb.Enums;
-using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
@@ -8,7 +7,7 @@ using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    internal sealed class Profile : RvLocation
+    public sealed class Profile : RvLocation
     {
 
         #region Constructor
@@ -24,11 +23,8 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("back", BackCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
-                .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
-                .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
-                .RegisterCallbackCommand("permissions_back", BackCallback)
-                .RegisterCallbackCommand("criticForm", CriticFormCallback)
-                .RegisterCallbackCommand("participantForm", ParticipantFormCallback);
+                .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
+                .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
         }
 
         #endregion
@@ -59,12 +55,6 @@ namespace RightVisionBotDb.Locations
             {
                 await LocationsFront.FormSelection(c, token);
             }
-        }
-
-        private async Task PermissionsCallback(CallbackContext c, CancellationToken token = default)
-        {
-            var targetUserId = long.Parse(c.CallbackQuery.Data!.Replace("permissions_minimized-", ""));
-            await LocationsFront.PermissionsList(c, c.DbContext.RvUsers.First(u => u.UserId == targetUserId), c.CallbackQuery.Data!.Contains("minimized"), token);
         }
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)

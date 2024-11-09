@@ -8,6 +8,5 @@
         public string FullList { get; set; }
         public string AddedList { get; set; }
         public string BlockedList { get; set; }
-        public string HowMuchLeft { get; set; }
     }
 }

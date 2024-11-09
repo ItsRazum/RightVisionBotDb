@@ -38,10 +38,10 @@ namespace RightVisionBotDb.Helpers
 			}
 		});
 
-		public static InlineKeyboardMarkup About(RvUser rvUser) => new(new[]
+		public static InlineKeyboardMarkup About(Enums.Lang lang) => new(new[]
 {
-			InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Back, "mainmenu"),
-			InlineKeyboardButton.WithCallbackData("Информация про бота", "aboutBot")
+			InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "back"),
+			InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.AboutBot, "aboutBot")
 		});
 
 		public static InlineKeyboardMarkup InlineBack(Enums.Lang lang) =>
@@ -50,7 +50,13 @@ namespace RightVisionBotDb.Helpers
 				InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "back")
 			};
 
-		public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Enums.Lang lang)
+		public static InlineKeyboardMarkup BackToAbout(Enums.Lang lang) =>
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "about")
+            };
+
+        public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Enums.Lang lang)
 		{
 			var userId = rvUser.UserId;
 			var rightVisions = App.AllRightVisions;
@@ -176,13 +182,12 @@ namespace RightVisionBotDb.Helpers
 
 		public static InlineKeyboardMarkup PermissionsList(RvUser rvUser, bool minimize, bool showAdvancedOptions, Enums.Lang lang)
 		{
-			List<InlineKeyboardButton> buttons = new();
+			List<InlineKeyboardButton> buttons = [];
 			if (showAdvancedOptions)
 			{
-				var buttonValues = (Language.Phrases[lang].KeyboardButtons.Minimize + "", $"permissions_minimized-{rvUser.UserId}");
-
-				if (minimize)
-					buttonValues = (Language.Phrases[lang].KeyboardButtons.Maximize, $"permissions_maximized-{rvUser.UserId}");
+				var buttonValues = minimize 
+				? (Language.Phrases[lang].KeyboardButtons.Maximize, $"permissions_maximized-{rvUser.UserId}")
+                : (Language.Phrases[lang].KeyboardButtons.Minimize, $"permissions_minimized-{rvUser.UserId}");
 
 				buttons.Add(InlineKeyboardButton.WithCallbackData(buttonValues.Item1, buttonValues.Item2));
 			}
@@ -202,9 +207,9 @@ namespace RightVisionBotDb.Helpers
             static (string checkBox, string callback) getButtonParts(bool condition, PunishmentType punishmentType, long userId)
             {
 				(string checkBox, string prefix) = condition
-					? ("☑", "hide")
-					: ("☐", "show");
-                return (checkBox, $"punishments_{prefix}{punishmentType}-{userId}");
+					? ("✓", "hide")
+					: ("+", "show");
+                return (checkBox, $"punishments_{prefix}-{punishmentType}-{userId}");
             }
 
             List<InlineKeyboardButton[]> layers = [];
@@ -214,13 +219,13 @@ namespace RightVisionBotDb.Helpers
             {
                 var (banCheckBox, banCallback) = getButtonParts(bansCheckBoxEnabled, PunishmentType.Ban, rvUser.UserId);
 				layers.Add([InlineKeyboardButton.WithCallbackData(
-					banCheckBox + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowBans, 
+					banCheckBox + " " + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowBans, 
 					banCallback)]
 					);
 
                 var (muteCheckBox, muteCallback) = getButtonParts(mutesCheckBoxEnabled, PunishmentType.Mute, rvUser.UserId);
                 layers.Add([InlineKeyboardButton.WithCallbackData(
-                    muteCheckBox + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowMutes,
+                    muteCheckBox + " " + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowMutes,
                     muteCallback)]
 					);
             }

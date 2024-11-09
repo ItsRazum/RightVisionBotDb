@@ -66,7 +66,7 @@ namespace RightVisionBotDb
         {
             if (_isInitialized)
             {
-                _logger.Warning("Произошёл повторный вызов Bot.Configure()");
+                _logger.Warning("Произошёл повторный вызов Bot.Configure()!");
                 return;
             }
 
@@ -74,6 +74,7 @@ namespace RightVisionBotDb
             Languages = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile("Resources/Lang/ru.json", false)
+                .AddJsonFile("Resources/Lang/kz.json", false)
                 .Build();
 
             Language.Build(Languages, Enums.Lang.Ru);

@@ -2,7 +2,7 @@ using RightVisionBotDb.Singletons;
 
 namespace RightVisionBotDb.Locations
 {
-    public class ControlPanel : RvLocation
+    public sealed class ControlPanel : RvLocation
     {
 
         #region Constructor

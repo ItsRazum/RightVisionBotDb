@@ -39,17 +39,9 @@ public enum Permission
     /// </summary>
     ParticipantChat,
     /// <summary>
-    /// Право на отправку сообщений в чате участников
-    /// </summary>
-    ChattingInParticipantChat,
-    /// <summary>
     /// Право на нахождение в чате судей
     /// </summary>
     CriticChat,
-    /// <summary>
-    /// Право на отправку сообщений в чате судей
-    /// </summary>
-    ChattingInCriticChat,
     /// <summary>
     /// Право на открытие судейского меню</
     /// summary>

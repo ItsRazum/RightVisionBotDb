@@ -45,12 +45,12 @@ namespace RightVisionBotDb.Singletons
         public async Task Profile(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
-            var profile = await ProfileHelper.Profile(c.RvUser, c.RvUser, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token);
+            var (content, keyboard) = await ProfileHelper.Profile(c.RvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                profile.content,
-                replyMarkup: profile.keyboard,
+                content,
+                replyMarkup: keyboard,
                 cancellationToken: token);
         }
 
@@ -77,7 +77,19 @@ namespace RightVisionBotDb.Singletons
 
         public async Task PunishmentsHistory(CallbackContext c, RvUser targetRvUser, bool showBans, bool showMutes, CancellationToken token = default)
         {
+            if (targetRvUser.Punishments.Count == 0)
+            {
+                await Bot.Client.AnswerCallbackQueryAsync(
+                    c.CallbackQuery.Id, 
+                    Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoPunishments, 
+                    showAlert: true, 
+                    cancellationToken: token);
+
+                return;
+            }
+
             (string content, InlineKeyboardMarkup? keyboard) = ProfileHelper.RvUserPunishments(c, targetRvUser, showBans, showMutes);
+
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,

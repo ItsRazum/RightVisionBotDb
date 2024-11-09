@@ -1,10 +1,11 @@
 ﻿using RightVisionBotDb.Data;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
 using Telegram.Bot.Types;
 
 namespace RightVisionBotDb.Types
 {
-    public class CallbackContext
+    public class CallbackContext : IContext
     {
         #region Properties
 
