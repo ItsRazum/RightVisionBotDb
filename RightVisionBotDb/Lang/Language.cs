@@ -14,7 +14,7 @@ namespace RightVisionBotDb.Lang
             {
                 Log.Logger?.Information($"Сборка {l} языка...");
 
-                var langInstanceSection = configuration.GetSection("LangInstance");
+                var langInstanceSection = configuration.GetSection(l.ToString());
                 var langInstance = langInstanceSection.Get<LangInstance>();
                 Phrases.Add(l, langInstance ?? throw new NullReferenceException(nameof(langInstance)));
             }

@@ -77,7 +77,7 @@ namespace RightVisionBotDb
                 .AddJsonFile("Resources/Lang/kz.json", false)
                 .Build();
 
-            Language.Build(Languages, Enums.Lang.Ru);
+            Language.Build(Languages, Enums.Lang.Ru, Enums.Lang.Kz);
             _logger.Information("Сборка языковых файлов завершена.");
 
             _logger.Information("Сборка конфигурации...");

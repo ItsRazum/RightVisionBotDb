@@ -195,7 +195,7 @@ namespace RightVisionBotDb.Locations
             if (userId == null)
                 throw new ArgumentNullException(nameof(userId));
 
-            var rvUser = await context.RvUsers.FirstOrDefaultAsync(u => u.UserId == userId);
+            var rvUser = await context.RvUsers.FirstOrDefaultAsync(u => u.UserId == userId, token);
             var from = update.CallbackQuery?.From ?? update.Message?.From;
 
             if (from == null)
