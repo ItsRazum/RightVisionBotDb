@@ -54,7 +54,11 @@ namespace RightVisionBotDb
             _logger.Information("Запуск бота...");
             try
             {
-                Client = new TelegramBotClient(App.Configuration.BotSettings.Token);
+                Client = new TelegramBotClient(
+                    !string.IsNullOrEmpty(App.Configuration.BotSettings.Token) 
+                    ? App.Configuration.BotSettings.Token 
+                    : App.Configuration.HiddenToken ?? throw new NullReferenceException("Токен не указан!"));
+
                 var cts = new CancellationTokenSource();
                 var cancellationToken = cts.Token;
                 var receiverOptions = new ReceiverOptions { AllowedUpdates = [UpdateType.CallbackQuery, UpdateType.Message, UpdateType.ChatMember] };
@@ -91,7 +95,8 @@ namespace RightVisionBotDb
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile("appsettings.Secret.json", true)
                 .Build();
 
             App.Configuration = new(configuration);

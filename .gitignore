@@ -4,5 +4,7 @@
 
 /.vs
 /.gitignore
+/RightVisionBotDb/appsettings.Secret.json
+/RightVisionBotDb/obj
 /RightVisionBotDb/bin/Debug/net8.0
 /RightVisionBotDb/obj/Debug/net8.0

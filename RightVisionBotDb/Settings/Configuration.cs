@@ -8,7 +8,7 @@ namespace RightVisionBotDb.Settings
         {
             configuration.Bind(this);
         }
-
+        public string HiddenToken { get; set; }
         public BotSettings BotSettings { get; set; } = new();
         public DataSettings DataSettings { get; set; } = new();
         public ContestSettings ContestSettings { get; set; } = new();
