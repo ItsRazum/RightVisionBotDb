@@ -2,9 +2,7 @@
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
-using RightVisionBotDb.Lang.Phrases;
 using RightVisionBotDb.Models;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -15,7 +13,7 @@ namespace RightVisionBotDb.Helpers
 
         #region Inline keyboards
 
-        public static InlineKeyboardMarkup СhooseLang = new(
+        public static InlineKeyboardMarkup СhooseLang => new(
         [
             [
                 InlineKeyboardButton.WithCallbackData("🇷🇺RU / CIS", Enums.Lang.Ru.ToString())
@@ -52,7 +50,7 @@ namespace RightVisionBotDb.Helpers
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "back")
             };
 
-        public static InlineKeyboardMarkup BackToAbout(Enums.Lang lang) =>
+        public static InlineKeyboardMarkup AboutBot(Enums.Lang lang) =>
             new[]
             {
                 InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "about")
@@ -73,7 +71,7 @@ namespace RightVisionBotDb.Helpers
                     .FirstOrDefaultAsync(
                         p => p.UserId == userId && p.Status == FormStatus.Accepted);
 
-                if (form != null && rightvisionName != App.DefaultRightVision)
+                if (form != null)
                 {
                     isOldParticipant = true;
                     firstParticipationRightVision = rightvisionName;
@@ -110,6 +108,14 @@ namespace RightVisionBotDb.Helpers
 
             keyboardLayers.Add([
                 InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.Back, "mainmenu")
+            ]);
+
+            string subscribeContent = !rvUser.Has(Permission.Sending)
+                ? phrases.KeyboardButtons.Sending.Subscribe
+                : phrases.KeyboardButtons.Sending.Unsubscribe;
+
+            keyboardLayers.Add([
+                InlineKeyboardButton.WithCallbackData(subscribeContent, "sending")
             ]);
 
 

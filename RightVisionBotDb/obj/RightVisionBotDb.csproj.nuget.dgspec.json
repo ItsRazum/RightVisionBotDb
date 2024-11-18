@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {}
+    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj": {
+    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj",
+        "projectUniqueName": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj",
         "projectName": "EasyForms",
-        "projectPath": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj",
-        "packagesPath": "C:\\Users\\kriso\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\EasyForms\\EasyForms\\obj\\",
+        "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj",
+        "packagesPath": "C:\\Users\\Honor\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\EasyForms\\EasyForms\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\kriso\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Honor\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -70,20 +70,20 @@
         }
       }
     },
-    "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
+    "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
+        "projectUniqueName": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
         "projectName": "RightVisionBotDb",
-        "projectPath": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
-        "packagesPath": "C:\\Users\\kriso\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\obj\\",
+        "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\RightVisionBotDb.csproj",
+        "packagesPath": "C:\\Users\\Honor\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\RightVisionBotDb\\RightVisionBotDb\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\kriso\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Honor\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -99,8 +99,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj": {
-                "projectPath": "C:\\Users\\kriso\\Source\\Repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj"
+              "C:\\Users\\Honor\\source\\repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj": {
+                "projectPath": "C:\\Users\\Honor\\source\\repos\\ItsRazum\\EasyForms\\EasyForms\\EasyForms.csproj"
               }
             }
           }

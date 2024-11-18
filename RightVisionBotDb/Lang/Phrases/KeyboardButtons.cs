@@ -14,8 +14,6 @@ public class KeyboardButtons
     public string AboutBot { get; set; }
     public string Apply { get; set; }
     public string Academy { get; set; }
-    public string Sending_Subscribe { get; set; }
-    public string Sending_Unsubscribe { get; set; }
     public string CriticFormVariationOne { get; set; }
     public string CriticFormVariationTwo { get; set; }
     public string ParticipantFormVariationOne { get; set; }
@@ -23,5 +21,6 @@ public class KeyboardButtons
     public string Participations { get; set; }
     public string Minimize { get; set; }
     public string Maximize { get; set; }
-    public required CriticMenu CriticMenu { get; set; }
+    public SendingButtons Sending { get; set; }
+    public CriticMenu CriticMenu { get; set; }
 }

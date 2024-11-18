@@ -1,9 +1,12 @@
 ﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
+using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types.Enums;
 
 namespace RightVisionBotDb.Locations
 {
@@ -24,7 +27,8 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
-                .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
+                .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm)
+                .RegisterCallbackCommand("sending", SendingCallback);
         }
 
         #endregion
@@ -83,7 +87,33 @@ namespace RightVisionBotDb.Locations
             if (form.GetEmptyProperty(out var property))
                 await LocationsFront.ParticipantForm(c, form.GetPropertyStep(property!.Name), token);
         }
- 
+
+        private async Task SendingCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var phrases = Language.Phrases[c.RvUser.Lang];
+            (c.RvUser.UserPermissions, string callbackAnswer, string buttonMessage) = c.RvUser.Has(Permission.Sending)
+                ? (c.RvUser.UserPermissions - Permission.Sending, phrases.Messages.Profile.Sending.UnsubscribeSuccess, phrases.KeyboardButtons.Sending.Subscribe)
+                : (c.RvUser.UserPermissions + Permission.Sending, phrases.Messages.Profile.Sending.SubscribeSuccess, phrases.KeyboardButtons.Sending.Unsubscribe);
+
+            (string profileText, InlineKeyboardMarkup? _) = await ProfileHelper.Profile(c.RvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token, false);
+
+            var newInlineKeyboard = new InlineKeyboardMarkup(c.CallbackQuery.Message!.ReplyMarkup!.InlineKeyboard.Select(row => row
+            .Select(button => button.CallbackData == "sending"
+                ? InlineKeyboardButton.WithCallbackData(buttonMessage, button.CallbackData)
+                : button)
+            .ToArray())
+        .ToArray());
+
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message.Chat,
+                c.CallbackQuery.Message.MessageId,
+                profileText,
+                replyMarkup: newInlineKeyboard,
+                cancellationToken: token);
+
+            await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, callbackAnswer, cancellationToken: token);
+        }
+
         #endregion
     }
 }

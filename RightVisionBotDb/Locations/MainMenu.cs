@@ -24,6 +24,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("back", MainMenuCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("about", AboutCallback)
+                .RegisterCallbackCommand("aboutBot", AboutBotCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
@@ -33,18 +34,29 @@ namespace RightVisionBotDb.Locations
 
         #region Methods
 
-        private async Task MainMenuCallback(CallbackContext c, CancellationToken token)
+        private async Task MainMenuCallback(CallbackContext c, CancellationToken token = default)
         {
             await LocationsFront.MainMenu(c, token);
         }
 
-        private async Task AboutCallback(CallbackContext c, CancellationToken token)
+        private async Task AboutCallback(CallbackContext c, CancellationToken token = default)
         {
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Language.Phrases[c.RvUser.Lang].Messages.Common.About,
                 replyMarkup: KeyboardsHelper.About(c.RvUser.Lang),
+                cancellationToken: token);
+        }
+
+        private async Task AboutBotCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                Language.Phrases[c.RvUser.Lang].Messages.Common.AboutBot,
+                disableWebPagePreview: true,
+                replyMarkup: KeyboardsHelper.AboutBot(c.RvUser.Lang),
                 cancellationToken: token);
         }
 

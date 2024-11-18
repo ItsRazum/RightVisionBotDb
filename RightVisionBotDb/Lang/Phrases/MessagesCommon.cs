@@ -4,6 +4,7 @@
     {
         public string Greetings { get; set; }
         public string About { get; set; }
+        public string AboutBot { get; set; }
         public string ChooseRole { get; set; }
         public string DontEnterZero { get; set; }
         public string EnterAnInteger { get; set; }

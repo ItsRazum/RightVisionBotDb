@@ -8,7 +8,6 @@ using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using System.Globalization;
 using System.Text;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -25,7 +24,8 @@ namespace RightVisionBotDb.Helpers
             IContext c,
             ChatType chatType,
             string rightvision,
-            CancellationToken token = default)
+            CancellationToken token = default,
+            bool includeKeyboard = true)
         {
             var rvUser = c.RvUser;
             var lang = rvUser.Lang;
@@ -119,7 +119,7 @@ namespace RightVisionBotDb.Helpers
             else
                 sb.AppendLine("- " + phrases.Profile.Rewards.NoRewards);
 
-            return (sb.ToString(), await KeyboardsHelper.Profile(targetRvUser, chatType, rightvision, rvUser.Lang));
+            return (sb.ToString(), includeKeyboard ? await KeyboardsHelper.Profile(targetRvUser, chatType, rightvision, rvUser.Lang) : null);
         }
 
         public static (string content, InlineKeyboardMarkup? keyboard) RvUserPermissions(CallbackContext c, RvUser targetRvUser, bool minimize)
