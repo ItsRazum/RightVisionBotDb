@@ -48,7 +48,7 @@ namespace RightVisionBotDb.Locations
             if (c.Message.Text != null)
             {
                 if (containsArgs)
-                    c.Message.Text = Regex.Replace(c.Message.Text.Trim(), @"\s{2,}", " ");
+                    c.Message.Text = Regex.Replace(c.Message.Text, @"\s{2,}", " ").Trim();
 
                 var commandData = containsArgs ? c.Message.Text.ToLower().Split(' ').First() : c.Message.Text;
 

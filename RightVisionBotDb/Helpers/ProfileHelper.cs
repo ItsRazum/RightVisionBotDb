@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RightVisionBotDb.Data;
+using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
-using RightVisionBotDb.Extensions.Enums;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Lang.Interfaces;
@@ -9,6 +8,7 @@ using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using System.Globalization;
 using System.Text;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -252,6 +252,38 @@ namespace RightVisionBotDb.Helpers
             return (sb.ToString(), KeyboardsHelper.PunishmentsList(targetRvUser, showBans, showMutes, c.RvUser.Lang));
         }
 
+        public static async Task<(string content, InlineKeyboardMarkup markup)> RvUserParticipations(CallbackContext c, RvUser targetRvUser)
+        {
+            var sb = new StringBuilder();
+            var phrases = Language.Phrases[c.RvUser.Lang];
+            var counter = 0;
+            foreach (var rightvision in App.AllRightVisions)
+            {
+                using var rvdb = DatabaseHelper.GetRightVisionContext(rightvision);
+                var rvsb = new StringBuilder();
+                var form = await rvdb.ParticipantForms.FirstOrDefaultAsync(p => p.UserId == targetRvUser.UserId);
+
+                if (form == null) continue;
+
+                var track = c.CallbackQuery.Message!.Chat.Type != ChatType.Private && rvdb.Status != RightVisionStatus.Irrelevant
+                    ? phrases.Profile.Track.Hidden
+                    : form.Track;
+
+                rvsb.AppendLine($"{rightvision} ({rvdb.StartDate.ToString("d", new CultureInfo("ru-RU"))} - {rvdb.EndDate?.ToString("d", new CultureInfo("ru-RU")) ?? phrases.Messages.Additional.Present})");
+
+                rvsb.AppendLine("- " + phrases.Profile.Properties.CategoryGeneral + Language.GetCategoryString(form.Category));
+                rvsb.AppendLine("- "
+                    + phrases.Profile.Properties.Track
+                    + track);
+
+                sb.AppendLine(rvsb.ToString() + "\n");
+                counter++;
+            }
+
+            sb.Insert(0, $"{targetRvUser.Name}{phrases.Profile.Participations.HowManyParticipations}{counter} {phrases.Messages.Additional.Time}:\n\n");
+            return (sb.ToString(), KeyboardsHelper.UserParticipations(targetRvUser, c.RvUser.Lang));
+        }
+
         #endregion
 
         #region Private methods
@@ -260,8 +292,8 @@ namespace RightVisionBotDb.Helpers
         {
             try
             {
-                return form != null 
-                    ? form.Status.ToString(lang)
+                return form != null
+                    ? Language.GetFormStatusString(form.Status, lang)
                     : Language.Phrases[lang].Profile.Forms.Status.Allowed;
             }
             catch

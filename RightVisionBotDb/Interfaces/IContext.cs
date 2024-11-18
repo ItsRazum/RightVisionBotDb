@@ -1,4 +1,4 @@
-﻿using RightVisionBotDb.Data;
+﻿using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Models;
 
 namespace RightVisionBotDb.Interfaces

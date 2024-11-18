@@ -5,16 +5,25 @@ using Serilog;
 
 namespace RightVisionBotDb.Lang
 {
-    public class Language
+    public static class Language
     {
-        public static Dictionary<Enums.Lang, LangInstance> Phrases = [];
-        public static void Build(IConfiguration configuration, params Enums.Lang[] langs)
+        public static Dictionary<Enums.Lang, LangInstance> Phrases { get; } = [];
+
+        public static void Build(params Enums.Lang[] langs)
         {
+            var languageConfiguration = new ConfigurationBuilder()
+                .SetBasePath(Environment.CurrentDirectory);
+
+            foreach (var lang in langs.Prepend(Enums.Lang.Ru)) 
+                languageConfiguration.AddJsonFile($"Resources/Lang/{lang}.json", false);
+            
+            var language = languageConfiguration.Build();
+
             foreach (var l in langs)
             {
                 Log.Logger?.Information($"Сборка {l} языка...");
 
-                var langInstanceSection = configuration.GetSection(l.ToString());
+                var langInstanceSection = language.GetSection(l.ToString());
                 var langInstance = langInstanceSection.Get<LangInstance>();
                 Phrases.Add(l, langInstance ?? throw new NullReferenceException(nameof(langInstance)));
             }
@@ -37,6 +46,13 @@ namespace RightVisionBotDb.Lang
             .GetProperty(r.ToString())?
             .GetValue(Phrases[lang].Profile.Roles)!
             ?? throw new NullReferenceException(nameof(r));
+
+        public static string GetFormStatusString(FormStatus s, Enums.Lang lang) =>
+            (string)Phrases[lang].Profile.Forms.Status
+            .GetType()
+            .GetProperty(s.ToString())?
+            .GetValue(Phrases[lang].Profile.Forms.Status)!
+            ?? throw new NullReferenceException(nameof(s));
 
         public static string GetCategoryString(Category c) =>
             c switch

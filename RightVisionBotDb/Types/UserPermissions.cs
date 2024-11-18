@@ -7,27 +7,25 @@ namespace RightVisionBotDb.Types
 	{
 		#region Properties
 
-		public long RvUserId => Permissions.Key;
-
 		public int Count => Collection.Count;
 
-		public KeyValuePair<long, Dictionary<string, List<Permission>>> Permissions { get; set; } = new();
+		public Dictionary<string, List<Permission>> Permissions { get; set; } = new();
 
 		public List<Permission> Collection
 		{
-			get => Permissions.Value["Permissions"];
+			get => Permissions["Permissions"];
 			set
 			{
-				Permissions.Value["Permissions"] = value;
+				Permissions["Permissions"] = value;
 			}
 		}
 
 		public List<Permission> Removed
 		{
-			get => Permissions.Value["Removed"];
+			get => Permissions["Removed"];
 			set
 			{
-				Permissions.Value["Removed"] = value;
+				Permissions["Removed"] = value;
 			}
 		}
 
@@ -35,13 +33,11 @@ namespace RightVisionBotDb.Types
 
 		#region Constructors
 
-		public UserPermissions(long userId = 0) => CreatePermissions(userId, new List<Permission>());
+		public UserPermissions() => CreatePermissions();
 
-		public UserPermissions(IEnumerable<Permission> permissions, long userId = 0) => CreatePermissions(userId, permissions.ToList());
+		public UserPermissions(params Permission[] permissions) => CreatePermissions([.. permissions]);
 
-		public UserPermissions(long userId = 0, params Permission[] permissions) => CreatePermissions(userId, [.. permissions]);
-
-		public UserPermissions(IEnumerable<Permission> permissions, IEnumerable<Permission> removed, long userId = 0) => CreatePermissions(userId, permissions.ToList(), removed.ToList());
+		public UserPermissions(IEnumerable<Permission>? permissions = null, IEnumerable<Permission>? removed = null) => CreatePermissions(permissions?.ToList(), removed?.ToList());
 
 		#endregion
 
@@ -49,7 +45,7 @@ namespace RightVisionBotDb.Types
 
 		public static UserPermissions operator +(UserPermissions left, UserPermissions right)
 		{
-            var combinedPermissions = new UserPermissions(left.RvUserId);
+            var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.AddList(right.Collection);
             return combinedPermissions;
@@ -57,7 +53,7 @@ namespace RightVisionBotDb.Types
 
 		public static UserPermissions operator +(UserPermissions left, Permission right)
 		{
-            var combinedPermissions = new UserPermissions(left.RvUserId);
+            var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.Add(right);
             return combinedPermissions;
@@ -65,7 +61,7 @@ namespace RightVisionBotDb.Types
 
 		public static UserPermissions operator -(UserPermissions left, UserPermissions right)
 		{
-            var combinedPermissions = new UserPermissions(left.RvUserId);
+            var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.RemoveList(right);
             return combinedPermissions;
@@ -73,7 +69,7 @@ namespace RightVisionBotDb.Types
 
 		public static UserPermissions operator -(UserPermissions left, Permission right)
 		{
-            var combinedPermissions = new UserPermissions(left.RvUserId);
+            var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.Remove(right);
             return combinedPermissions;
@@ -110,13 +106,13 @@ namespace RightVisionBotDb.Types
 			Removed.Add(permission);
 		}
 
-		private void CreatePermissions(long userId, List<Permission> collection, List<Permission>? removed = null)
+		private void CreatePermissions(List<Permission>? collection = null, List<Permission>? removed = null)
 		{
-			Permissions = new(userId, new()
+			Permissions = new()
 			{
-				{ "Permissions", collection },
+				{ "Permissions", collection ?? [] },
 				{ "Removed", removed ?? [] }
-			});
+			};
 		}
 
 		public bool Contains(Permission permission) => Collection.Contains(permission);

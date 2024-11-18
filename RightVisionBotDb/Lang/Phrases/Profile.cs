@@ -12,5 +12,7 @@
         public ProfileRewards Rewards { get; set; }
         public ProfileTrack Track { get; set; }
         public ProfilePunishments Punishments { get; set; }
+        public ProfileParticipations Participations { get; set; }
+        public ProfileRvProperties RvProperties { get; set; }
     }
 }

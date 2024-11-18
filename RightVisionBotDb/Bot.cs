@@ -2,6 +2,7 @@
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Locations;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using Serilog;
 using Telegram.Bot;
@@ -19,7 +20,6 @@ namespace RightVisionBotDb
         private bool _isInitialized = false;
         public const long ParticipantChatId = -1002074764678;
         public const long CriticChatId = -1001968408177;
-        public IConfiguration Languages;
 
         #endregion
 
@@ -27,18 +27,27 @@ namespace RightVisionBotDb
 
         public ITelegramBotClient Client { get; private set; }
         private LocationManager LocationManager { get; }
+        private ShellService ShellService { get; }
 
         #endregion
 
 
+        #region Constructor
+
         public Bot(
             ILogger logger,
-            LocationManager locationManager)
+            LocationManager locationManager,
+            ShellService shellService)
         {
             _logger = logger;
             LocationManager = locationManager ?? throw new NullReferenceException(nameof(locationManager));
+            ShellService = shellService ?? throw new NullReferenceException(nameof(shellService));
 
         }
+
+        #endregion
+
+        #region Methods
 
         public void Build()
         {
@@ -54,6 +63,8 @@ namespace RightVisionBotDb
                 Client.StartReceiving(root.HandleUpdateAsync, root.HandleErrorAsync, receiverOptions, cancellationToken);
                 _logger.Information("Бот успешно запущен!");
                 _isInitialized = true;
+                Thread thread = new(ShellService.Run);
+                thread.Start();
             }
             catch (Exception ex)
             {
@@ -71,13 +82,9 @@ namespace RightVisionBotDb
             }
 
             _logger.Information("Загрузка языковых файлов...");
-            Languages = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("Resources/Lang/ru.json", false)
-                .AddJsonFile("Resources/Lang/kz.json", false)
-                .Build();
+            
 
-            Language.Build(Languages, Enums.Lang.Ru, Enums.Lang.Kz);
+            Language.Build(Enums.Lang.Ru, Enums.Lang.Kz, Enums.Lang.Ua);
             _logger.Information("Сборка языковых файлов завершена.");
 
             _logger.Information("Сборка конфигурации...");
@@ -123,9 +130,9 @@ namespace RightVisionBotDb
                     .OrderBy(s => s)];
             }
             App.AllRightVisions =
-                rightVisions
+                [.. rightVisions
                 .Select(s => s.Replace(".db", string.Empty))
-                .ToArray();
+                .OrderByDescending(s => s)];
 
 
             _logger.Information("Регистрация локаций...");
@@ -141,5 +148,7 @@ namespace RightVisionBotDb
 
             Build();
         }
+
+        #endregion
     }
 }

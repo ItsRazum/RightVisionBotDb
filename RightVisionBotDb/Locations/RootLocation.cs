@@ -1,6 +1,6 @@
 ﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
-using RightVisionBotDb.Data;
+using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
@@ -39,6 +39,8 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/news", NewsCommand, Permission.News)
                 .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterCallbackCommand("profile", ProfileCallback)
+                .RegisterCallbackCommand("participations", ParticipationsCallback)
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
                 .RegisterCallbackCommand("useControlPanel", UseControlPanelCallback)
                 .RegisterCallbackCommand("backToProfile", BackToProfileCallback)
@@ -216,7 +218,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task PunishmentsListActionCallback(CallbackContext c, CancellationToken token = default)
         {
-            var args = c.CallbackQuery.Data!.Split('-');
+            var args = c.CallbackQuery.Data!.Split('-'); //[0] Command, [1]PunishmentType, [2]UserId
             var targetUserId = long.Parse(args.Last());
             var punishmentType = Enum.Parse<PunishmentType>(args[1]);
 
@@ -466,17 +468,36 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
         }
 
+        private async Task ProfileCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await LocationsFront.Profile(c, token);
+        }
+
+        private async Task ParticipationsCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var args = c.CallbackQuery.Data!.Split('-'); //[0]Command, [1]UserId, [2]RightVision
+            var targetRvUser = c.DbContext.RvUsers.First(u => u.UserId == long.Parse(args[1]));
+            var (content, markup) = await ProfileHelper.RvUserParticipations(c, targetRvUser);
+
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat, 
+                c.CallbackQuery.Message.MessageId, 
+                content, 
+                replyMarkup: markup, 
+                cancellationToken: token);
+        }
 
         private async Task RvPropertiesCallback(CallbackContext c, CancellationToken token = default)
         {
             var rightvision = c.CallbackQuery.Data!.Split('-').Last();
             using var rvdb = DatabaseHelper.GetRightVisionContext(rightvision);
-            var endDateString = rvdb.EndDate?.ToString("d", new CultureInfo("ru-RU")) ?? "н.в.";
+            var phrases = Language.Phrases[c.RvUser.Lang];
+            var endDateString = rvdb.EndDate?.ToString("d", new CultureInfo("ru-RU")) ?? phrases.Messages.Additional.Present;
 
             await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, $"{rightvision}" +
                 $"\n" +
-                $"\nДата проведения: {rvdb.StartDate.ToString("d", new CultureInfo("ru-RU"))} - {endDateString}" +
-                $"\nКоличество участников: {rvdb.ParticipantForms.Count(p => p.Status == FormStatus.Accepted)}",
+                $"\n{phrases.Profile.RvProperties.Date}{rvdb.StartDate.ToString("d", new CultureInfo("ru-RU"))} - {endDateString}" +
+                $"\n{phrases.Profile.RvProperties.ParticipantsCount}{rvdb.ParticipantForms.Count(p => p.Status == FormStatus.Accepted)}",
                 true,
                 cancellationToken: token);
         }

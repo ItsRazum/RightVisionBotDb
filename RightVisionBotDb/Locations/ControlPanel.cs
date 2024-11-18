@@ -20,6 +20,5 @@ namespace RightVisionBotDb.Locations
 
         #endregion
 
-
     }
 }

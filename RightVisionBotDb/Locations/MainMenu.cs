@@ -24,7 +24,6 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("back", MainMenuCallback)
                 .RegisterCallbackCommand("mainmenu", MainMenuCallback)
                 .RegisterCallbackCommand("about", AboutCallback)
-                .RegisterCallbackCommand("profile", ProfileCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
@@ -47,11 +46,6 @@ namespace RightVisionBotDb.Locations
                 Language.Phrases[c.RvUser.Lang].Messages.Common.About,
                 replyMarkup: KeyboardsHelper.About(c.RvUser.Lang),
                 cancellationToken: token);
-        }
-
-        private async Task ProfileCallback(CallbackContext c, CancellationToken token)
-        {
-            await LocationsFront.Profile(c, token);
         }
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)

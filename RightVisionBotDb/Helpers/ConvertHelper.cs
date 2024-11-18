@@ -17,10 +17,9 @@ namespace RightVisionBotDb.Helpers
             try
             {
                 var parts = value.Split(':');
-                var userId = long.Parse(parts[0]);
-                var collection = JsonConvert.DeserializeObject<List<Permission>>(parts[1]);
-                var removed = JsonConvert.DeserializeObject<List<Permission>>(parts[2]);
-                return new UserPermissions(collection ?? [], removed ?? [], userId);
+                var collection = JsonConvert.DeserializeObject<List<Permission>>(parts[0]);
+                var removed = JsonConvert.DeserializeObject<List<Permission>>(parts[1]);
+                return new UserPermissions(collection ?? [], removed ?? []);
             }
             catch (Exception ex)
             {
@@ -31,7 +30,7 @@ namespace RightVisionBotDb.Helpers
 
         public static string PermissionsToString(UserPermissions value) 
         {
-            StringBuilder sb = new($"{value.RvUserId}:[ ");
+            StringBuilder sb = new("[ ");
             foreach (var perm in value)
                 sb.Append($"\"{perm}\",");
 

@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Data.Configurations;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Models;
 
-namespace RightVisionBotDb.Data
+namespace RightVisionBotDb.Data.Contexts
 {
     public class RightVisionDbContext : DbContext
     {
@@ -77,15 +78,8 @@ namespace RightVisionBotDb.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<RightVisionDbProperties>()
-                .Property(r => r.RightVisionStatus)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<RightVisionDbProperties>()
-                .Property(r => r.EnrollmentStatus)
-                .HasConversion<string>();
+            modelBuilder.ApplyConfiguration(new ParticipantFormEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new RightVisionDbPropertiesEntityTypeConfiguration());
         }
 
         #endregion

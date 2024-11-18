@@ -1,4 +1,4 @@
-﻿using RightVisionBotDb.Data;
+﻿using RightVisionBotDb.Data.Contexts;
 
 namespace RightVisionBotDb.Helpers
 {

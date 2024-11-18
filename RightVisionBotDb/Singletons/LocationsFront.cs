@@ -45,7 +45,9 @@ namespace RightVisionBotDb.Singletons
         public async Task Profile(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
-            var (content, keyboard) = await ProfileHelper.Profile(c.RvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token);
+            var args = c.CallbackQuery.Data!.Split('-'); //[0]Command, [1]UserId, [2]?RightVision
+            var rightvision = args.Length < 3 ? App.DefaultRightVision : args[2];
+            var (content, keyboard) = await ProfileHelper.Profile(c.DbContext.RvUsers.First(u => u.UserId == long.Parse(args[1])), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,

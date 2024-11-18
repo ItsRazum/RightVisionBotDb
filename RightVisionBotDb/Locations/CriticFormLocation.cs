@@ -50,34 +50,36 @@ namespace RightVisionBotDb.Locations
             {
                 try
                 {
-                    if (property!.Name == "Rate")
+                    switch (property!.Name)
                     {
-                        if (int.TryParse(c.Message.Text, out var rate) && rate <= 4 && rate >= 1)
-                        {
-                            form.SetPropertyValue(property.Name, rate);
-                        }
-                        else
-                        {
-                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
-                            return;
-                        }
-                    }
-                    else if (property.Name == "Link")
-                    {
-                        if (c.Message.Text.StartsWith("https://"))
-                        {
+                        case "Rate":
+                            if (int.TryParse(c.Message.Text, out var rate) && rate <= 4 && rate >= 1)
+                            {
+                                form.SetPropertyValue(property.Name, rate);
+                            }
+                            else
+                            {
+                                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
+                                return;
+                            }
+                            break;
+
+                        case "Link":
+                            if (c.Message.Text.StartsWith("https://"))
+                            {
+                                form.SetPropertyValue(property.Name, c.Message.Text);
+                            }
+                            else
+                            {
+                                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.IncorrectFormat, cancellationToken: token);
+                                return;
+                            }
+                            break;
+                        default:
                             form.SetPropertyValue(property.Name, c.Message.Text);
-                        }
-                        else
-                        {
-                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.IncorrectFormat, cancellationToken: token);
-                            return;
-                        }
+                            break;
                     }
-                    else
-                    {
-                        form.SetPropertyValue(property.Name, c.Message.Text);
-                    }
+
                     await CheckFormCompletion(c, form, token);
                 }
                 catch (ArgumentException)

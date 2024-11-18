@@ -43,8 +43,8 @@ namespace RightVisionBotDb.Models
             }
         }
         public UserPermissions UserPermissions { get; set; }
-        public List<RvPunishment> Punishments { get; set; }
-        public List<Reward> Rewards { get; set; }
+        public List<RvPunishment> Punishments { get; set; } = [];
+        public List<Reward> Rewards { get; set; } = [];
 
         #region Cooldown Properties
 
@@ -79,14 +79,14 @@ namespace RightVisionBotDb.Models
             else
                 Telegram = telegram;
 
-            UserPermissions = new UserPermissions(PermissionsHelper.Default, UserId);
+            UserPermissions = new UserPermissions(PermissionsHelper.Default);
             Punishments = [];
             Rewards = [];
         }
 
         public RvUser()
         {
-            UserPermissions = new UserPermissions(UserId);
+            UserPermissions = [];
             Punishments = [];
             Rewards = [];
         }
@@ -97,7 +97,7 @@ namespace RightVisionBotDb.Models
 
         #region Public
 
-        public void ResetPermissions() => UserPermissions = new UserPermissions(PermissionsHelper.Layouts[Status] + PermissionsHelper.Layouts[Role], UserId);
+        public void ResetPermissions() => UserPermissions = new UserPermissions(PermissionsHelper.Layouts[Status] + PermissionsHelper.Layouts[Role]);
         public bool Has(Permission permission) => UserPermissions.Contains(permission);
 
         #endregion
