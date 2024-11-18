@@ -8,3 +8,7 @@
 /RightVisionBotDb/obj
 /RightVisionBotDb/bin/Debug/net8.0
 /RightVisionBotDb/obj/Debug/net8.0
+/RightVisionBotDb/obj/project.assets.json
+/RightVisionBotDb/obj/project.nuget.cache
+/RightVisionBotDb/obj/RightVisionBotDb.csproj.nuget.dgspec.json
+/RightVisionBotDb/obj/RightVisionBotDb.csproj.nuget.g.props
