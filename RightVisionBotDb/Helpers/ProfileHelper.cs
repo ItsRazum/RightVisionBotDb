@@ -122,13 +122,12 @@ namespace RightVisionBotDb.Helpers
             return (sb.ToString(), includeKeyboard ? await KeyboardsHelper.Profile(targetRvUser, chatType, rightvision, rvUser.Lang) : null);
         }
 
-        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPermissions(CallbackContext c, RvUser targetRvUser, bool minimize)
+        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPermissions(RvUser rvUser, RvUser targetRvUser, bool minimize)
         {
-            var rvUser = c.RvUser;
             var lang = rvUser.Lang;
 
             StringBuilder sb = new(
-                c.RvUser == targetRvUser
+                rvUser == targetRvUser
                 ? Language.Phrases[lang].Profile.Permissions.Header
                 : string.Format(Language.Phrases[lang].Profile.Permissions.HeaderGlobal, targetRvUser.Name));
 
@@ -178,7 +177,7 @@ namespace RightVisionBotDb.Helpers
                     sb.AppendLine("- " + permission);
             }
 
-            return (sb.ToString(), KeyboardsHelper.PermissionsList(targetRvUser, minimize, targetRvUser.UserPermissions.Count > 10, c.RvUser.Lang));
+            return (sb.ToString(), KeyboardsHelper.PermissionsList(targetRvUser, minimize, targetRvUser.UserPermissions.Count > 10, lang));
         }
 
         public static (string content, InlineKeyboardMarkup? keyboard) RvUserPunishments(CallbackContext c, RvUser targetRvUser, bool showBans, bool showMutes)

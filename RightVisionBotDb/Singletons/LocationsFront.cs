@@ -74,7 +74,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task PermissionsList(CallbackContext c, RvUser targetRvUser, bool minimize, CancellationToken token = default)
         {
-            (string content, InlineKeyboardMarkup? keyboard) = ProfileHelper.RvUserPermissions(c, targetRvUser, minimize);
+            (string content, InlineKeyboardMarkup? keyboard) = ProfileHelper.RvUserPermissions(c.RvUser, targetRvUser, minimize);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
