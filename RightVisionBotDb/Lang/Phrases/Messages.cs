@@ -7,5 +7,6 @@
         public MessagesCommon Common { get; set; }
         public MessagesCritic Critic { get; set; }
         public MessagesParticipant Participant { get; set; }
+        public MessagesAcademy Academy { get; set; }
     }
 }

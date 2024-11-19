@@ -26,6 +26,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("about", AboutCallback)
                 .RegisterCallbackCommand("aboutBot", AboutBotCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
+                .RegisterCallbackCommand("academy",)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
         }
@@ -54,7 +55,7 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                Language.Phrases[c.RvUser.Lang].Messages.Common.AboutBot,
+                string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.AboutBot, App.Configuration.BotSettings.BuildDate),
                 disableWebPagePreview: true,
                 replyMarkup: KeyboardsHelper.AboutBot(c.RvUser.Lang),
                 cancellationToken: token);
@@ -76,6 +77,15 @@ namespace RightVisionBotDb.Locations
             {
                 await LocationsFront.FormSelection(c, token);
             }
+        }
+
+        private async Task AcademyCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await Bot.Client.AnswerCallbackQueryAsync(
+                c.CallbackQuery.Id, 
+                Language.Phrases[c.RvUser.Lang].Messages.Academy.EnrollmentClosed, 
+                true, 
+                cancellationToken: token);
         }
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
