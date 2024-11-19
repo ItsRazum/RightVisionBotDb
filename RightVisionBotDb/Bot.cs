@@ -118,7 +118,7 @@ namespace RightVisionBotDb
             var rightVisions =
                 Directory.GetFiles(info.FullName)
                 .Where(s => s.EndsWith(".db"))
-                .Select(s => s.Split("\\")
+                .Select(s => s.Split(Path.PathSeparator)
                 .Last())
                 .OrderBy(s => s)
                 .ToArray();
@@ -130,7 +130,7 @@ namespace RightVisionBotDb
                 rightVisions =
                     [.. Directory.GetFiles(info.FullName)
                     .Where(s => s.EndsWith(".db"))
-                    .Select(s => s.Split("\\")
+                    .Select(s => s.Split(Path.PathSeparator)
                     .Last())
                     .OrderBy(s => s)];
             }

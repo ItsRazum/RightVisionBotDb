@@ -57,12 +57,12 @@ namespace RightVisionBotDb.Locations
 
         public override async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken token = default)
         {
+            using var db = DatabaseHelper.GetApplicationDbContext();
+            using var rvContext = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
+
             RvUser? rvUser = null;
             try
             {
-                using var db = DatabaseHelper.GetApplicationDbContext();
-                using var rvContext = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
-
                 (var from, rvUser, var chatType) = await GetRvUserAndChatType(update, db, token);
                 bool containsArgs = false;
 
