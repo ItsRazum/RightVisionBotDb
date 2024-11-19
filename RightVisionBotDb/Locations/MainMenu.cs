@@ -26,7 +26,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("about", AboutCallback)
                 .RegisterCallbackCommand("aboutBot", AboutBotCallback)
                 .RegisterCallbackCommand("forms", FormsCallback)
-                .RegisterCallbackCommand("academy",)
+                .RegisterCallbackCommand("academy", AcademyCallback)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
         }
