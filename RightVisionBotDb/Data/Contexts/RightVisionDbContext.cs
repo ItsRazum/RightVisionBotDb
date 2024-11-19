@@ -72,7 +72,7 @@ namespace RightVisionBotDb.Data.Contexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DatabasesDir, $"{Name}.db");
+            var databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DatabasesDir, $"{Name}.db").Replace('\\', Path.PathSeparator);
             optionsBuilder.UseSqlite("Data Source=" + databasePath);
         }
 
