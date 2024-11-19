@@ -2,6 +2,14 @@
 {
     public class DataSettings
     {
-        public string RightVisionDatabasesPath { get; set; }
+        private string _rightVisionDatabasesPath;
+
+        public string RightVisionDatabasesPath 
+        { 
+            get => _rightVisionDatabasesPath;
+            set => _rightVisionDatabasesPath = value
+                .Replace('/', '\\')
+                .Replace('\\', Path.DirectorySeparatorChar); 
+        }
     }
 }
