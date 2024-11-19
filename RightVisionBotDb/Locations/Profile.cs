@@ -6,7 +6,6 @@ using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
-using Telegram.Bot.Types.Enums;
 
 namespace RightVisionBotDb.Locations
 {

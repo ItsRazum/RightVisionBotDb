@@ -1,4 +1,5 @@
-﻿using RightVisionBotDb.Helpers;
+﻿using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
@@ -45,9 +46,14 @@ namespace RightVisionBotDb.Singletons
         public async Task Profile(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
+            var targetUserId = c.RvUser.UserId;
             var args = c.CallbackQuery.Data!.Split('-'); //[0]Command, [1]UserId, [2]?RightVision
+
+            if (args.First() == "profile")
+                targetUserId = long.Parse(args[1]);
+
             var rightvision = args.Length < 3 ? App.DefaultRightVision : args[2];
-            var (content, keyboard) = await ProfileHelper.Profile(c.DbContext.RvUsers.First(u => u.UserId == long.Parse(args[1])), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token);
+            var (content, keyboard) = await ProfileHelper.Profile(await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
