@@ -81,7 +81,7 @@ namespace RightVisionBotDb.Locations
 
             if (command.StartsWith('/'))
             {
-                command += "@RightVisionBot";
+                command += "@rightvisionbot";
                 TextCommands.Add(command, rvTextCommand);
             }
             return this;
