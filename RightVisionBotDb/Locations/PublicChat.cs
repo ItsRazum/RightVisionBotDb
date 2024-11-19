@@ -8,6 +8,7 @@ using RightVisionBotDb.Lang.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
+using Serilog.Formatting.Json;
 using System.Globalization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -55,12 +56,14 @@ namespace RightVisionBotDb.Locations
 
         private async Task ProfileCommand(CommandContext c, CancellationToken token)
         {
-            var (extractedRvUser, _) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
+            RvUser? extractedRvUser = null;
+            var args = c.Message.Text!.Split(' ');
 
-            if (extractedRvUser == null && c.Message.ReplyToMessage == null)
-                extractedRvUser = c.RvUser;
+            (extractedRvUser, _) = args.Length > 1
+                ? await CommandFormatHelper.ExtractRvUserFromArgs(c, token)
+                : (c.RvUser, null);
 
-            else if (extractedRvUser == null)
+            if (extractedRvUser == null)
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.UserNotFound, cancellationToken: token);
                 return;
