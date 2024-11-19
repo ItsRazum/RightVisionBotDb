@@ -93,12 +93,12 @@ namespace RightVisionBotDb.Helpers
             criticForm = await c.DbContext.CriticForms.FirstOrDefaultAsync(c => c.UserId == targetRvUser.UserId && c.Status == FormStatus.Accepted, token);
             if (criticForm != null)
                 sb.AppendLine( //Категория оценивания
-                    phrases.Profile.Properties.CategoryCritic
+                    "- " + phrases.Profile.Properties.CategoryCritic
                     + Language.GetCategoryString(criticForm.Category));
 
             if (participantForm != null)
                 sb.AppendLine( //Категория участия
-                    phrases.Profile.Properties.CategoryParticipant
+                    "- " + phrases.Profile.Properties.CategoryParticipant
                     + Language.GetCategoryString(participantForm.Category));
 
             if (chatType == ChatType.Private)
