@@ -56,10 +56,9 @@ namespace RightVisionBotDb.Locations
 
         private async Task ProfileCommand(CommandContext c, CancellationToken token)
         {
-            RvUser? extractedRvUser = null;
             var args = c.Message.Text!.Split(' ');
 
-            (extractedRvUser, _) = args.Length > 1
+            var (extractedRvUser, _) = args.Length > 1
                 ? await CommandFormatHelper.ExtractRvUserFromArgs(c, token)
                 : (c.RvUser, null);
 
