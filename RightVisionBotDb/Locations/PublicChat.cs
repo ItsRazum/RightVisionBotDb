@@ -58,7 +58,7 @@ namespace RightVisionBotDb.Locations
         {
             var args = c.Message.Text!.Split(' ');
 
-            var (extractedRvUser, _) = args.Length > 1
+            var (extractedRvUser, _) = args.Length > 1 || c.Message.ReplyToMessage != null
                 ? await CommandFormatHelper.ExtractRvUserFromArgs(c, token)
                 : (c.RvUser, null);
 

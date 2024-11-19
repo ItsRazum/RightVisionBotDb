@@ -50,7 +50,7 @@ namespace RightVisionBotDb.Locations
                 if (containsArgs)
                     c.Message.Text = Regex.Replace(c.Message.Text, @"\s{2,}", " ").Trim();
 
-                var commandData = containsArgs ? c.Message.Text.ToLower().Split(' ').First() : c.Message.Text;
+                var commandData = (containsArgs ? c.Message.Text.Split(' ').First() : c.Message.Text).ToLower();
 
                 if (TextCommands.TryGetValue(commandData, out var command) && !await command.ExecuteAsync(c, token))
                     await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.NoPermission, cancellationToken: token);

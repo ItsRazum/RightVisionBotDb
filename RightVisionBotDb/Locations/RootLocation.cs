@@ -39,6 +39,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/news", NewsCommand, Permission.News)
                 .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterTextCommand("~permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("profile", ProfileCallback)
                 .RegisterCallbackCommand("participations", ParticipationsCallback)
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
@@ -323,7 +324,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task AppointCommand(CommandContext c, CancellationToken token = default)
         {
-            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c);
+            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
 
             string message = "Пользователь не найден или не указан!";
 
@@ -345,6 +346,7 @@ namespace RightVisionBotDb.Locations
                             extractedRvUser.UserId,
                             string.Format(Language.Phrases[extractedRvUser.Lang].Messages.Common.UserAppointed, extractedRvUser.Name, role),
                             cancellationToken: token);
+                        c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
                     }
                 }
                 else
@@ -372,6 +374,7 @@ namespace RightVisionBotDb.Locations
                 {
                     extractedRvUser.ResetPermissions();
                     resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Status}\n{extractedRvUser.Role}";
+                    c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
                 }
 
                 else if (Enum.TryParse(args.Last(), out Permission permission))
@@ -382,10 +385,12 @@ namespace RightVisionBotDb.Locations
                         case '+':
                             extractedRvUser.UserPermissions += permission;
                             resultMessage = $"Пользователю успешно выдано право Permission.{permission}";
+                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
                             break;
                         case '-':
                             extractedRvUser.UserPermissions -= permission;
                             resultMessage = $"С пользователя успешно снято право Permission.{permission}";
+                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
                             break;
                     }
                 }
@@ -480,10 +485,10 @@ namespace RightVisionBotDb.Locations
             var (content, markup) = await ProfileHelper.RvUserParticipations(c, targetRvUser);
 
             await Bot.Client.EditMessageTextAsync(
-                c.CallbackQuery.Message!.Chat, 
-                c.CallbackQuery.Message.MessageId, 
-                content, 
-                replyMarkup: markup, 
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                content,
+                replyMarkup: markup,
                 cancellationToken: token);
         }
 
