@@ -133,30 +133,30 @@ namespace RightVisionBotDb.Helpers
                 : string.Format(Language.Phrases[lang].Profile.Permissions.HeaderGlobal, targetRvUser.Name));
 
             IEnumerable<Permission> permissions;
-            UserPermissions layout = new(PermissionsHelper.Layouts[rvUser.Status] + PermissionsHelper.Layouts[rvUser.Role]);
+            UserPermissions layout = new(PermissionsHelper.Layouts[targetRvUser.Status] + PermissionsHelper.Layouts[targetRvUser.Role]);
 
             sb.AppendLine();
             if (minimize)
             {
                 var standartCount = App.Configuration.UISettings.ProfileSettings.PermissionsMinimizedUnitsCount;
-                permissions = rvUser.UserPermissions.Take(standartCount);
+                permissions = targetRvUser.UserPermissions.Take(standartCount);
 
                 foreach (var permission in permissions)
                     sb.AppendLine("• " + permission);
 
-                if (rvUser.UserPermissions.Count >= standartCount)
-                    sb.AppendLine($"... ({Language.Phrases[lang].Messages.Additional.HowMuchLeft} {rvUser.UserPermissions.Count - standartCount})");
+                if (targetRvUser.UserPermissions.Count >= standartCount)
+                    sb.AppendLine($"... ({Language.Phrases[lang].Messages.Additional.HowMuchLeft} {targetRvUser.UserPermissions.Count - standartCount})");
             }
             else
             {
-                permissions = rvUser.UserPermissions;
+                permissions = targetRvUser.UserPermissions;
 
                 foreach (var permission in permissions)
                     sb.AppendLine("• " + permission);
             }
 
 
-            var addedList = AddedPermissionsList(layout, rvUser.UserPermissions);
+            var addedList = AddedPermissionsList(layout, targetRvUser.UserPermissions);
             if (addedList.Count > 0)
             {
                 sb
@@ -167,7 +167,7 @@ namespace RightVisionBotDb.Helpers
                     sb.AppendLine("+ " + permission);
             }
 
-            var blockedList = BlockedPermissionsList(layout, rvUser.UserPermissions);
+            var blockedList = BlockedPermissionsList(layout, targetRvUser.UserPermissions);
             if (blockedList.Count > 0)
             {
                 sb
