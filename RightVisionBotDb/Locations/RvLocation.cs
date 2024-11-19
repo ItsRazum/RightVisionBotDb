@@ -76,9 +76,14 @@ namespace RightVisionBotDb.Locations
             {
                 throw new InvalidOperationException($"Команда {command} уже зарегистрирована в локации {this}.");
             }
+            var rvTextCommand = new RvTextCommand(handler, requiredPermission);
+            TextCommands.Add(command, rvTextCommand);
+
             if (command.StartsWith('/'))
+            {
                 command += "@RightVisionBot";
-            TextCommands.Add(command, new RvTextCommand(handler, requiredPermission));
+                TextCommands.Add(command, rvTextCommand);
+            }
             return this;
         }
 
