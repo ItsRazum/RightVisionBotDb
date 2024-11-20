@@ -408,20 +408,19 @@ namespace RightVisionBotDb.Locations
         {
             var targetUsers = new HashSet<long>();
             var sb = new StringBuilder();
-
-            var commandArgs = c.Message.Text!.Split(' ').RemoveAt(0).Take(3).ToList();
+            var commandParts = c.Message.Text!.Split(' ');
+            var commandArgs = commandParts.Skip(1).Take(3).ToList();
+            var argsCount = 1;
 
             sb.AppendLine("Распознаны следующие аргументы:");
-
             if (commandArgs.Contains("-n"))
             {
                 sb.AppendLine("- Разослать подписчикам на новости (-n)");
                 foreach (var rvUser in (await c.DbContext.RvUsers.ToListAsync(token)).Where(u => u.Has(Permission.News)))
                     targetUsers.Add(rvUser.UserId);
-
                 commandArgs.Remove("-n");
+                argsCount++;
             }
-
             if (commandArgs.Contains("-p"))
             {
                 sb.AppendLine("- Разослать всем участникам (-p)");
@@ -435,8 +434,8 @@ namespace RightVisionBotDb.Locations
                         targetUsers.Add(rvParticipant.UserId);
                 }
                 commandArgs.Remove("-p");
+                argsCount++;
             }
-
             if (commandArgs.Contains("-t"))
             {
                 sb.AppendLine("- Отправить новость всем пользователям бота (-t)");
@@ -449,14 +448,14 @@ namespace RightVisionBotDb.Locations
                     targetUsers = [.. c.DbContext.RvUsers.Select(u => u.UserId)];
                 }
                 commandArgs.Remove("-t");
+                argsCount++;
             }
-
             await RvLogger.Log(LogMessagesHelper.UserStartedNewsSending(c.RvUser, sb.ToString()), c.RvUser, token);
-
-            var message = string.Join(' ', commandArgs);
+            var message = string.Join(' ', commandParts.Skip(argsCount));
 
             var successCount = 0;
             var failCount = 0;
+            /*
             foreach (var userId in targetUsers)
             {
                 try
@@ -469,6 +468,7 @@ namespace RightVisionBotDb.Locations
                     failCount++;
                 }
             }
+            */
 
             await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
         }
