@@ -455,7 +455,7 @@ namespace RightVisionBotDb.Locations
 
             var successCount = 0;
             var failCount = 0;
-            /*
+            
             foreach (var userId in targetUsers)
             {
                 try
@@ -468,7 +468,7 @@ namespace RightVisionBotDb.Locations
                     failCount++;
                 }
             }
-            */
+            
 
             await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
         }
