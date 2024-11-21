@@ -14,5 +14,8 @@ namespace RightVisionBotDb.Interfaces
 
         IRvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null);
         IRvLocation RegisterCallbackCommand(string command, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null);
+
+        IRvLocation RegisterTextCommands(IEnumerable<string> commands, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null);
+        IRvLocation RegisterCallbackCommands(IEnumerable<string> commands, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null);
     }
 }

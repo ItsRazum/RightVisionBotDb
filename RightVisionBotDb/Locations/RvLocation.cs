@@ -96,7 +96,25 @@ namespace RightVisionBotDb.Locations
             CallbackCommands.Add(command, new RvCallbackCommand(handler, requiredPermission));
             return this;
         }
-        
+
+        public IRvLocation RegisterTextCommands(IEnumerable<string> commands, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
+        {
+            foreach (var command in commands)
+                RegisterTextCommand(command, handler, requiredPermission);
+
+            return this;
+        }
+
+        public IRvLocation RegisterCallbackCommands(IEnumerable<string> commands, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
+        {
+            foreach (var command in commands)
+                RegisterCallbackCommand(command, handler, requiredPermission);
+
+            return this;
+        }
+
+
+
         #endregion
     }
 }

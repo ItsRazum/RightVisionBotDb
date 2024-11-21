@@ -8,7 +8,6 @@ using RightVisionBotDb.Lang.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
-using Serilog.Formatting.Json;
 using System.Globalization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -45,9 +44,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
-                .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterTextCommand("~permission", AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", CriticTakeCallback, Permission.Curate)
                 .RegisterCallbackCommand("p_take", ParticipantTakeCallback, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)

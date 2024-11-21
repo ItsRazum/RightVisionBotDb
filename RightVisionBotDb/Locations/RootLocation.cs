@@ -42,11 +42,9 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
                 .RegisterCallbackCommand("useControlPanel", UseControlPanelCallback)
                 .RegisterCallbackCommand("backToProfile", BackToProfileCallback)
-                .RegisterCallbackCommand("permissions_minimized", PermissionsCallback)
-                .RegisterCallbackCommand("permissions_maximized", PermissionsCallback)
                 .RegisterCallbackCommand("punishments_history", PunishmentsHistoryCallback)
-                .RegisterCallbackCommand("punishments_hide", PunishmentsListActionCallback)
-                .RegisterCallbackCommand("punishments_show", PunishmentsListActionCallback);
+                .RegisterCallbackCommands(["permissions_minimized", "permissions_maximized"], PermissionsCallback)
+                .RegisterCallbackCommands(["punishments_hide", "punishments_show"], PunishmentsListActionCallback);
         }
 
         #endregion
