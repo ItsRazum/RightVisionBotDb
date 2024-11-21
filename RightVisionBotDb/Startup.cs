@@ -1,12 +1,16 @@
-﻿/*
-using DryIoc;
+﻿using DryIoc;
 using RightVisionBotDb.Converters;
+using RightVisionBotDb.Data.Configurations;
+using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using Serilog;
 
 namespace RightVisionBotDb
 {
+    /// <summary>
+    /// InDev
+    /// </summary>
     public class Startup
     {
         public static void Run(IContainer container)
@@ -19,6 +23,7 @@ namespace RightVisionBotDb
             Log.Logger?.Information("================= RightVisionBot =================");
 
             RegisterServices(container);
+            RegisterDatabase(container);
 
             container.Register<Bot>(Reuse.Singleton);
 
@@ -41,8 +46,13 @@ namespace RightVisionBotDb
 
         private static void RegisterDatabase(IContainer container)
         {
+            Log.Logger?.Information("Регистрация конфигураций сущностей...");
+            container.Register<CriticFormEntityTypeConfiguration>(Reuse.Singleton);
+            container.Register<ParticipantFormEntityTypeConfiguration>(Reuse.Singleton);
+            container.Register<RightVisionDbPropertiesEntityTypeConfiguration>(Reuse.Singleton);
+            container.Register<RvUserEntityTypeConfiguration>(Reuse.Singleton);
 
+            container.Register<ApplicationDbContext>(Reuse.Scoped);
         }
     }
 }
-*/

@@ -43,9 +43,10 @@ namespace RightVisionBotDb.Singletons
                 cancellationToken: token);
         }
 
-        public async Task Profile(CallbackContext c, CancellationToken token = default)
+        public async Task Profile(CallbackContext c, CancellationToken token, bool changeLocation = true)
         {
-            c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
+            if (changeLocation) c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
+
             var targetUserId = c.RvUser.UserId;
             var args = c.CallbackQuery.Data!.Split('-'); //[0]Command, [1]UserId, [2]?RightVision
 
@@ -90,7 +91,7 @@ namespace RightVisionBotDb.Singletons
                 await Bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id, 
                     Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoPunishments, 
-                    showAlert: true, 
+                    showAlert: true,
                     cancellationToken: token);
 
                 return;

@@ -44,6 +44,10 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
+                .RegisterTextCommand("+reward", AddReward)
+                .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterTextCommand("~permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", CriticTakeCallback, Permission.Curate)
                 .RegisterCallbackCommand("p_take", ParticipantTakeCallback, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
@@ -123,6 +127,81 @@ namespace RightVisionBotDb.Locations
                 targetRvUser.Punishments.Add(new(PunishmentType.Mute, c.Message.Chat.Id, reason, DateTime.Now, endDate));
                 c.DbContext.Entry(targetRvUser).State = EntityState.Modified;
             }
+        }
+
+        private async Task AddOrRemovePermissionCommand(CommandContext c, CancellationToken token = default)
+        {
+            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
+
+            string resultMessage = "Пользователь не найден или не указан!";
+
+            if (extractedRvUser != null)
+            {
+                if (extractedRvUser == c.RvUser)
+                    resultMessage = "Извини, но ты не можешь снимать права у самого себя!";
+
+                else if (c.Message.Text!.StartsWith('~'))
+                {
+                    extractedRvUser.ResetPermissions();
+                    resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Status}\n{extractedRvUser.Role}";
+                    c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                }
+
+                else if (Enum.TryParse(args.Last(), out Permission permission))
+                {
+                    var actionType = c.Message.Text!.First();
+                    switch (actionType)
+                    {
+                        case '+':
+                            extractedRvUser.UserPermissions += permission;
+                            resultMessage = $"Пользователю успешно выдано право Permission.{permission}";
+                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                            break;
+                        case '-':
+                            extractedRvUser.UserPermissions -= permission;
+                            resultMessage = $"С пользователя успешно снято право Permission.{permission}";
+                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                            break;
+                    }
+                }
+                else
+                    resultMessage = "Запрашиваемое право не найдено!";
+            }
+
+            await Bot.Client.SendTextMessageAsync(
+                c.Message.Chat,
+                resultMessage,
+                cancellationToken: token);
+        }
+
+        private async Task AddReward(CommandContext c, CancellationToken token = default)
+        {
+            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token); //[0]Icon, [1 ..]Description
+
+            var resultMessage = "Пользователь не найден или не указан!";
+
+            if (extractedRvUser != null)
+            {
+                if (extractedRvUser == c.RvUser)
+                    resultMessage = "Извини, но ты не можешь выдавать награду самому себе!";
+
+                else
+                {
+                    try
+                    {
+                        var description = string.Join(' ', args.Skip(1));
+                        extractedRvUser.Rewards.Add(new Reward(args[0], description));
+                        c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                        resultMessage = "Пользователю успешно выдана награда!";
+                    }
+                    catch
+                    {
+                        resultMessage = "Не удалось выдать награду! Возможно, в команде допущена синтаксическая ошибка.";
+                    }
+                }
+            }
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, resultMessage, cancellationToken: token);
         }
 
         private async Task CriticTakeCallback(CallbackContext c, CancellationToken token = default)

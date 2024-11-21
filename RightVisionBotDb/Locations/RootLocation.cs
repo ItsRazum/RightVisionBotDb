@@ -37,9 +37,6 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/menu", MainMenuCommand)
                 .RegisterTextCommand("назначить", AppointCommand, Permission.Grant)
                 .RegisterTextCommand("/news", NewsCommand, Permission.News)
-                .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterTextCommand("~permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("profile", ProfileCallback)
                 .RegisterCallbackCommand("participations", ParticipationsCallback)
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
@@ -177,6 +174,11 @@ namespace RightVisionBotDb.Locations
                         $"\nRvUser Lang: {rvUser.Lang}", cancellationToken: token);
                 }
             }
+            finally
+            {
+                await db.DisposeAsync();
+                await rvContext.DisposeAsync();
+            }
         }
 
         public override Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken token = default)
@@ -219,7 +221,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task PunishmentsListActionCallback(CallbackContext c, CancellationToken token = default)
         {
-            var args = c.CallbackQuery.Data!.Split('-'); //[0] Command, [1]PunishmentType, [2]UserId
+            var args = c.CallbackQuery.Data!.Split('-'); //[0]Command, [1]PunishmentType, [2]UserId
             var targetUserId = long.Parse(args.Last());
             var punishmentType = Enum.Parse<PunishmentType>(args[1]);
 
@@ -359,51 +361,6 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
         }
 
-        private async Task AddOrRemovePermissionCommand(CommandContext c, CancellationToken token = default)
-        {
-            var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
-
-            string resultMessage = "Пользователь не найден или не указан!";
-
-            if (extractedRvUser != null)
-            {
-                if (extractedRvUser == c.RvUser)
-                    resultMessage = "Извини, но ты не можешь снимать права у самого себя!";
-
-                else if (c.Message.Text!.StartsWith('~'))
-                {
-                    extractedRvUser.ResetPermissions();
-                    resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Status}\n{extractedRvUser.Role}";
-                    c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
-                }
-
-                else if (Enum.TryParse(args.Last(), out Permission permission))
-                {
-                    var actionType = c.Message.Text!.First();
-                    switch (actionType)
-                    {
-                        case '+':
-                            extractedRvUser.UserPermissions += permission;
-                            resultMessage = $"Пользователю успешно выдано право Permission.{permission}";
-                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
-                            break;
-                        case '-':
-                            extractedRvUser.UserPermissions -= permission;
-                            resultMessage = $"С пользователя успешно снято право Permission.{permission}";
-                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
-                            break;
-                    }
-                }
-                else
-                    resultMessage = "Запрашиваемое право не найдено!";
-            }
-
-            await Bot.Client.SendTextMessageAsync(
-                c.Message.Chat,
-                resultMessage,
-                cancellationToken: token);
-        }
-
         private async Task NewsCommand(CommandContext c, CancellationToken token)
         {
             var targetUsers = new HashSet<long>();
@@ -453,29 +410,33 @@ namespace RightVisionBotDb.Locations
             await RvLogger.Log(LogMessagesHelper.UserStartedNewsSending(c.RvUser, sb.ToString()), c.RvUser, token);
             var message = string.Join(' ', commandParts.Skip(argsCount));
 
-            var successCount = 0;
-            var failCount = 0;
-            
-            foreach (var userId in targetUsers)
-            {
-                try
-                {
-                    await Bot.Client.SendTextMessageAsync(userId, message, cancellationToken: token);
-                    successCount++;
-                }
-                catch (Exception)
-                {
-                    failCount++;
-                }
-            }
-            
 
-            await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
+            var thread = new Thread(async () =>
+            {
+                var successCount = 0;
+                var failCount = 0;
+
+                foreach (var userId in targetUsers)
+                {
+                    try
+                    {
+                        await Bot.Client.SendTextMessageAsync(userId, message, cancellationToken: token);
+                        successCount++;
+                    }
+                    catch (Exception)
+                    {
+                        failCount++;
+                    }
+                }
+
+                await Bot.Client.SendTextMessageAsync(-4074101060, $"Рассылка завершена. {successCount} получили новость, {failCount} не получили", cancellationToken: token);
+            });
+            thread.Start();
         }
 
         private async Task ProfileCallback(CallbackContext c, CancellationToken token = default)
         {
-            await LocationsFront.Profile(c, token);
+            await LocationsFront.Profile(c, token, false);
         }
 
         private async Task ParticipationsCallback(CallbackContext c, CancellationToken token = default)

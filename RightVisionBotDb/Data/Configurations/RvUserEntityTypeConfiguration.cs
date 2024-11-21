@@ -1,9 +1,11 @@
 ﻿using DryIoc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Types;
 
 namespace RightVisionBotDb.Data.Configurations
 {
@@ -31,13 +33,13 @@ namespace RightVisionBotDb.Data.Configurations
                 );
             builder.Property(u => u.Rewards)
                 .HasConversion(
-                    v => ConvertHelper.RewardsToString(v),
-                    v => ConvertHelper.StringToRewards(v)
+                    v => JsonConvert.SerializeObject(v),
+                    v => JsonConvert.DeserializeObject<List<Reward>>(v)!
                 );
             builder.Property(u => u.Punishments)
                 .HasConversion(
-                    v => ConvertHelper.RvPunishmentsToString(v),
-                    v => ConvertHelper.StringToRvPunishments(v)
+                    v => JsonConvert.SerializeObject(v),
+                    v => JsonConvert.DeserializeObject<List<RvPunishment>>(v)!
                 );
             builder.Property(u => u.Location)
                 .HasConversion(

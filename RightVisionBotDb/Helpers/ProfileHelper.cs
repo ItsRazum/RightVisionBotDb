@@ -105,16 +105,16 @@ namespace RightVisionBotDb.Helpers
             {
                 sb
                     .AppendLine(phrases.Profile.Properties.CandidacyStatus) //Статус кандидатур                    
-                    .AppendLine("- " + phrases.Profile.Forms.Properties.Critic + GetCandidateStatus(rvUser.Lang, criticForm))
-                    .AppendLine("- " + phrases.Profile.Forms.Properties.Participant + GetCandidateStatus(rvUser.Lang, participantForm));
+                    .AppendLine("- " + phrases.Profile.Forms.Properties.Critic + GetCandidateStatus(lang, criticForm))
+                    .AppendLine("- " + phrases.Profile.Forms.Properties.Participant + GetCandidateStatus(lang, participantForm));
             }
 
             sb
                 .AppendLine()
                 .AppendLine(phrases.Profile.Rewards.Header); //Награды
-            if (rvUser.Rewards.Count > 0)
-                foreach (var reward in rvUser.Rewards)
-                    sb.AppendLine($"- {rvUser.Rewards.IndexOf(reward)}: [{reward.Icon}] {reward.Description}");
+            if (targetRvUser.Rewards.Count > 0)
+                foreach (var reward in targetRvUser.Rewards)
+                    sb.AppendLine($"- {targetRvUser.Rewards.IndexOf(reward) + 1}: {reward.Icon} {reward.Description}");
 
             else
                 sb.AppendLine("- " + phrases.Profile.Rewards.NoRewards);
