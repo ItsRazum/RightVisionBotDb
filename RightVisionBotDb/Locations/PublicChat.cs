@@ -44,7 +44,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
-                .RegisterTextCommand("+reward", AddReward)
+                .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommand("+permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterTextCommand("-permission", AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterTextCommand("~permission", AddOrRemovePermissionCommand, Permission.GivePermission)

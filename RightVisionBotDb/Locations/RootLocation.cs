@@ -184,7 +184,7 @@ namespace RightVisionBotDb.Locations
         public override Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken token = default)
         {
             _logger.Fatal(exception, "Не удалось обработать ошибку внутри работы бота");
-            throw exception;
+            return Task.CompletedTask;
         }
 
         #endregion
