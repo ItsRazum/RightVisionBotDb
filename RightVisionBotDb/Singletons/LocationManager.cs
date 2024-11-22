@@ -1,16 +1,17 @@
 ﻿using DryIoc;
 using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Locations;
 
 namespace RightVisionBotDb.Singletons
 {
-    public class LocationManager : Dictionary<string, IRvLocation>
+    public class LocationManager : Dictionary<string, RvLocation>
     {
 
         public LocationManager()
         {
         }
 
-        public LocationManager RegisterLocation<TLocation>(string locationKey) where TLocation : IRvLocation
+        public LocationManager RegisterLocation<TLocation>(string locationKey) where TLocation : RvLocation
         {
             App.Container.Register<TLocation>(Reuse.Singleton);
             Add(locationKey, App.Container.Resolve<TLocation>());
@@ -18,12 +19,12 @@ namespace RightVisionBotDb.Singletons
             return this;
         }
 
-        public string LocationToString(IRvLocation location)
+        public string LocationToString(RvLocation location)
         {
             return this.FirstOrDefault(x => x.Value.GetType() == location.GetType()).Key;
         }
 
-        public IRvLocation StringToLocation(string locationName)
+        public RvLocation StringToLocation(string locationName)
         {
             if (TryGetValue(locationName, out var location))
                 return location;

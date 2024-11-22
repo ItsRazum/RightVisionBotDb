@@ -8,13 +8,12 @@ using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
-    public abstract class RvLocation : IRvLocation
+    public abstract class RvLocation
     {
         #region Properties
 
-        public Dictionary<string, RvTextCommand> TextCommands { get; }
-        public Dictionary<string, RvCallbackCommand> CallbackCommands { get; }
-
+        protected Dictionary<string, RvTextCommand> TextCommands { get; }
+        protected Dictionary<string, RvCallbackCommand> CallbackCommands { get; }
         protected Bot Bot { get; }
         protected LocationManager LocationManager { get; }
         protected RvLogger RvLogger { get; }
@@ -41,7 +40,7 @@ namespace RightVisionBotDb.Locations
 
         #endregion
 
-        #region IRvLocation implementation 
+        #region Methods 
 
         public virtual async Task HandleCommandAsync(CommandContext c, bool containsArgs, CancellationToken token = default)
         {
@@ -70,7 +69,7 @@ namespace RightVisionBotDb.Locations
                 await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, Language.Phrases[c.RvUser.Lang].Messages.Common.NoPermission, showAlert: true, cancellationToken: token);
         }
 
-        public IRvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
+        public RvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
         {
             if (TextCommands.ContainsKey(command))
             {
@@ -87,7 +86,7 @@ namespace RightVisionBotDb.Locations
             return this;
         }
 
-        public IRvLocation RegisterCallbackCommand(string command, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
+        public RvLocation RegisterCallbackCommand(string command, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
         {
             if (CallbackCommands.ContainsKey(command))
             {
@@ -97,7 +96,7 @@ namespace RightVisionBotDb.Locations
             return this;
         }
 
-        public IRvLocation RegisterTextCommands(IEnumerable<string> commands, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
+        public RvLocation RegisterTextCommands(IEnumerable<string> commands, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
         {
             foreach (var command in commands)
                 RegisterTextCommand(command, handler, requiredPermission);
@@ -105,15 +104,13 @@ namespace RightVisionBotDb.Locations
             return this;
         }
 
-        public IRvLocation RegisterCallbackCommands(IEnumerable<string> commands, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
+        public RvLocation RegisterCallbackCommands(IEnumerable<string> commands, Func<CallbackContext, CancellationToken, Task> handler, Permission? requiredPermission = null)
         {
             foreach (var command in commands)
                 RegisterCallbackCommand(command, handler, requiredPermission);
 
             return this;
         }
-
-
 
         #endregion
     }

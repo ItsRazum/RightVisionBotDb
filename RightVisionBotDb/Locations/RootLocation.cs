@@ -143,7 +143,7 @@ namespace RightVisionBotDb.Locations
 
                 rvUser.LocationChanged -= OnLocationChanged;
 
-                async void OnLocationChanged(object? sender, (IRvLocation, IRvLocation) e)
+                async void OnLocationChanged(object? sender, (RvLocation, RvLocation) e)
                 {
                     await RvLogger.Log(LogMessagesHelper.UserChangedLocation(rvUser, e), rvUser, token);
                 }

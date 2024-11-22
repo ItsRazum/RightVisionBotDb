@@ -1,10 +1,9 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Locations;
 using RightVisionBotDb.Types;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Timers;
 
 namespace RightVisionBotDb.Models
 {
@@ -13,7 +12,7 @@ namespace RightVisionBotDb.Models
 
         #region Fields
 
-        private IRvLocation location;
+        private RvLocation location;
         private string telegram = string.Empty;
 
         #endregion
@@ -32,7 +31,7 @@ namespace RightVisionBotDb.Models
         public Enums.Lang Lang { get; set; }
         public Status Status { get; set; } = Status.User;
         public Role Role { get; set; } = Role.None;
-        public IRvLocation Location
+        public RvLocation Location
         {
             get => location;
             set
@@ -67,7 +66,7 @@ namespace RightVisionBotDb.Models
 
         #region Constructors
 
-        public RvUser(long userId, Enums.Lang lang, string name, string? telegram, IRvLocation location)
+        public RvUser(long userId, Enums.Lang lang, string name, string? telegram, RvLocation location)
         {
             UserId = userId;
             Lang = lang;
@@ -106,7 +105,7 @@ namespace RightVisionBotDb.Models
 
         #region Events
 
-        public EventHandler<(IRvLocation, IRvLocation)>? LocationChanged;
+        public EventHandler<(RvLocation, RvLocation)>? LocationChanged;
 
         #endregion
 

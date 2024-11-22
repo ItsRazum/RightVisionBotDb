@@ -1,4 +1,5 @@
 ﻿using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Locations;
 using RightVisionBotDb.Models;
 
 namespace RightVisionBotDb.Helpers
@@ -18,7 +19,7 @@ namespace RightVisionBotDb.Helpers
         public static string UserCanceledCriticForm(RvUser rvUser) => $"Пользователь @{rvUser.Telegram} отменил заполнение заявки на судейство";
         public static string UserTookCuratorshipCritic(RvUser rvUser, long curatorId) => $"Пользователь @{rvUser.Telegram} взял кураторство над судьёй Id:{curatorId}";
         public static string UserTookCuratorshipParticipant(RvUser rvUser, long participantId) => $"Пользователь @{rvUser.Telegram} взял кураторство над участником Id:{participantId}";
-        public static string UserChangedLocation(RvUser rvUser, (IRvLocation, IRvLocation) locations) => $"@{rvUser.Telegram}: Смена локации с {locations.Item1} на {locations.Item2}";
+        public static string UserChangedLocation(RvUser rvUser, (RvLocation, RvLocation) locations) => $"@{rvUser.Telegram}: Смена локации с {locations.Item1} на {locations.Item2}";
         public static string UserStartedNewsSending(RvUser rvUser, string args) => $"Пользователь @{rvUser.Telegram} начал новостную рассылку\n{args}";
 
         #endregion
