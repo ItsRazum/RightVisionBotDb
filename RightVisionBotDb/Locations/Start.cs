@@ -1,7 +1,7 @@
-﻿using RightVisionBotDb.Helpers;
+﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
-using Telegram.Bot;
 
 namespace RightVisionBotDb.Locations
 {
@@ -30,7 +30,7 @@ namespace RightVisionBotDb.Locations
         private async Task LangCallback(CallbackContext c, CancellationToken token = default)
         {
             var rvUser = c.RvUser;
-            rvUser.Lang = Enum.Parse<Enums.Lang>(c.CallbackQuery.Data!);
+            rvUser.Lang = Enum.Parse<Lang>(c.CallbackQuery.Data!);
             await LocationsFront.MainMenu(c, token);
             await RvLogger.Log(LogMessagesHelper.Registration(rvUser), rvUser, token);
         }

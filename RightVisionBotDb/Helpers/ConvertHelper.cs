@@ -2,7 +2,6 @@
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Types;
 using Serilog;
-using System.Globalization;
 using System.Text;
 
 namespace RightVisionBotDb.Helpers
@@ -28,7 +27,7 @@ namespace RightVisionBotDb.Helpers
             }
         }
 
-        public static string PermissionsToString(UserPermissions value) 
+        public static string PermissionsToString(UserPermissions value)
         {
             StringBuilder sb = new("[ ");
             foreach (var perm in value)

@@ -1,8 +1,8 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
@@ -45,7 +45,7 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                Language.Phrases[c.RvUser.Lang].Messages.Common.About,
+                Phrases.Lang[c.RvUser.Lang].Messages.Common.About,
                 replyMarkup: KeyboardsHelper.About(c.RvUser.Lang),
                 cancellationToken: token);
         }
@@ -55,7 +55,7 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.AboutBot, App.Configuration.BotSettings.BuildDate),
+                string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.AboutBot, App.Configuration.BotSettings.BuildDate),
                 disableWebPagePreview: true,
                 replyMarkup: KeyboardsHelper.AboutBot(c.RvUser.Lang),
                 cancellationToken: token);
@@ -69,7 +69,7 @@ namespace RightVisionBotDb.Locations
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id,
-                    Language.Phrases[c.RvUser.Lang].Messages.Common.EnrollmentClosed,
+                    Phrases.Lang[c.RvUser.Lang].Messages.Common.EnrollmentClosed,
                     showAlert: true,
                     cancellationToken: token);
             }
@@ -82,9 +82,9 @@ namespace RightVisionBotDb.Locations
         private async Task AcademyCallback(CallbackContext c, CancellationToken token = default)
         {
             await Bot.Client.AnswerCallbackQueryAsync(
-                c.CallbackQuery.Id, 
-                Language.Phrases[c.RvUser.Lang].Messages.Academy.EnrollmentClosed, 
-                true, 
+                c.CallbackQuery.Id,
+                Phrases.Lang[c.RvUser.Lang].Messages.Academy.EnrollmentClosed,
+                true,
                 cancellationToken: token);
         }
 

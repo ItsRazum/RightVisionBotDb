@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Text;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -16,53 +16,53 @@ namespace RightVisionBotDb.Helpers
         public static InlineKeyboardMarkup СhooseLang => new(
         [
             [
-                InlineKeyboardButton.WithCallbackData("🇷🇺RU / CIS", Enums.Lang.Ru.ToString())
+                InlineKeyboardButton.WithCallbackData("🇷🇺RU / CIS", Lang.Ru.ToString())
             ],
             [
-                InlineKeyboardButton.WithCallbackData("🇺🇦UA", Enums.Lang.Ua.ToString()),
-                InlineKeyboardButton.WithCallbackData("🇰🇿KZ", Enums.Lang.Kz.ToString())
+                InlineKeyboardButton.WithCallbackData("🇺🇦UA", Lang.Ua.ToString()),
+                InlineKeyboardButton.WithCallbackData("🇰🇿KZ", Lang.Kz.ToString())
             ]
         ]);
 
         public static InlineKeyboardMarkup MainMenu(RvUser rvUser) => new(
         [
             [
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.About, "about"),
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Apply, "forms")
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].KeyboardButtons.About, "about"),
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].KeyboardButtons.Apply, "forms")
             ],
             [
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.Academy, "academy")
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].KeyboardButtons.Academy, "academy")
             ],
             [
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].KeyboardButtons.MyProfile, $"profile-{rvUser.UserId}")
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].KeyboardButtons.MyProfile, $"profile-{rvUser.UserId}")
             ]
         ]);
 
-        public static InlineKeyboardMarkup About(Enums.Lang lang) => new(
+        public static InlineKeyboardMarkup About(Lang lang) => new(
 [
-            InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "back"),
-            InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.AboutBot, "aboutBot")
+            InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, "back"),
+            InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.AboutBot, "aboutBot")
         ]);
 
-        public static InlineKeyboardMarkup InlineBack(Enums.Lang lang) =>
+        public static InlineKeyboardMarkup InlineBack(Lang lang) =>
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "back")
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, "back")
             };
 
-        public static InlineKeyboardMarkup AboutBot(Enums.Lang lang) =>
+        public static InlineKeyboardMarkup AboutBot(Lang lang) =>
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, "about")
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, "about")
             };
 
-        public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Enums.Lang lang)
+        public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Lang lang)
         {
             var userId = rvUser.UserId;
             var rightVisions = App.AllRightVisions;
             var isOldParticipant = false;
             string? firstParticipationRightVision = null;
-            var phrases = Language.Phrases[lang];
+            var phrases = Phrases.Lang[lang];
 
             foreach (var rightvisionName in rightVisions)
             {
@@ -140,15 +140,15 @@ namespace RightVisionBotDb.Helpers
             var buttons = new List<InlineKeyboardButton[]>();
 
             var participantButton = InlineKeyboardButton.WithCallbackData(
-                Language.Phrases[rvUser.Lang].KeyboardButtons.ParticipantFormVariationOne,
+                Phrases.Lang[rvUser.Lang].KeyboardButtons.ParticipantFormVariationOne,
                 "participantForm"
             );
             var criticButton = InlineKeyboardButton.WithCallbackData(
-                Language.Phrases[rvUser.Lang].KeyboardButtons.CriticFormVariationOne,
+                Phrases.Lang[rvUser.Lang].KeyboardButtons.CriticFormVariationOne,
                 "criticForm"
             );
             var backButton = InlineKeyboardButton.WithCallbackData(
-                Language.Phrases[rvUser.Lang].KeyboardButtons.Back,
+                Phrases.Lang[rvUser.Lang].KeyboardButtons.Back,
                 "back"
             );
 
@@ -166,31 +166,31 @@ namespace RightVisionBotDb.Helpers
             return new InlineKeyboardMarkup(buttons);
         }
 
-        public static InlineKeyboardMarkup UserParticipations(RvUser rvUser, Enums.Lang lang)
+        public static InlineKeyboardMarkup UserParticipations(RvUser rvUser, Lang lang)
         {
-            return InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, $"profile-{rvUser.UserId}");
+            return InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, $"profile-{rvUser.UserId}");
         }
 
-        public static InlineKeyboardMarkup PermissionsList(RvUser rvUser, bool minimize, bool showAdvancedOptions, Enums.Lang lang)
+        public static InlineKeyboardMarkup PermissionsList(RvUser rvUser, bool minimize, bool showAdvancedOptions, Lang lang)
         {
             List<InlineKeyboardButton> buttons = [];
             if (showAdvancedOptions)
             {
                 var buttonValues = minimize
-                ? (Language.Phrases[lang].KeyboardButtons.Maximize, $"permissions_maximized-{rvUser.UserId}")
-                : (Language.Phrases[lang].KeyboardButtons.Minimize, $"permissions_minimized-{rvUser.UserId}");
+                ? (Phrases.Lang[lang].KeyboardButtons.Maximize, $"permissions_maximized-{rvUser.UserId}")
+                : (Phrases.Lang[lang].KeyboardButtons.Minimize, $"permissions_minimized-{rvUser.UserId}");
 
                 buttons.Add(InlineKeyboardButton.WithCallbackData(buttonValues.Item1, buttonValues.Item2));
             }
 
-            buttons.Add(InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, $"profile-{rvUser.UserId}"));
+            buttons.Add(InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, $"profile-{rvUser.UserId}"));
 
             return new(buttons);
         }
 
-        public static InlineKeyboardMarkup PunishmentsList(RvUser rvUser, bool bansCheckBoxEnabled, bool mutesCheckBoxEnabled, Enums.Lang lang)
+        public static InlineKeyboardMarkup PunishmentsList(RvUser rvUser, bool bansCheckBoxEnabled, bool mutesCheckBoxEnabled, Lang lang)
         {
-            var backButton = InlineKeyboardButton.WithCallbackData(Language.Phrases[lang].KeyboardButtons.Back, $"profile-{rvUser.UserId}");
+            var backButton = InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, $"profile-{rvUser.UserId}");
 
             if (rvUser.Punishments.Count == 0)
                 return new(backButton);
@@ -210,13 +210,13 @@ namespace RightVisionBotDb.Helpers
             {
                 var (banCheckBox, banCallback) = getButtonParts(bansCheckBoxEnabled, PunishmentType.Ban, rvUser.UserId);
                 layers.Add([InlineKeyboardButton.WithCallbackData(
-                    banCheckBox + " " + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowBans,
+                    banCheckBox + " " + Phrases.Lang[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowBans,
                     banCallback)]
                     );
 
                 var (muteCheckBox, muteCallback) = getButtonParts(mutesCheckBoxEnabled, PunishmentType.Mute, rvUser.UserId);
                 layers.Add([InlineKeyboardButton.WithCallbackData(
-                    muteCheckBox + " " + Language.Phrases[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowMutes,
+                    muteCheckBox + " " + Phrases.Lang[rvUser.Lang].Profile.Punishments.Punishment.Buttons.ShowMutes,
                     muteCallback)]
                     );
             }
@@ -250,25 +250,25 @@ namespace RightVisionBotDb.Helpers
 
         public static InlineKeyboardMarkup ControlPanelMainMenu(RvUser rvUser) => new(new InlineKeyboardButton[][]
         {
-            [ InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreUsers, $"control-{rvUser.UserId}-exploreUsers") ],
-            [ InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreCritics, $"control-{rvUser.UserId}-exploreCritics") ],
-            [ InlineKeyboardButton.WithCallbackData(Language.Phrases[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreParticipants, $"control-{rvUser.UserId}-exploreParticipants") ]
+            [ InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreUsers, $"control-{rvUser.UserId}-exploreUsers") ],
+            [ InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreCritics, $"control-{rvUser.UserId}-exploreCritics") ],
+            [ InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreParticipants, $"control-{rvUser.UserId}-exploreParticipants") ]
         });
 
         #endregion
 
         #region Reply keyboards
 
-        public static ReplyKeyboardMarkup ReplyBack(Enums.Lang lang) => new(new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
+        public static ReplyKeyboardMarkup ReplyBack(Lang lang) => new(new KeyboardButton(Phrases.Lang[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
 
-        public static ReplyKeyboardMarkup RateSelection(Enums.Lang lang) =>
+        public static ReplyKeyboardMarkup RateSelection(Lang lang) =>
             new(new KeyboardButton[][]
             {
                 [
                     new KeyboardButton("1"), new KeyboardButton("2"), new KeyboardButton("3"), new KeyboardButton("4")
                 ],
                 [
-                    new KeyboardButton(Language.Phrases[lang].KeyboardButtons.Back)
+                    new KeyboardButton(Phrases.Lang[lang].KeyboardButtons.Back)
                 ]
             })
             { ResizeKeyboard = true };

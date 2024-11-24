@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -38,7 +38,7 @@ namespace RightVisionBotDb.Singletons
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
+                string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
                 replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
                 cancellationToken: token);
         }
@@ -68,7 +68,7 @@ namespace RightVisionBotDb.Singletons
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                Language.Phrases[c.RvUser.Lang].Messages.Common.SendFormRightNow,
+                Phrases.Lang[c.RvUser.Lang].Messages.Common.SendFormRightNow,
                 replyMarkup: KeyboardsHelper.FormSelection(c.RvUser),
                 cancellationToken: token);
         }
@@ -89,8 +89,8 @@ namespace RightVisionBotDb.Singletons
             if (targetRvUser.Punishments.Count == 0)
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
-                    c.CallbackQuery.Id, 
-                    Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoPunishments, 
+                    c.CallbackQuery.Id,
+                    Phrases.Lang[c.RvUser.Lang].Profile.Punishments.Punishment.NoPunishments,
                     showAlert: true,
                     cancellationToken: token);
 
@@ -113,7 +113,7 @@ namespace RightVisionBotDb.Singletons
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                Language.Phrases[c.RvUser.Lang].Messages.Common.StartingForm,
+                Phrases.Lang[c.RvUser.Lang].Messages.Common.StartingForm,
                 cancellationToken: token);
 
             var (message, keyboard) = CriticFormService.Messages[messageKey](c.RvUser.Lang);
@@ -131,7 +131,7 @@ namespace RightVisionBotDb.Singletons
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
-                Language.Phrases[c.RvUser.Lang].Messages.Common.StartingForm,
+                Phrases.Lang[c.RvUser.Lang].Messages.Common.StartingForm,
                 cancellationToken: token);
 
             var (message, keyboard) = ParticipantFormService.Messages[messageKey](c.RvUser.Lang);

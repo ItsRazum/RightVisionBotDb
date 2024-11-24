@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RightVisionBotDb.Models;
 using RightVisionBotDb.Data.Configurations;
+using RightVisionBotDb.Models;
 
 
 namespace RightVisionBotDb.Data.Contexts;

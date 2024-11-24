@@ -2,7 +2,6 @@
 using RightVisionBotDb.Converters;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Models;
-using RightVisionBotDb.Singletons;
 using Serilog;
 
 namespace RightVisionBotDb.Services
@@ -16,7 +15,7 @@ namespace RightVisionBotDb.Services
         public ShellService(
             ILogger logger,
             UserPermissionsConverter userPermissionsConverter,
-            LocationConverter locationConverter) 
+            LocationConverter locationConverter)
         {
             _logger = logger;
             UserPermissionsConverter = userPermissionsConverter;
@@ -125,7 +124,7 @@ namespace RightVisionBotDb.Services
                 db.SaveChanges();
         }
 
-        private void LoadParticipantsFromFile(string filePath, string rightvision) 
+        private void LoadParticipantsFromFile(string filePath, string rightvision)
         {
             using var sr = new StreamReader(filePath);
 

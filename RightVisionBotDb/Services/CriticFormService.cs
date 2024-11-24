@@ -1,5 +1,6 @@
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
+using RightVisionBotDb.Text;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Services
@@ -9,7 +10,7 @@ namespace RightVisionBotDb.Services
 
         #region Properties
 
-        public Dictionary<int, Func<Enums.Lang, (string message, ReplyKeyboardMarkup? keyboard)>> Messages { get; }
+        public Dictionary<int, Func<Lang, (string message, ReplyKeyboardMarkup? keyboard)>> Messages { get; }
 
         #endregion
 
@@ -19,11 +20,11 @@ namespace RightVisionBotDb.Services
         {
             Messages = new()
             {
-                { 1, lang => (Language.Phrases[lang].Messages.Critic.EnterName, KeyboardsHelper.ReplyBack(lang)) },
-                { 2, lang => (Language.Phrases[lang].Messages.Critic.EnterLink, null) },
-                { 3, lang => (Language.Phrases[lang].Messages.Critic.EnterRate, KeyboardsHelper.RateSelection(lang)) },
-                { 4, lang => (Language.Phrases[lang].Messages.Critic.EnterAboutYou, KeyboardsHelper.ReplyBack(lang)) },
-                { 5, lang => (Language.Phrases[lang].Messages.Critic.EnterWhyYou, null) }
+                { 1, lang => (Phrases.Lang[lang].Messages.Critic.EnterName, KeyboardsHelper.ReplyBack(lang)) },
+                { 2, lang => (Phrases.Lang[lang].Messages.Critic.EnterLink, null) },
+                { 3, lang => (Phrases.Lang[lang].Messages.Critic.EnterRate, KeyboardsHelper.RateSelection(lang)) },
+                { 4, lang => (Phrases.Lang[lang].Messages.Critic.EnterAboutYou, KeyboardsHelper.ReplyBack(lang)) },
+                { 5, lang => (Phrases.Lang[lang].Messages.Critic.EnterWhyYou, null) }
             };
         }
 

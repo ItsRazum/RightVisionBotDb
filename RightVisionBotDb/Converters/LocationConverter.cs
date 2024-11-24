@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Locations;
 using RightVisionBotDb.Singletons;
 

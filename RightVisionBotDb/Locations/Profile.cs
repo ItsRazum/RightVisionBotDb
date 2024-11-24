@@ -1,8 +1,8 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -50,7 +50,7 @@ namespace RightVisionBotDb.Locations
             {
                 await Bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id,
-                    Language.Phrases[c.RvUser.Lang].Messages.Common.EnrollmentClosed,
+                    Phrases.Lang[c.RvUser.Lang].Messages.Common.EnrollmentClosed,
                     showAlert: true,
                     cancellationToken: token);
             }
@@ -89,7 +89,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task SendingCallback(CallbackContext c, CancellationToken token = default)
         {
-            var phrases = Language.Phrases[c.RvUser.Lang];
+            var phrases = Phrases.Lang[c.RvUser.Lang];
             (c.RvUser.UserPermissions, string callbackAnswer, string buttonMessage) = c.RvUser.Has(Permission.Sending)
                 ? (c.RvUser.UserPermissions - Permission.Sending, phrases.Messages.Profile.Sending.UnsubscribeSuccess, phrases.KeyboardButtons.Sending.Subscribe)
                 : (c.RvUser.UserPermissions + Permission.Sending, phrases.Messages.Profile.Sending.SubscribeSuccess, phrases.KeyboardButtons.Sending.Unsubscribe);

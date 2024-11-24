@@ -1,7 +1,6 @@
 ﻿using RightVisionBotDb.Enums;
-using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
@@ -52,7 +51,7 @@ namespace RightVisionBotDb.Locations
                 var commandData = (containsArgs ? c.Message.Text.Split(' ').First() : c.Message.Text).ToLower();
 
                 if (TextCommands.TryGetValue(commandData, out var command) && !await command.ExecuteAsync(c, token))
-                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.NoPermission, cancellationToken: token);
+                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.NoPermission, cancellationToken: token);
             }
         }
 
@@ -66,7 +65,7 @@ namespace RightVisionBotDb.Locations
             var commandData = containsArgs ? c.CallbackQuery.Data!.Split('-').First() : c.CallbackQuery.Data!;
 
             if (CallbackCommands.TryGetValue(commandData, out var command) && !await command.ExecuteAsync(c, token))
-                await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, Language.Phrases[c.RvUser.Lang].Messages.Common.NoPermission, showAlert: true, cancellationToken: token);
+                await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, Phrases.Lang[c.RvUser.Lang].Messages.Common.NoPermission, showAlert: true, cancellationToken: token);
         }
 
         public RvLocation RegisterTextCommand(string command, Func<CommandContext, CancellationToken, Task> handler, Permission? requiredPermission = null)

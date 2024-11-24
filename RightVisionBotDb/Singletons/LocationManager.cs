@@ -1,5 +1,4 @@
 ﻿using DryIoc;
-using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Locations;
 
 namespace RightVisionBotDb.Singletons

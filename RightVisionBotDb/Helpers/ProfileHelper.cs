@@ -2,9 +2,9 @@
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Lang;
-using RightVisionBotDb.Lang.Interfaces;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Text;
+using RightVisionBotDb.Text.Interfaces;
 using RightVisionBotDb.Types;
 using System.Globalization;
 using System.Text;
@@ -29,7 +29,7 @@ namespace RightVisionBotDb.Helpers
         {
             var rvUser = c.RvUser;
             var lang = rvUser.Lang;
-            var phrases = Language.Phrases[lang];
+            var phrases = Phrases.Lang[lang];
             Category? participationCategory;
             ParticipantForm? participantForm;
             CriticForm? criticForm;
@@ -44,12 +44,12 @@ namespace RightVisionBotDb.Helpers
 
             sb.AppendLine( //Статус
                 "- " + phrases.Profile.Properties.Status
-                + Language.GetUserStatusString(targetRvUser.Status, lang));
+                + Phrases.GetUserStatusString(targetRvUser.Status, lang));
 
             if (targetRvUser.Role != Role.None)
                 sb.AppendLine( //Должность
                     "- " + phrases.Profile.Properties.Role
-                    + Language.GetUserRoleString(targetRvUser.Role, lang) + "\n");
+                    + Phrases.GetUserRoleString(targetRvUser.Role, lang) + "\n");
 
             rvContext = c.RvContext.Name == rightvision
                 ? c.RvContext
@@ -94,12 +94,12 @@ namespace RightVisionBotDb.Helpers
             if (criticForm != null)
                 sb.AppendLine( //Категория оценивания
                     "- " + phrases.Profile.Properties.CategoryCritic
-                    + Language.GetCategoryString(criticForm.Category));
+                    + Phrases.GetCategoryString(criticForm.Category));
 
             if (participantForm != null)
                 sb.AppendLine( //Категория участия
                     "- " + phrases.Profile.Properties.CategoryParticipant
-                    + Language.GetCategoryString(participantForm.Category));
+                    + Phrases.GetCategoryString(participantForm.Category));
 
             if (chatType == ChatType.Private)
             {
@@ -128,8 +128,8 @@ namespace RightVisionBotDb.Helpers
 
             StringBuilder sb = new(
                 rvUser == targetRvUser
-                ? Language.Phrases[lang].Profile.Permissions.Header
-                : string.Format(Language.Phrases[lang].Profile.Permissions.HeaderGlobal, targetRvUser.Name));
+                ? Phrases.Lang[lang].Profile.Permissions.Header
+                : string.Format(Phrases.Lang[lang].Profile.Permissions.HeaderGlobal, targetRvUser.Name));
 
             IEnumerable<Permission> permissions;
             UserPermissions layout = new(PermissionsHelper.Layouts[targetRvUser.Status] + PermissionsHelper.Layouts[targetRvUser.Role]);
@@ -144,7 +144,7 @@ namespace RightVisionBotDb.Helpers
                     sb.AppendLine("• " + permission);
 
                 if (targetRvUser.UserPermissions.Count >= standartCount)
-                    sb.AppendLine($"... ({Language.Phrases[lang].Messages.Additional.HowMuchLeft} {targetRvUser.UserPermissions.Count - standartCount})");
+                    sb.AppendLine($"... ({Phrases.Lang[lang].Messages.Additional.HowMuchLeft} {targetRvUser.UserPermissions.Count - standartCount})");
             }
             else
             {
@@ -160,7 +160,7 @@ namespace RightVisionBotDb.Helpers
             {
                 sb
                     .AppendLine()
-                    .AppendLine(Language.Phrases[lang].Profile.Permissions.AddedList);
+                    .AppendLine(Phrases.Lang[lang].Profile.Permissions.AddedList);
 
                 foreach (var permission in addedList)
                     sb.AppendLine("+ " + permission);
@@ -171,7 +171,7 @@ namespace RightVisionBotDb.Helpers
             {
                 sb
                     .AppendLine()
-                    .AppendLine(Language.Phrases[lang].Profile.Permissions.BlockedList);
+                    .AppendLine(Phrases.Lang[lang].Profile.Permissions.BlockedList);
 
                 foreach (var permission in blockedList)
                     sb.AppendLine("- " + permission);
@@ -184,6 +184,7 @@ namespace RightVisionBotDb.Helpers
         {
             var sb = new StringBuilder();
             var cultureInfo = new CultureInfo("ru-RU");
+            var lang = c.RvUser.Lang;
             var filteredPunishments = targetRvUser.Punishments
                 .Where(p => (showBans || p.Type != PunishmentType.Ban) &&
                              (showMutes || p.Type != PunishmentType.Mute))
@@ -194,20 +195,13 @@ namespace RightVisionBotDb.Helpers
             {
                 var punishmentType = punishment.Type switch
                 {
-                    PunishmentType.Ban => "🔒" + Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Ban,
-                    PunishmentType.Mute => "🔇" + Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Mute,
+                    PunishmentType.Ban => "🔒" + Phrases.Lang[lang].Profile.Punishments.Punishment.Ban,
+                    PunishmentType.Mute => "🔇" + Phrases.Lang[lang].Profile.Punishments.Punishment.Mute,
                     _ => string.Empty
                 };
 
-                var group = punishment.GroupId switch
-                {
-                    Bot.CriticChatId => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.InCritics,
-                    Bot.ParticipantChatId => Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.InParticipants,
-                    _ => string.Empty
-                };
-
-                sb.AppendLine($"{punishmentType} {group}{punishment.StartDateTime.ToString("g", new CultureInfo("ru-RU"))}");
-                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.Reason} {punishment.Reason ?? Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.NoReason}");
+                sb.AppendLine($"{punishmentType} {Phrases.GetGroupTypeString(c.CallbackQuery.Message!.Chat.Id, lang)}{punishment.StartDateTime.ToString("g", new CultureInfo("ru-RU"))}");
+                sb.AppendLine($"- {Phrases.Lang[lang].Profile.Punishments.Punishment.Reason} {punishment.Reason ?? Phrases.Lang[c.RvUser.Lang].Profile.Punishments.Punishment.NoReason}");
 
                 string? timeLeft = null;
                 var punishmentEndDateTime = punishment.EndDateTime.ToString("g", cultureInfo);
@@ -219,17 +213,17 @@ namespace RightVisionBotDb.Helpers
                     if (timeSpan.Days > 0)
                     {
                         targetValue = timeSpan.Days;
-                        format = Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.TimeLeftFormat.Days;
+                        format = Phrases.Lang[lang].Profile.Punishments.Punishment.TimeLeftFormat.Days;
                     }
                     else if (timeSpan.Hours > 0)
                     {
                         targetValue = timeSpan.Hours;
-                        format = Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.TimeLeftFormat.Hours;
+                        format = Phrases.Lang[lang].Profile.Punishments.Punishment.TimeLeftFormat.Hours;
                     }
                     else if (timeSpan.Minutes > 0)
                     {
                         targetValue = timeSpan.Minutes;
-                        format = Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.TimeLeftFormat.Minutes;
+                        format = Phrases.Lang[lang].Profile.Punishments.Punishment.TimeLeftFormat.Minutes;
                     }
                     else throw new InvalidOperationException(nameof(timeSpan));
 
@@ -240,21 +234,21 @@ namespace RightVisionBotDb.Helpers
                         _ => format.Plural
                     };
 
-                    timeLeft = $" ({Language.Phrases[c.RvUser.Lang].Messages.Additional.HowMuchLeft} {targetValue} {formattedResult})";
+                    timeLeft = $" ({Phrases.Lang[lang].Messages.Additional.HowMuchLeft} {targetValue} {formattedResult})";
                 }
 
-                sb.AppendLine($"- {Language.Phrases[c.RvUser.Lang].Profile.Punishments.Punishment.DateTo} {punishmentEndDateTime}{timeLeft ?? string.Empty}");
+                sb.AppendLine($"- {Phrases.Lang[lang].Profile.Punishments.Punishment.DateTo} {punishmentEndDateTime}{timeLeft ?? string.Empty}");
                 sb.AppendLine();
             }
             if (string.IsNullOrEmpty(sb.ToString()))
                 sb.AppendLine("¯\\_(ツ)_/¯");
-            return (sb.ToString(), KeyboardsHelper.PunishmentsList(targetRvUser, showBans, showMutes, c.RvUser.Lang));
+            return (sb.ToString(), KeyboardsHelper.PunishmentsList(targetRvUser, showBans, showMutes, lang));
         }
 
         public static async Task<(string content, InlineKeyboardMarkup markup)> RvUserParticipations(CallbackContext c, RvUser targetRvUser)
         {
             var sb = new StringBuilder();
-            var phrases = Language.Phrases[c.RvUser.Lang];
+            var phrases = Phrases.Lang[c.RvUser.Lang];
             var counter = 0;
             foreach (var rightvision in App.AllRightVisions)
             {
@@ -270,7 +264,7 @@ namespace RightVisionBotDb.Helpers
 
                 rvsb.AppendLine($"{rightvision} ({rvdb.StartDate.ToString("d", new CultureInfo("ru-RU"))} - {rvdb.EndDate?.ToString("d", new CultureInfo("ru-RU")) ?? phrases.Messages.Additional.Present})");
 
-                rvsb.AppendLine("- " + phrases.Profile.Properties.CategoryGeneral + Language.GetCategoryString(form.Category));
+                rvsb.AppendLine("- " + phrases.Profile.Properties.CategoryGeneral + Phrases.GetCategoryString(form.Category));
                 rvsb.AppendLine("- "
                     + phrases.Profile.Properties.Track
                     + track);
@@ -287,17 +281,17 @@ namespace RightVisionBotDb.Helpers
 
         #region Private methods
 
-        private static string GetCandidateStatus(Enums.Lang lang, IForm? form = null)
+        private static string GetCandidateStatus(Lang lang, IForm? form = null)
         {
             try
             {
                 return form != null
-                    ? Language.GetFormStatusString(form.Status, lang)
-                    : Language.Phrases[lang].Profile.Forms.Status.Allowed;
+                    ? Phrases.GetFormStatusString(form.Status, lang)
+                    : Phrases.Lang[lang].Profile.Forms.Status.Allowed;
             }
             catch
             {
-                return Language.Phrases[lang].Profile.Forms.Status.CouldNotGet;
+                return Phrases.Lang[lang].Profile.Forms.Status.CouldNotGet;
             }
         }
 

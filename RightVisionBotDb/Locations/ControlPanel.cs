@@ -8,11 +8,11 @@ namespace RightVisionBotDb.Locations
         #region Constructor
 
         public ControlPanel(
-            Bot bot, 
-            LocationManager 
-            locationManager, 
-            RvLogger logger, 
-            LocationsFront locationsFront) 
+            Bot bot,
+            LocationManager
+            locationManager,
+            RvLogger logger,
+            LocationsFront locationsFront)
             : base(bot, locationManager, logger, locationsFront)
         {
 

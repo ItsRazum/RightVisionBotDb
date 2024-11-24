@@ -1,6 +1,4 @@
-﻿using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
-using RightVisionBotDb.Singletons;
+﻿using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Serilog;
 using Telegram.Bot;

@@ -1,5 +1,5 @@
-﻿using RightVisionBotDb.Lang;
-using RightVisionBotDb.Models;
+﻿using RightVisionBotDb.Models;
+using RightVisionBotDb.Text;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Helpers
@@ -8,7 +8,7 @@ namespace RightVisionBotDb.Helpers
     {
         public static (string, InlineKeyboardMarkup) MainPage(RvUser rvUser)
         {
-            return (Language.Phrases[rvUser.Lang].ControlPanel.Messages.Welcome, KeyboardsHelper.ControlPanelMainMenu(rvUser));
+            return (Phrases.Lang[rvUser.Lang].ControlPanel.Messages.Welcome, KeyboardsHelper.ControlPanelMainMenu(rvUser));
         }
 
         /*

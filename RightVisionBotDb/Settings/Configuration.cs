@@ -4,7 +4,7 @@ namespace RightVisionBotDb.Settings
 {
     public class Configuration
     {
-        public Configuration(IConfiguration configuration) 
+        public Configuration(IConfiguration configuration)
         {
             configuration.Bind(this);
         }

@@ -1,9 +1,9 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
@@ -21,11 +21,11 @@ namespace RightVisionBotDb.Locations
         #region Constructor
 
         public ParticipantFormLocation(
-            Bot bot, 
-            LocationManager locationManager, 
-            RvLogger logger, 
+            Bot bot,
+            LocationManager locationManager,
+            RvLogger logger,
             LocationsFront locationsFront,
-            ParticipantFormService participantFormService) 
+            ParticipantFormService participantFormService)
             : base(bot, locationManager, logger, locationsFront)
         {
             ParticipantFormService = participantFormService;
@@ -62,7 +62,7 @@ namespace RightVisionBotDb.Locations
                         }
                         else
                         {
-                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
+                            await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                             return;
                         }
                     }
@@ -74,7 +74,7 @@ namespace RightVisionBotDb.Locations
                 }
                 catch (ArgumentException)
                 {
-                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
+                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                 }
             }
         }
@@ -118,7 +118,7 @@ namespace RightVisionBotDb.Locations
             }
             else
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Participant.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Participant.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
                 await Bot.Client.SendTextMessageAsync(-1001968408177,
                     $"Пришла новая заявка на участие!\n\n" +
                     $"Имя: {form.Name}\n" +

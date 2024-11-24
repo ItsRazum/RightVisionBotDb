@@ -1,5 +1,4 @@
-﻿using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Locations;
+﻿using RightVisionBotDb.Locations;
 using RightVisionBotDb.Models;
 
 namespace RightVisionBotDb.Helpers

@@ -4,12 +4,12 @@
     {
         private string _rightVisionDatabasesPath;
 
-        public string RightVisionDatabasesPath 
-        { 
+        public string RightVisionDatabasesPath
+        {
             get => _rightVisionDatabasesPath;
             set => _rightVisionDatabasesPath = value
                 .Replace('/', '\\')
-                .Replace('\\', Path.DirectorySeparatorChar); 
+                .Replace('\\', Path.DirectorySeparatorChar);
         }
     }
 }

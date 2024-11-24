@@ -1,5 +1,6 @@
 ﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 
@@ -21,7 +22,7 @@ namespace RightVisionBotDb.Helpers
             RvUser? rvUser = null;
 
             var filteredRvUsers = await c.DbContext.RvUsers
-                .Where(u => u.Lang != Enums.Lang.Na)
+                .Where(u => u.Lang != Lang.Na)
                 .ToListAsync(token);
 
             if (userTag != null)

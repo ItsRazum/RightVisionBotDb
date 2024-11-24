@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Locations;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -18,8 +19,6 @@ namespace RightVisionBotDb
 
         private readonly ILogger _logger;
         private bool _isInitialized = false;
-        public const long ParticipantChatId = -1002074764678;
-        public const long CriticChatId = -1001968408177;
 
         #endregion
 
@@ -30,7 +29,6 @@ namespace RightVisionBotDb
         private ShellService ShellService { get; }
 
         #endregion
-
 
         #region Constructor
 
@@ -55,8 +53,8 @@ namespace RightVisionBotDb
             try
             {
                 Client = new TelegramBotClient(
-                    !string.IsNullOrEmpty(App.Configuration.BotSettings.Token) 
-                    ? App.Configuration.BotSettings.Token 
+                    !string.IsNullOrEmpty(App.Configuration.BotSettings.Token)
+                    ? App.Configuration.BotSettings.Token
                     : App.Configuration.HiddenToken ?? throw new NullReferenceException("Токен не указан!"));
 
                 var cts = new CancellationTokenSource();
@@ -86,9 +84,9 @@ namespace RightVisionBotDb
             }
 
             _logger.Information("Загрузка языковых файлов...");
-            
 
-            Language.Build(Enums.Lang.Ru, Enums.Lang.Kz, Enums.Lang.Ua);
+
+            Phrases.Build(Lang.Ru, Lang.Kz, Lang.Ua);
             _logger.Information("Сборка языковых файлов завершена.");
 
             _logger.Information("Сборка конфигурации...");

@@ -4,127 +4,127 @@ using System.Collections;
 namespace RightVisionBotDb.Types
 {
     public class UserPermissions : IEnumerable<Permission>
-	{
-		#region Properties
+    {
+        #region Properties
 
-		public int Count => Collection.Count;
+        public int Count => Collection.Count;
 
-		public Dictionary<string, List<Permission>> Permissions { get; set; } = new();
+        public Dictionary<string, List<Permission>> Permissions { get; set; } = new();
 
-		public List<Permission> Collection
-		{
-			get => Permissions["Permissions"];
-			set
-			{
-				Permissions["Permissions"] = value;
-			}
-		}
+        public List<Permission> Collection
+        {
+            get => Permissions["Permissions"];
+            set
+            {
+                Permissions["Permissions"] = value;
+            }
+        }
 
-		public List<Permission> Removed
-		{
-			get => Permissions["Removed"];
-			set
-			{
-				Permissions["Removed"] = value;
-			}
-		}
+        public List<Permission> Removed
+        {
+            get => Permissions["Removed"];
+            set
+            {
+                Permissions["Removed"] = value;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public UserPermissions() => CreatePermissions();
+        public UserPermissions() => CreatePermissions();
 
-		public UserPermissions(params Permission[] permissions) => CreatePermissions([.. permissions]);
+        public UserPermissions(params Permission[] permissions) => CreatePermissions([.. permissions]);
 
-		public UserPermissions(IEnumerable<Permission>? permissions = null, IEnumerable<Permission>? removed = null) => CreatePermissions(permissions?.ToList(), removed?.ToList());
+        public UserPermissions(IEnumerable<Permission>? permissions = null, IEnumerable<Permission>? removed = null) => CreatePermissions(permissions?.ToList(), removed?.ToList());
 
-		#endregion
+        #endregion
 
-		#region Operators
+        #region Operators
 
-		public static UserPermissions operator +(UserPermissions left, UserPermissions right)
-		{
+        public static UserPermissions operator +(UserPermissions left, UserPermissions right)
+        {
             var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.AddList(right.Collection);
             return combinedPermissions;
         }
 
-		public static UserPermissions operator +(UserPermissions left, Permission right)
-		{
+        public static UserPermissions operator +(UserPermissions left, Permission right)
+        {
             var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.Add(right);
             return combinedPermissions;
         }
 
-		public static UserPermissions operator -(UserPermissions left, UserPermissions right)
-		{
+        public static UserPermissions operator -(UserPermissions left, UserPermissions right)
+        {
             var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.RemoveList(right);
             return combinedPermissions;
         }
 
-		public static UserPermissions operator -(UserPermissions left, Permission right)
-		{
+        public static UserPermissions operator -(UserPermissions left, Permission right)
+        {
             var combinedPermissions = new UserPermissions();
             combinedPermissions.AddList(left.Collection);
             combinedPermissions.Remove(right);
             return combinedPermissions;
         }
 
-		#endregion
+        #endregion
 
-		#region Methods
+        #region Methods
 
-		private void AddList(IEnumerable<Permission> list)
-		{
-			foreach (var permission in list)
-				if (!Collection.Contains(permission))
+        private void AddList(IEnumerable<Permission> list)
+        {
+            foreach (var permission in list)
+                if (!Collection.Contains(permission))
                     Collection.Add(permission);
-		}
+        }
 
-		private void RemoveList(IEnumerable<Permission> list)
-		{
+        private void RemoveList(IEnumerable<Permission> list)
+        {
             foreach (var permission in list)
                 Collection.Remove(permission);
         }
 
-		public void Add(Permission permission)
-		{
-			if (Collection.Contains(permission)) return;
+        public void Add(Permission permission)
+        {
+            if (Collection.Contains(permission)) return;
 
-			Collection.Add(permission);
-			Removed.Remove(permission);
-		}
+            Collection.Add(permission);
+            Removed.Remove(permission);
+        }
 
-		public void Remove(Permission permission)
-		{
-			Collection.Remove(permission);
-			Removed.Add(permission);
-		}
+        public void Remove(Permission permission)
+        {
+            Collection.Remove(permission);
+            Removed.Add(permission);
+        }
 
-		private void CreatePermissions(List<Permission>? collection = null, List<Permission>? removed = null)
-		{
-			Permissions = new()
-			{
-				{ "Permissions", collection ?? [] },
-				{ "Removed", removed ?? [] }
-			};
-		}
+        private void CreatePermissions(List<Permission>? collection = null, List<Permission>? removed = null)
+        {
+            Permissions = new()
+            {
+                { "Permissions", collection ?? [] },
+                { "Removed", removed ?? [] }
+            };
+        }
 
-		public bool Contains(Permission permission) => Collection.Contains(permission);
+        public bool Contains(Permission permission) => Collection.Contains(permission);
 
-		#endregion
+        #endregion
 
-		#region IEnumerable Implementation
+        #region IEnumerable Implementation
 
-		public IEnumerator<Permission> GetEnumerator() => Collection.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public IEnumerator<Permission> GetEnumerator() => Collection.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		#endregion
+        #endregion
 
-	}
+    }
 }

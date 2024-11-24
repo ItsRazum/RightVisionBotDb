@@ -23,12 +23,12 @@ namespace RightVisionBotDb.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long UserId { get; set; }
         public string Name { get; set; }
-        public string Telegram 
+        public string Telegram
         {
             get => string.IsNullOrEmpty(telegram) ? "x" : telegram;
-            set => telegram = value; 
+            set => telegram = value;
         }
-        public Enums.Lang Lang { get; set; }
+        public Lang Lang { get; set; }
         public Status Status { get; set; } = Status.User;
         public Role Role { get; set; } = Role.None;
         public RvLocation Location
@@ -66,7 +66,7 @@ namespace RightVisionBotDb.Models
 
         #region Constructors
 
-        public RvUser(long userId, Enums.Lang lang, string name, string? telegram, RvLocation location)
+        public RvUser(long userId, Lang lang, string name, string? telegram, RvLocation location)
         {
             UserId = userId;
             Lang = lang;

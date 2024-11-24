@@ -1,9 +1,9 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
 
@@ -59,7 +59,7 @@ namespace RightVisionBotDb.Locations
                             }
                             else
                             {
-                                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
+                                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                                 return;
                             }
                             break;
@@ -71,7 +71,7 @@ namespace RightVisionBotDb.Locations
                             }
                             else
                             {
-                                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.IncorrectFormat, cancellationToken: token);
+                                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Critic.IncorrectFormat, cancellationToken: token);
                                 return;
                             }
                             break;
@@ -84,7 +84,7 @@ namespace RightVisionBotDb.Locations
                 }
                 catch (ArgumentException)
                 {
-                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
+                    await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                 }
             }
         }
@@ -126,7 +126,7 @@ namespace RightVisionBotDb.Locations
             }
             else
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Language.Phrases[c.RvUser.Lang].Messages.Critic.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Critic.FormSubmitted, replyMarkup: KeyboardsHelper.ReplyMainMenu, cancellationToken: token);
                 await Bot.Client.SendTextMessageAsync(-1001968408177,
                     $"Пришла новая заявка на должность судьи!\n\n" +
                     $"Имя: {form.Name}\n" +

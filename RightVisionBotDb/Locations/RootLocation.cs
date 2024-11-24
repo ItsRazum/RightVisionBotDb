@@ -1,12 +1,10 @@
-﻿using DryIoc.ImTools;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
-using RightVisionBotDb.Interfaces;
-using RightVisionBotDb.Lang;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Serilog;
 using System.Globalization;
@@ -94,7 +92,7 @@ namespace RightVisionBotDb.Locations
                     else
                         await rvUser.Location.HandleCallbackAsync(callbackContext, containsArgs, token);
 
-                    if (chatType == ChatType.Private && rvUser.Lang == Enums.Lang.Na)
+                    if (chatType == ChatType.Private && rvUser.Lang == Lang.Na)
                     {
                         try
                         {
@@ -127,7 +125,7 @@ namespace RightVisionBotDb.Locations
 
                     await HandleCommandAsync(commandContext, containsArgs, token);
 
-                    if (chatType == ChatType.Private && rvUser.Lang == Enums.Lang.Na)
+                    if (chatType == ChatType.Private && rvUser.Lang == Lang.Na)
                     {
                         await Bot.Client.SendTextMessageAsync(message.Chat, "Choose Lang:", replyMarkup: KeyboardsHelper.СhooseLang, cancellationToken: token);
                     }
@@ -206,7 +204,7 @@ namespace RightVisionBotDb.Locations
 
             if (rvUser == null)
             {
-                rvUser = new RvUser(from.Id, Enums.Lang.Na, from.FirstName, from.Username, LocationManager[nameof(Start)]);
+                rvUser = new RvUser(from.Id, Lang.Na, from.FirstName, from.Username, LocationManager[nameof(Start)]);
                 context.RvUsers.Add(rvUser);
                 await context.SaveChangesAsync(token);
             }
@@ -266,13 +264,13 @@ namespace RightVisionBotDb.Locations
                 var location = LocationManager[nameof(Start)];
                 if (c.RvUser == null)
                 {
-                    var rvUser = new RvUser(c.Message.From!.Id, Enums.Lang.Na, c.Message.From.FirstName, c.Message.From.Username, location);
+                    var rvUser = new RvUser(c.Message.From!.Id, Lang.Na, c.Message.From.FirstName, c.Message.From.Username, location);
                     await c.DbContext.RvUsers.AddAsync(rvUser, token);
                 }
                 else
                 {
                     c.RvUser.Location = location;
-                    c.RvUser.Lang = Enums.Lang.Na;
+                    c.RvUser.Lang = Lang.Na;
                 }
             }
         }
@@ -287,7 +285,7 @@ namespace RightVisionBotDb.Locations
             {
                 await Bot.Client.SendTextMessageAsync(
                     c.Message.Chat,
-                    Language.Phrases[c.RvUser.Lang].Messages.Common.UserNotFound,
+                    Phrases.Lang[c.RvUser.Lang].Messages.Common.UserNotFound,
                     cancellationToken: token);
                 return;
             }
@@ -317,7 +315,7 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, "✅", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
-                string.Format(Language.Phrases[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
+                string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
                 replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
                 cancellationToken: token);
         }
@@ -344,7 +342,7 @@ namespace RightVisionBotDb.Locations
                         message = $"Пользователь успешно назначен на должность {role}!";
                         await Bot.Client.SendTextMessageAsync(
                             extractedRvUser.UserId,
-                            string.Format(Language.Phrases[extractedRvUser.Lang].Messages.Common.UserAppointed, extractedRvUser.Name, role),
+                            string.Format(Phrases.Lang[extractedRvUser.Lang].Messages.Common.UserAppointed, extractedRvUser.Name, role),
                             cancellationToken: token);
                         c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
                     }
@@ -455,7 +453,7 @@ namespace RightVisionBotDb.Locations
         {
             var rightvision = c.CallbackQuery.Data!.Split('-').Last();
             using var rvdb = DatabaseHelper.GetRightVisionContext(rightvision);
-            var phrases = Language.Phrases[c.RvUser.Lang];
+            var phrases = Phrases.Lang[c.RvUser.Lang];
             var endDateString = rvdb.EndDate?.ToString("d", new CultureInfo("ru-RU")) ?? phrases.Messages.Additional.Present;
 
             await Bot.Client.AnswerCallbackQueryAsync(c.CallbackQuery.Id, $"{rightvision}" +
@@ -483,7 +481,7 @@ namespace RightVisionBotDb.Locations
                 await Bot.Client.EditMessageTextAsync(
                     c.CallbackQuery.Message!.Chat,
                     c.CallbackQuery.Message.MessageId,
-                    Language.Phrases[c.RvUser.Lang].Messages.Common.UserNotFound,
+                    Phrases.Lang[c.RvUser.Lang].Messages.Common.UserNotFound,
                     cancellationToken: token);
                 return;
             }
