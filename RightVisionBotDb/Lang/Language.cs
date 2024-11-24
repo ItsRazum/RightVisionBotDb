@@ -63,5 +63,12 @@ namespace RightVisionBotDb.Lang
                 Category.Brilliant => "💎Brilliant",
                 _ => string.Empty
             };
+
+        public static string GetGroupTypeString(long groupId, Enums.Lang lang) => groupId switch
+        {
+            Bot.CriticChatId => Language.Phrases[lang].Profile.Punishments.Punishment.InCritics,
+            Bot.ParticipantChatId => Language.Phrases[lang].Profile.Punishments.Punishment.InParticipants,
+            _ => string.Empty
+        };
     }
 }

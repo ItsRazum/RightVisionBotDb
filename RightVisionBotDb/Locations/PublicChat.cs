@@ -43,6 +43,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
+                .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", CriticTakeCallback, Permission.Curate)
@@ -91,6 +92,58 @@ namespace RightVisionBotDb.Locations
                 targetRvUser.Punishments.Add(new(PunishmentType.Ban, c.Message.Chat.Id, reason, DateTime.Now, endDate));
                 c.DbContext.Entry(targetRvUser).State = EntityState.Modified;
             }
+        }
+
+        private async Task UnmuteCommand(CommandContext c, CancellationToken token = default)
+        {
+            var (extractedRvUser, _) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
+            var resultMessage = "Пользователь не найден или не указан!";
+
+            if (extractedRvUser != null)
+            {
+                static bool searchFunc(RvPunishment p) => p.Type == PunishmentType.Mute && p.EndDateTime > DateTime.Now;
+                if (extractedRvUser.Punishments.Any(searchFunc))
+                {
+                    foreach (var punishment in extractedRvUser.Punishments.Where(searchFunc))
+                    {
+                        punishment.EndDateTime = DateTime.Now;
+                        await Bot.Client.RestrictChatMemberAsync(
+                            c.Message.Chat,
+                            extractedRvUser.UserId,
+                            new ChatPermissions
+                            {
+                                CanAddWebPagePreviews = true,
+                                CanSendAudios = true,
+                                CanSendDocuments = true,
+                                CanSendMessages = true,
+                                CanSendPhotos = true,
+                                CanSendPolls = true,
+                                CanSendVideos = true,
+                                CanSendVoiceNotes = true,
+                                CanSendVideoNotes = true,
+                                CanSendOtherMessages = true
+                            }, 
+                            cancellationToken: token);
+                    }
+                    resultMessage = "Мут успешно снят!";
+                    await Bot.Client.SendTextMessageAsync(
+                        extractedRvUser.UserId,
+                        string.Format(
+                            Language.Phrases[extractedRvUser.Lang]
+                            .Profile
+                            .Punishments
+                            .UnmuteNotification,
+                            extractedRvUser.Name,
+                            Language.GetGroupTypeString(c.Message.Chat.Id, extractedRvUser.Lang).TrimEnd()),
+                        cancellationToken: token);
+                }
+                else
+                    resultMessage = "В настоящий момент у пользователя нету активных мутов!";
+            }
+            await Bot.Client.SendTextMessageAsync(
+                c.Message.Chat,
+                resultMessage,
+                cancellationToken: token);
         }
 
         private async Task MuteCommand(CommandContext c, CancellationToken token = default)
@@ -425,21 +478,13 @@ namespace RightVisionBotDb.Locations
 
             message = $"Пользователь {extractedRvUser.Name} получает {restrictionTypeString} в группе!\n\n- {whoGaveRestrictionString}: {c.RvUser.Name} (@{c.RvUser.Telegram})\n- По причине: {reason}\n- До: {endDate.ToString("g", new CultureInfo("ru-RU"))}";
 
-
-            var group = c.Message.Chat.Id switch
-            {
-                Bot.CriticChatId => Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.InCritics,
-                Bot.ParticipantChatId => Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Punishment.InParticipants,
-                _ => string.Empty
-            };
-
             await Bot.Client.SendTextMessageAsync(
                 extractedRvUser.UserId,
                 string.Format(
                     Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Notification,
                     extractedRvUser.Name,
                     translatedRestrictionType,
-                    group,
+                    Language.GetGroupTypeString(c.Message.Chat.Id, extractedRvUser.Lang),
                     endDate.ToString("g", new CultureInfo("ru-RU")),
                     reason) + Language.Phrases[extractedRvUser.Lang].Profile.Punishments.Contacts,
                 cancellationToken: token);
