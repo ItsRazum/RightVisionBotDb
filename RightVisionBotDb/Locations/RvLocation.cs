@@ -1,4 +1,5 @@
 ﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
@@ -14,7 +15,7 @@ namespace RightVisionBotDb.Locations
         protected Dictionary<string, RvTextCommand> TextCommands { get; }
         protected Dictionary<string, RvCallbackCommand> CallbackCommands { get; }
         protected Bot Bot { get; }
-        protected LocationManager LocationManager { get; }
+        protected LocationService LocationService { get; }
         protected RvLogger RvLogger { get; }
         protected LocationsFront LocationsFront { get; }
 
@@ -24,12 +25,12 @@ namespace RightVisionBotDb.Locations
 
         public RvLocation(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger logger,
             LocationsFront locationsFront)
         {
             Bot = bot;
-            LocationManager = locationManager;
+            LocationService = locationService;
             RvLogger = logger;
             LocationsFront = locationsFront;
 
@@ -57,7 +58,7 @@ namespace RightVisionBotDb.Locations
 
         public override string ToString()
         {
-            return LocationManager.LocationToString(this);
+            return LocationService.LocationToString(this);
         }
 
         public virtual async Task HandleCallbackAsync(CallbackContext c, bool containsArgs, CancellationToken token = default)

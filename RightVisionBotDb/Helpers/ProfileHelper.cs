@@ -24,8 +24,8 @@ namespace RightVisionBotDb.Helpers
             IContext c,
             ChatType chatType,
             string rightvision,
-            CancellationToken token = default,
-            bool includeKeyboard = true)
+            bool includeKeyboard = true,
+            CancellationToken token = default)
         {
             var rvUser = c.RvUser;
             var lang = rvUser.Lang;

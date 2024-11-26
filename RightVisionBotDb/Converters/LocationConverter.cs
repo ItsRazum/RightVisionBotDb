@@ -1,27 +1,27 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Locations;
-using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Services;
 
 namespace RightVisionBotDb.Converters
 {
     public class LocationConverter : JsonConverter<RvLocation>
     {
-        private LocationManager LocationManager { get; }
+        private LocationService LocationService { get; }
 
-        public LocationConverter(LocationManager locationManager)
+        public LocationConverter(LocationService locationService)
         {
-            LocationManager = locationManager;
+            LocationService = locationService;
         }
 
         public override void WriteJson(JsonWriter writer, RvLocation? value, JsonSerializer serializer)
         {
-            writer.WriteValue(LocationManager[value!.ToString()]);
+            writer.WriteValue(LocationService[value!.ToString()]);
         }
 
         public override RvLocation? ReadJson(JsonReader reader, Type objectType, RvLocation? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            return LocationManager[JToken.Load(reader).ToString()];
+            return LocationService[JToken.Load(reader).ToString()];
         }
     }
 }

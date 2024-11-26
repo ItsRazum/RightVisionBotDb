@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Models;
-using RightVisionBotDb.Singletons;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Types;
 
 namespace RightVisionBotDb.Data.Configurations
@@ -13,7 +13,7 @@ namespace RightVisionBotDb.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<RvUser> builder)
         {
-            var locationManager = App.Container.Resolve<LocationManager>();
+            var locationService = App.Container.Resolve<LocationService>();
 
             //Enums
             builder.Property(u => u.Lang)
@@ -43,8 +43,8 @@ namespace RightVisionBotDb.Data.Configurations
                 );
             builder.Property(u => u.Location)
                 .HasConversion(
-                v => locationManager.LocationToString(v),
-                v => locationManager.StringToLocation(v)
+                v => locationService.LocationToString(v),
+                v => locationService.StringToLocation(v)
                 );
         }
     }

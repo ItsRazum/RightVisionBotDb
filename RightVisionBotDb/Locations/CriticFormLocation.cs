@@ -20,11 +20,11 @@ namespace RightVisionBotDb.Locations
 
         public CriticFormLocation(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger logger,
             LocationsFront locationsFront,
             CriticFormService criticFormService)
-            : base(bot, locationManager, logger, locationsFront)
+            : base(bot, locationService, logger, locationsFront)
         {
             CriticFormService = criticFormService;
 

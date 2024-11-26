@@ -14,7 +14,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task Log(string message, RvUser rvUser, CancellationToken token = default)
         {
-            await Bot.Client.SendTextMessageAsync(-4074101060, message + $"\n=====\nId:{rvUser.UserId}\nЯзык: {rvUser.Lang}\nЛокация: {rvUser.Location}", disableNotification: true);
+            await Bot.Client.SendTextMessageAsync(-4074101060, message + $"\n=====\nId:{rvUser.UserId}\nЯзык: {rvUser.Lang}\nЛокация: {rvUser.Location}", disableNotification: true, cancellationToken: token);
         }
     }
 }

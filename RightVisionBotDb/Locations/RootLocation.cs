@@ -3,6 +3,7 @@ using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
@@ -23,11 +24,11 @@ namespace RightVisionBotDb.Locations
 
         public RootLocation(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger rvLogger,
             LocationsFront locationsFront,
             ILogger logger)
-            : base(bot, locationManager, rvLogger, locationsFront, logger)
+            : base(bot, locationService, rvLogger, locationsFront, logger)
         {
             this
                 .RegisterTextCommand("/start", StartCommand)
@@ -87,7 +88,7 @@ namespace RightVisionBotDb.Locations
                     await HandleCallbackAsync(callbackContext, containsArgs, token);
 
                     if (chatType != ChatType.Private)
-                        await LocationManager[nameof(PublicChat)].HandleCallbackAsync(callbackContext, containsArgs, token);
+                        await LocationService[nameof(PublicChat)].HandleCallbackAsync(callbackContext, containsArgs, token);
 
                     else
                         await rvUser.Location.HandleCallbackAsync(callbackContext, containsArgs, token);
@@ -132,7 +133,7 @@ namespace RightVisionBotDb.Locations
                     else
                     {
                         if (chatType != ChatType.Private)
-                            await LocationManager[nameof(PublicChat)].HandleCommandAsync(commandContext, containsArgs, token);
+                            await LocationService[nameof(PublicChat)].HandleCommandAsync(commandContext, containsArgs, token);
 
                         else
                             await rvUser.Location.HandleCommandAsync(commandContext, containsArgs, token);
@@ -204,7 +205,7 @@ namespace RightVisionBotDb.Locations
 
             if (rvUser == null)
             {
-                rvUser = new RvUser(from.Id, Lang.Na, from.FirstName, from.Username, LocationManager[nameof(Start)]);
+                rvUser = new RvUser(from.Id, Lang.Na, from.FirstName, from.Username, LocationService[nameof(Start)]);
                 context.RvUsers.Add(rvUser);
                 await context.SaveChangesAsync(token);
             }
@@ -261,7 +262,7 @@ namespace RightVisionBotDb.Locations
         {
             if (c.Message.Chat.Type == ChatType.Private)
             {
-                var location = LocationManager[nameof(Start)];
+                var location = LocationService[nameof(Start)];
                 if (c.RvUser == null)
                 {
                     var rvUser = new RvUser(c.Message.From!.Id, Lang.Na, c.Message.From.FirstName, c.Message.From.Username, location);
@@ -290,7 +291,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.Message.Chat.Type, App.DefaultRightVision, token);
+            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.Message.Chat.Type, App.DefaultRightVision, token: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -311,7 +312,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task MainMenuCommand(CommandContext c, CancellationToken token)
         {
-            c.RvUser.Location = LocationManager[nameof(MainMenu)];
+            c.RvUser.Location = LocationService[nameof(MainMenu)];
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, "✅", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -486,7 +487,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, token: token);
 
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,

@@ -3,7 +3,6 @@ using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Locations;
 using RightVisionBotDb.Services;
-using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using Serilog;
 using Telegram.Bot;
@@ -25,7 +24,7 @@ namespace RightVisionBotDb
         #region Properties
 
         public ITelegramBotClient Client { get; private set; }
-        private LocationManager LocationManager { get; }
+        private LocationService LocationService { get; }
         private ShellService ShellService { get; }
 
         #endregion
@@ -34,11 +33,11 @@ namespace RightVisionBotDb
 
         public Bot(
             ILogger logger,
-            LocationManager locationManager,
+            LocationService locationService,
             ShellService shellService)
         {
             _logger = logger;
-            LocationManager = locationManager ?? throw new NullReferenceException(nameof(locationManager));
+            LocationService = locationService ?? throw new NullReferenceException(nameof(locationService));
             ShellService = shellService ?? throw new NullReferenceException(nameof(shellService));
 
         }
@@ -60,7 +59,7 @@ namespace RightVisionBotDb
                 var cts = new CancellationTokenSource();
                 var cancellationToken = cts.Token;
                 var receiverOptions = new ReceiverOptions { AllowedUpdates = [UpdateType.CallbackQuery, UpdateType.Message, UpdateType.ChatMember] };
-                var root = (RootLocation)LocationManager[nameof(RootLocation)];
+                var root = (RootLocation)LocationService[nameof(RootLocation)];
 
                 Client.StartReceiving(root.HandleUpdateAsync, root.HandleErrorAsync, receiverOptions, cancellationToken);
                 _logger.Information("Бот успешно запущен!");
@@ -140,7 +139,7 @@ namespace RightVisionBotDb
 
             _logger.Information("Регистрация локаций...");
 
-            LocationManager
+            LocationService
                 .RegisterLocation<RootLocation>(nameof(RootLocation))
                 .RegisterLocation<PublicChat>(nameof(PublicChat))
                 .RegisterLocation<Start>(nameof(Start))

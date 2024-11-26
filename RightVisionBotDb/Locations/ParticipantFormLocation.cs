@@ -22,11 +22,11 @@ namespace RightVisionBotDb.Locations
 
         public ParticipantFormLocation(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger logger,
             LocationsFront locationsFront,
             ParticipantFormService participantFormService)
-            : base(bot, locationManager, logger, locationsFront)
+            : base(bot, locationService, logger, locationsFront)
         {
             ParticipantFormService = participantFormService;
 

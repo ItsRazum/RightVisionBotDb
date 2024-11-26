@@ -1,4 +1,5 @@
-﻿using RightVisionBotDb.Singletons;
+﻿using RightVisionBotDb.Services;
+using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 using Serilog;
 using Telegram.Bot;
@@ -17,11 +18,11 @@ namespace RightVisionBotDb.Locations
 
         public RootLocationBase(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger rvLogger,
             LocationsFront locationsFront,
             ILogger logger)
-            : base(bot, locationManager, rvLogger, locationsFront)
+            : base(bot, locationService, rvLogger, locationsFront)
         {
             _logger = logger;
         }

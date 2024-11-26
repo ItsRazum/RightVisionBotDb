@@ -1,6 +1,7 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
@@ -15,10 +16,10 @@ namespace RightVisionBotDb.Locations
 
         public MainMenu(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger logger,
             LocationsFront locationsFront)
-            : base(bot, locationManager, logger, locationsFront)
+            : base(bot, locationService, logger, locationsFront)
         {
             this
                 .RegisterCallbackCommand("back", MainMenuCallback)
@@ -90,7 +91,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager[nameof(CriticFormLocation)];
+            c.RvUser.Location = LocationService[nameof(CriticFormLocation)];
             var form = c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId);
             if (form == null)
             {
@@ -104,7 +105,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager[nameof(ParticipantFormLocation)];
+            c.RvUser.Location = LocationService[nameof(ParticipantFormLocation)];
             var form = c.RvContext.ParticipantForms.FirstOrDefault(pf => pf.UserId == c.RvUser.UserId);
             if (form == null)
             {

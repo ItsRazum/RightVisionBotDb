@@ -34,7 +34,7 @@ namespace RightVisionBotDb
         {
             Log.Logger?.Information("Регистрация сервисов...");
             container.RegisterInstance(Log.Logger);
-            container.Register<LocationManager>(Reuse.Singleton);
+            container.Register<LocationService>(Reuse.Singleton);
             container.Register<RvLogger>(Reuse.Singleton);
             container.Register<LocationsFront>(Reuse.Singleton);
             container.Register<CriticFormService>(Reuse.Singleton);

@@ -1,3 +1,4 @@
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 
 namespace RightVisionBotDb.Locations
@@ -9,11 +10,11 @@ namespace RightVisionBotDb.Locations
 
         public ControlPanel(
             Bot bot,
-            LocationManager
-            locationManager,
+            LocationService
+            locationService,
             RvLogger logger,
             LocationsFront locationsFront)
-            : base(bot, locationManager, logger, locationsFront)
+            : base(bot, locationService, logger, locationsFront)
         {
 
         }

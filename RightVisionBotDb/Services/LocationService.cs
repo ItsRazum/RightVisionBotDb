@@ -1,16 +1,16 @@
 ﻿using DryIoc;
 using RightVisionBotDb.Locations;
 
-namespace RightVisionBotDb.Singletons
+namespace RightVisionBotDb.Services
 {
-    public class LocationManager : Dictionary<string, RvLocation>
+    public class LocationService : Dictionary<string, RvLocation>
     {
 
-        public LocationManager()
+        public LocationService()
         {
         }
 
-        public LocationManager RegisterLocation<TLocation>(string locationKey) where TLocation : RvLocation
+        public LocationService RegisterLocation<TLocation>(string locationKey) where TLocation : RvLocation
         {
             App.Container.Register<TLocation>(Reuse.Singleton);
             Add(locationKey, App.Container.Resolve<TLocation>());

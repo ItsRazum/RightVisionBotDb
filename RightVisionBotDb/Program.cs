@@ -21,7 +21,7 @@ namespace RightVisionBotDb
 
             Log.Logger?.Information("Регистрация сервисов...");
             App.Container.RegisterInstance(Log.Logger);
-            App.Container.Register<LocationManager>(Reuse.Singleton);
+            App.Container.Register<LocationService>(Reuse.Singleton);
             App.Container.Register<RvLogger>(Reuse.Singleton);
             App.Container.Register<LocationsFront>(Reuse.Singleton);
             App.Container.Register<CriticFormService>(Reuse.Singleton);

@@ -14,7 +14,7 @@ namespace RightVisionBotDb.Singletons
         #region Properties
 
         private Bot Bot { get; }
-        private LocationManager LocationManager { get; }
+        private LocationService LocationService { get; }
         private CriticFormService CriticFormService { get; }
         private ParticipantFormService ParticipantFormService { get; }
 
@@ -22,19 +22,19 @@ namespace RightVisionBotDb.Singletons
 
         public LocationsFront(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             CriticFormService criticFormService,
             ParticipantFormService participantFormService)
         {
             Bot = bot;
-            LocationManager = locationManager;
+            LocationService = locationService;
             CriticFormService = criticFormService;
             ParticipantFormService = participantFormService;
         }
 
         public async Task MainMenu(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager[nameof(Locations.MainMenu)];
+            c.RvUser.Location = LocationService[nameof(Locations.MainMenu)];
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
@@ -45,7 +45,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task Profile(CallbackContext c, CancellationToken token, bool changeLocation = true)
         {
-            if (changeLocation) c.RvUser.Location = LocationManager[nameof(Locations.Profile)];
+            if (changeLocation) c.RvUser.Location = LocationService[nameof(Locations.Profile)];
 
             var targetUserId = c.RvUser.UserId;
             var args = c.CallbackQuery.Data!.Split('-'); //[0]Command, [1]UserId, [2]?RightVision
@@ -54,7 +54,7 @@ namespace RightVisionBotDb.Singletons
                 targetUserId = long.Parse(args[1]);
 
             var rightvision = args.Length < 3 ? App.DefaultRightVision : args[2];
-            var (content, keyboard) = await ProfileHelper.Profile(await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token);
+            var (content, keyboard) = await ProfileHelper.Profile(await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token: token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
@@ -109,7 +109,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task CriticForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager[nameof(Locations.CriticFormLocation)];
+            c.RvUser.Location = LocationService[nameof(Locations.CriticFormLocation)];
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
@@ -127,7 +127,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task ParticipantForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationManager[nameof(Locations.ParticipantFormLocation)];
+            c.RvUser.Location = LocationService[nameof(Locations.ParticipantFormLocation)];
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,

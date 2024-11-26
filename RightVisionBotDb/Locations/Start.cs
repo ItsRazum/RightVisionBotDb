@@ -1,5 +1,6 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Types;
 
@@ -12,10 +13,10 @@ namespace RightVisionBotDb.Locations
 
         public Start(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger logger,
             LocationsFront locationsFront)
-            : base(bot, locationManager, logger, locationsFront)
+            : base(bot, locationService, logger, locationsFront)
         {
             this
                 .RegisterCallbackCommand("Ru", LangCallback)

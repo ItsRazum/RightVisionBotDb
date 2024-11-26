@@ -4,6 +4,7 @@ using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
+using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Text.Interfaces;
@@ -28,10 +29,10 @@ namespace RightVisionBotDb.Locations
 
         public PublicChat(
             Bot bot,
-            LocationManager locationManager,
+            LocationService locationService,
             RvLogger logger,
             LocationsFront locationsFront)
-            : base(bot, locationManager, logger, locationsFront)
+            : base(bot, locationService, logger, locationsFront)
         {
             FormHandlerMessages = new()
             {
@@ -71,7 +72,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.DefaultRightVision, token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.DefaultRightVision, token: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,

@@ -1,8 +1,4 @@
 ﻿using RightVisionBotDb.Enums;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Globalization;
-using System.Text;
 
 namespace RightVisionBotDb.Types
 {
