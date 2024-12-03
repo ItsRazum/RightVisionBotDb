@@ -1,4 +1,5 @@
 ﻿using RightVisionBotDb.Types;
+using System.Text;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Helpers
@@ -7,6 +8,8 @@ namespace RightVisionBotDb.Helpers
     {
         public static(string content, InlineKeyboardMarkup? keyboard) MainMenu(CallbackContext c)
         {
+            var sb = new StringBuilder();
+
             return (string.Empty, null);
         }
     }

@@ -74,6 +74,19 @@ namespace RightVisionBotDb.Helpers
             Permission.TechNews
         });
 
+        public static readonly UserPermissions Student =
+        [
+            Permission.StudentCabinet,
+            Permission.ClassChat,
+            Permission.AcademyChat
+        ];
+
+        public static readonly UserPermissions Teacher =
+        [
+            Permission.StudentCabinet,      Permission.RegisterClassChat,
+            Permission.MultipleClassChat,   Permission.AcademyChat,
+        ];
+
         public static readonly Dictionary<Enum, UserPermissions> Layouts = new()
         {
             { Status.User, User },
@@ -88,6 +101,9 @@ namespace RightVisionBotDb.Helpers
             { Role.Developer, Developer },
             { Role.Moderator, Moderator },
             { Role.SeniorModerator, SeniorModerator },
+
+            { Role.Student, Student },
+            { Role.Teacher, Teacher },
 
             { Role.Designer, Empty },
             { Role.Translator, Empty },

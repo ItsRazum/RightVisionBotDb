@@ -125,5 +125,29 @@ public enum Permission
     /// <summary>
     /// Право на использование панели управления
     /// </summary>
-    ControlPanel
+    ControlPanel,
+    /// <summary>
+    /// 
+    /// </summary>
+    ClassChat,
+    /// <summary>
+    /// 
+    /// </summary>
+    StudentCabinet,
+    /// <summary>
+    /// 
+    /// </summary>
+    AcademyChat,
+    /// <summary>
+    /// 
+    /// </summary>
+    RegisterClassChat,
+    /// <summary>
+    /// 
+    /// </summary>
+    TeacherCabinet,
+    /// <summary>
+    /// 
+    /// </summary>
+    MultipleClassChat,
 }

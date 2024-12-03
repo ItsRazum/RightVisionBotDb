@@ -9,5 +9,7 @@ public enum Role
     Developer,
     Moderator,
     SeniorModerator,
-    Admin
+    Admin,
+    Student,
+    Teacher
 }
