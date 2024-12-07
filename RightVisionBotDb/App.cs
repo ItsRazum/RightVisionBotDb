@@ -12,5 +12,6 @@ namespace RightVisionBotDb
         public static Lang[] RegisteredLangs { get; set; }
         public static string[] AllRightVisions { get; set; }
         public static string RightVisionDatabasesPath { get; set; }
+        public static string AcademyDatabasesPath { get; set; }
     }
 }

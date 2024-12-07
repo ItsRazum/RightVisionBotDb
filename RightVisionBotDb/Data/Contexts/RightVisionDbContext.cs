@@ -45,7 +45,7 @@ namespace RightVisionBotDb.Data.Contexts
             DatabasesDir = App.RightVisionDatabasesPath;
             if (Database.EnsureCreated())
             {
-                Properties.Add(new RightVisionDbProperties());
+                Properties.Add(new DbProperties());
                 SaveChanges();
             }
         }
@@ -55,7 +55,7 @@ namespace RightVisionBotDb.Data.Contexts
         #region Data
 
         public DbSet<ParticipantForm> ParticipantForms => Set<ParticipantForm>();
-        private DbSet<RightVisionDbProperties> Properties => Set<RightVisionDbProperties>();
+        private DbSet<DbProperties> Properties => Set<DbProperties>();
 
         #endregion
 

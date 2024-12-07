@@ -129,6 +129,10 @@ public enum Permission
     /// <summary>
     /// 
     /// </summary>
+    Academy,
+    /// <summary>
+    /// 
+    /// </summary>
     ClassChat,
     /// <summary>
     /// 

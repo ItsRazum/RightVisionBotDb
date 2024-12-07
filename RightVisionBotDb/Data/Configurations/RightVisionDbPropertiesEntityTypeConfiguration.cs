@@ -4,9 +4,9 @@ using RightVisionBotDb.Models;
 
 namespace RightVisionBotDb.Data.Configurations
 {
-    internal class RightVisionDbPropertiesEntityTypeConfiguration : IEntityTypeConfiguration<RightVisionDbProperties>
+    internal class RightVisionDbPropertiesEntityTypeConfiguration : IEntityTypeConfiguration<DbProperties>
     {
-        public void Configure(EntityTypeBuilder<RightVisionDbProperties> builder)
+        public void Configure(EntityTypeBuilder<DbProperties> builder)
         {
             builder.Property(r => r.RightVisionStatus)
                 .HasConversion<string>();

@@ -2,7 +2,7 @@
 
 namespace RightVisionBotDb.Models
 {
-    public class RightVisionDbProperties
+    public class DbProperties
     {
         public int Id { get; set; }
         public RightVisionStatus RightVisionStatus { get; set; } = RightVisionStatus.Relevant;
@@ -10,7 +10,7 @@ namespace RightVisionBotDb.Models
         public DateOnly StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
 
-        public RightVisionDbProperties()
+        public DbProperties()
         {
             StartDate = DateOnly.FromDateTime(DateTime.Now);
         }
