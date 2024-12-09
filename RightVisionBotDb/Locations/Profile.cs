@@ -1,5 +1,8 @@
-﻿using RightVisionBotDb.Enums;
+﻿using EasyForms.Types;
+using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
@@ -63,29 +66,51 @@ namespace RightVisionBotDb.Locations
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationService[nameof(CriticFormLocation)];
-            var form = c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId);
-            if (form == null)
-            {
-                form = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
-                c.DbContext.CriticForms.Add(form);
-            }
-
-            if (form.GetEmptyProperty(out var property))
-                await LocationsFront.CriticForm(c, form.GetPropertyStep(property!.Name), token);
+            await HandleFormAsync(
+                c,
+                LocationService[nameof(CriticFormLocation)],
+                c => c.DbContext.CriticForms,
+                c => new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username),
+                LocationsFront.CriticForm,
+                token);
         }
 
         private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationService[nameof(ParticipantFormLocation)];
-            var form = c.RvContext.ParticipantForms.FirstOrDefault(pf => pf.UserId == c.RvUser.UserId);
+            await HandleFormAsync(
+                c,
+                LocationService[nameof(ParticipantFormLocation)],
+                c => c.RvContext.ParticipantForms,
+                c => new ParticipantForm(c.RvUser.UserId, c.CallbackQuery.From.Username),
+                LocationsFront.ParticipantForm,
+                token);
+        }
+
+        private async Task HandleFormAsync<TForm>(
+            CallbackContext c,
+            RvLocation location,
+            Func<CallbackContext, DbSet<TForm>> getDbSet,
+            Func<CallbackContext, TForm> createForm,
+            Func<CallbackContext, int, CancellationToken, Task> locationFrontMethod,
+            CancellationToken token = default
+            ) where TForm : Form, IForm
+        {
+            c.RvUser.Location = location;
+
+            var dbSet = getDbSet(c);
+
+            var form = await dbSet.FirstOrDefaultAsync(f => c.RvUser.Is(f), token);
             if (form == null)
             {
-                form = new ParticipantForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
-                c.RvContext.ParticipantForms.Add(form);
+                form = createForm(c);
+                await dbSet.AddAsync(form, token);
             }
+
             if (form.GetEmptyProperty(out var property))
-                await LocationsFront.ParticipantForm(c, form.GetPropertyStep(property!.Name), token);
+            {
+                var step = form.GetPropertyStep(property!.Name);
+                await locationFrontMethod(c, step, token);
+            }
         }
 
         private async Task SendingCallback(CallbackContext c, CancellationToken token = default)

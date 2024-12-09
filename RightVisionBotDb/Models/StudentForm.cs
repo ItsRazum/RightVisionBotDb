@@ -30,6 +30,7 @@ namespace RightVisionBotDb.Models
         public long CuratorId { get; set; } = 0;
         public FormStatus Status { get; set; } = FormStatus.NotFinished;
         public string CallbackType { get; } = "st_";
+        public long TeacherId { get; set; } = 0;
 
         #endregion
 

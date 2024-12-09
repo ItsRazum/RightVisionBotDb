@@ -1,5 +1,6 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Locations;
 using RightVisionBotDb.Types;
 using System.ComponentModel.DataAnnotations;
@@ -98,6 +99,7 @@ namespace RightVisionBotDb.Models
 
         public void ResetPermissions() => UserPermissions = new UserPermissions(PermissionsHelper.Layouts[Status] + PermissionsHelper.Layouts[Role]);
         public bool Has(Permission permission) => UserPermissions.Contains(permission);
+        public bool Is(IForm form) => form.UserId == UserId;
 
         #endregion
 
