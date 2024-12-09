@@ -32,7 +32,7 @@ namespace RightVisionBotDb
 
             App.Container.Register<Bot>(Reuse.Singleton);
 
-            App.Container.Resolve<Bot>().Configure();
+            App.Container.Resolve<Bot>().Configure(args);
 
             #endregion
         }

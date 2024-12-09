@@ -44,11 +44,8 @@ namespace RightVisionBotDb.Helpers
             InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.AboutBot, "aboutBot")
         ]);
 
-        public static InlineKeyboardMarkup InlineBack(Lang lang) =>
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, "back")
-            };
+        public static InlineKeyboardButton InlineBack(Lang lang) =>
+                InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, "back");
 
         public static InlineKeyboardMarkup AboutBot(Lang lang) =>
             new[]
@@ -248,12 +245,33 @@ namespace RightVisionBotDb.Helpers
             });
         }
 
-        public static InlineKeyboardMarkup ControlPanelMainMenu(RvUser rvUser) => new(new InlineKeyboardButton[][]
-        {
+        public static InlineKeyboardMarkup ControlPanelMainMenu(RvUser rvUser) => new(
+        [
             [ InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreUsers, $"control-{rvUser.UserId}-exploreUsers") ],
             [ InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreCritics, $"control-{rvUser.UserId}-exploreCritics") ],
             [ InlineKeyboardButton.WithCallbackData(Phrases.Lang[rvUser.Lang].ControlPanel.KeyboardButtons.ExploreParticipants, $"control-{rvUser.UserId}-exploreParticipants") ]
-        });
+        ]);
+
+        public static InlineKeyboardMarkup AcademyMainMenu(Role role, Lang lang, bool hasPermission)
+        {
+            var phrases = Phrases.Lang[lang].KeyboardButtons;
+
+            if (!hasPermission)
+                return InlineBack(lang);
+
+            var (buttonPhrase, callback) = role switch
+            {
+                Role.Student => (phrases.StudentMenu, "studentMenu"),
+                Role.Teacher => (phrases.TeacherMenu, "teacherMenu"),
+                _ => (phrases.AcademyForm, "sendAcademyForm"),
+            };
+
+            return new InlineKeyboardMarkup(
+                [
+                    [ InlineBack(lang) ],
+                    [ InlineKeyboardButton.WithCallbackData(buttonPhrase, callback) ]
+                ]);
+        }
 
         #endregion
 

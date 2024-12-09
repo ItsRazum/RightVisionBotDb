@@ -18,6 +18,9 @@ public class KeyboardButtons
     public string CriticFormVariationTwo { get; set; }
     public string ParticipantFormVariationOne { get; set; }
     public string ParticipantFormVariationTwo { get; set; }
+    public string StudentMenu { get; set; }
+    public string TeacherMenu { get; set; }
+    public string AcademyForm { get; set; }
     public string Participations { get; set; }
     public string Minimize { get; set; }
     public string Maximize { get; set; }

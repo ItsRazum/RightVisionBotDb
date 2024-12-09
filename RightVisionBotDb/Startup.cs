@@ -27,7 +27,7 @@ namespace RightVisionBotDb
 
             container.Register<Bot>(Reuse.Singleton);
 
-            container.Resolve<Bot>().Configure();
+            //container.Resolve<Bot>().Configure();
         }
 
         private static void RegisterServices(IContainer container)

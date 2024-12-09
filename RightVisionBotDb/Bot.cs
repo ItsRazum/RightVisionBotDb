@@ -23,6 +23,7 @@ namespace RightVisionBotDb
 
         #region Properties
 
+        public BotParameters Parameters { get; private set; }
         public ITelegramBotClient Client { get; private set; }
         private LocationService LocationService { get; }
         private ShellService ShellService { get; }
@@ -74,7 +75,7 @@ namespace RightVisionBotDb
             }
         }
 
-        public void Configure()
+        public void Configure(string[] args)
         {
             if (_isInitialized)
             {
@@ -83,7 +84,6 @@ namespace RightVisionBotDb
             }
 
             _logger.Information("Загрузка языковых файлов...");
-
 
             Phrases.Build(Lang.Ru, Lang.Kz, Lang.Ua);
             _logger.Information("Сборка языковых файлов завершена.");
@@ -131,11 +131,17 @@ namespace RightVisionBotDb
                     .Last())
                     .OrderBy(s => s)];
             }
+
             App.AllRightVisions =
                 [.. rightVisions
                 .Select(s => s.Replace(".db", string.Empty))
                 .OrderByDescending(s => s)];
 
+            if (args.Contains("-enableAcademy"))
+            {
+                _logger.Information("Присвоен флаг {0}", BotParameters.EnableAcademy);
+                Parameters |= BotParameters.EnableAcademy;
+            }
 
             _logger.Information("Регистрация локаций...");
 

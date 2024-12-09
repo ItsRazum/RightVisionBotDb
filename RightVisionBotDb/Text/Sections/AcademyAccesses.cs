@@ -2,7 +2,7 @@
 {
     public class AcademyAccesses
     {
-        public string Form { get; set; }
+        public string Allowed { get; set; }
         public string UnderConsideration { get; set; }
         public string Student { get; set; }
         public string Teacher { get; set; }

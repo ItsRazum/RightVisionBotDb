@@ -10,5 +10,7 @@
         public string Developer { get; set; }
         public string Curator { get; set; }
         public string Admin { get; set; }
+        public string Student { get; set; }
+        public string Teacher { get; set; }
     }
 }
