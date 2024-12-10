@@ -71,7 +71,7 @@ namespace RightVisionBotDb.Text
             _ => string.Empty
         };
 
-        public static string GetGroupLink(long groupId, Lang lang) => groupId switch
+        public static string GetGroupLink(long groupId) => groupId switch
         {
             Constants.GroupId.CriticGroupId => Constants.Links.CriticGroupLink,
             Constants.GroupId.ParticipantGroupId => Constants.Links.ParticipantGroupLink,

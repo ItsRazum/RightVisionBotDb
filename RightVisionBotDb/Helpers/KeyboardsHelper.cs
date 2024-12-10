@@ -136,14 +136,6 @@ namespace RightVisionBotDb.Helpers
         {
             var buttons = new List<InlineKeyboardButton[]>();
 
-            var participantButton = InlineKeyboardButton.WithCallbackData(
-                Phrases.Lang[rvUser.Lang].KeyboardButtons.ParticipantFormVariationOne,
-                "participantForm"
-            );
-            var criticButton = InlineKeyboardButton.WithCallbackData(
-                Phrases.Lang[rvUser.Lang].KeyboardButtons.CriticFormVariationOne,
-                "criticForm"
-            );
             var backButton = InlineKeyboardButton.WithCallbackData(
                 Phrases.Lang[rvUser.Lang].KeyboardButtons.Back,
                 "back"
@@ -152,10 +144,18 @@ namespace RightVisionBotDb.Helpers
             var upperFloor = new List<InlineKeyboardButton>();
 
             if (rvUser.Has(Permission.SendParticipantForm))
-                upperFloor.Add(participantButton);
+                upperFloor.Add(InlineKeyboardButton.WithCallbackData(
+                    Phrases.Lang[rvUser.Lang].KeyboardButtons.ParticipantFormVariationOne,
+                    "participantForm"
+                    )
+                );
 
             if (rvUser.Has(Permission.SendCriticForm))
-                upperFloor.Add(criticButton);
+                upperFloor.Add(InlineKeyboardButton.WithCallbackData(
+                    Phrases.Lang[rvUser.Lang].KeyboardButtons.CriticFormVariationOne,
+                    "criticForm"
+                    )
+                );
 
             buttons.Add([.. upperFloor]);
             buttons.Add([backButton]);
@@ -231,8 +231,8 @@ namespace RightVisionBotDb.Helpers
         public static InlineKeyboardMarkup CandidateOptions(IForm form)
         {
             var type = form.CallbackType;
-            return new(new InlineKeyboardButton[][]
-            {
+            return new(
+            [
                 [
                     InlineKeyboardButton.WithCallbackData("❌Отклонить",  $"{type}form-deny-{form.UserId}"),
                     InlineKeyboardButton.WithCallbackData("⚠️Сбросить",   $"{type}form-reset-{form.UserId}")
@@ -242,7 +242,7 @@ namespace RightVisionBotDb.Helpers
                 [ InlineKeyboardButton.WithCallbackData("🥈Silver",       $"{type}form-Silver-{form.UserId}") ],
                 [ InlineKeyboardButton.WithCallbackData("🥇Gold",         $"{type}form-Gold-{form.UserId}") ],
                 [ InlineKeyboardButton.WithCallbackData("💎Brilliant",    $"{type}form-Brilliant-{form.UserId}") ]
-            });
+            ]);
         }
 
         public static InlineKeyboardMarkup ControlPanelMainMenu(RvUser rvUser) => new(
@@ -280,15 +280,15 @@ namespace RightVisionBotDb.Helpers
         public static ReplyKeyboardMarkup ReplyBack(Lang lang) => new(new KeyboardButton(Phrases.Lang[lang].KeyboardButtons.Back)) { ResizeKeyboard = true };
 
         public static ReplyKeyboardMarkup RateSelection(Lang lang) =>
-            new(new KeyboardButton[][]
-            {
+            new(
+            [
                 [
                     new KeyboardButton("1"), new KeyboardButton("2"), new KeyboardButton("3"), new KeyboardButton("4")
                 ],
                 [
                     new KeyboardButton(Phrases.Lang[lang].KeyboardButtons.Back)
                 ]
-            })
+            ])
             { ResizeKeyboard = true };
 
         public static ReplyKeyboardMarkup ReplyMainMenu => new(new KeyboardButton("/menu")) { ResizeKeyboard = true };

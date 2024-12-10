@@ -1,11 +1,12 @@
 ﻿using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Text;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Services
 {
-    public class ParticipantFormService
+    public class ParticipantFormService : IFormService
     {
 
         #region Properties

@@ -118,12 +118,12 @@ namespace RightVisionBotDb.Locations
             var phrases = Phrases.Lang[c.RvUser.Lang];
             (c.RvUser.UserPermissions, string callbackAnswer, string buttonMessage) = c.RvUser.Has(Permission.Sending)
                 ? (c.RvUser.UserPermissions - Permission.Sending, phrases.Messages.Profile.Sending.UnsubscribeSuccess, phrases.KeyboardButtons.Sending.Subscribe)
-                : (c.RvUser.UserPermissions + Permission.Sending, phrases.Messages.Profile.Sending.SubscribeSuccess, phrases.KeyboardButtons.Sending.Unsubscribe);
+                : (c.RvUser.UserPermissions + Permission.Sending, phrases.Messages.Profile.Sending.SubscribeSuccess,   phrases.KeyboardButtons.Sending.Unsubscribe);
 
             (string profileText, InlineKeyboardMarkup? _) = await ProfileHelper.Profile(c.RvUser, c, c.CallbackQuery.Message!.Chat.Type, App.DefaultRightVision, false, token);
 
-            var newInlineKeyboard = new InlineKeyboardMarkup(c.CallbackQuery.Message!.ReplyMarkup!.InlineKeyboard.Select(row => row
-            .Select(button => button.CallbackData == "sending"
+            var newInlineKeyboard = new InlineKeyboardMarkup(c.CallbackQuery.Message!.ReplyMarkup!.InlineKeyboard.Select(row => 
+            row.Select(button => button.CallbackData == "sending"
                 ? InlineKeyboardButton.WithCallbackData(buttonMessage, button.CallbackData)
                 : button)
             .ToArray())

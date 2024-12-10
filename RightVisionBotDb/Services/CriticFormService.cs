@@ -1,11 +1,12 @@
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Text;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Services
 {
-    public class CriticFormService
+    public class CriticFormService : IFormService
     {
 
         #region Properties
@@ -30,5 +31,4 @@ namespace RightVisionBotDb.Services
 
         #endregion
     }
-
 }

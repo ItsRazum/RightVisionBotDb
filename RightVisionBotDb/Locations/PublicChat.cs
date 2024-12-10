@@ -23,6 +23,7 @@ namespace RightVisionBotDb.Locations
 
         private Dictionary<Type, Func<Lang, IFormMessages>> FormHandlerMessages { get; }
 
+
         #endregion
 
         #region Constructor
@@ -480,7 +481,8 @@ namespace RightVisionBotDb.Locations
                     translatedRestrictionType,
                     Phrases.GetGroupTypeString(c.Message.Chat.Id, extractedRvUser.Lang),
                     endDate.ToString("g", new CultureInfo("ru-RU")),
-                    reason) + Phrases.Lang[extractedRvUser.Lang].Profile.Punishments.Contacts,
+                    reason) 
+                + Phrases.Lang[extractedRvUser.Lang].Profile.Punishments.Contacts,
                 cancellationToken: token);
 
             return (extractedRvUser, message, reason, endDate);
@@ -513,7 +515,7 @@ namespace RightVisionBotDb.Locations
 
             var lang = extractedRvUser.Lang;
             var groupId = c.Message.Chat.Id;
-            (string rvUserName, string groupType, string groupLink) = (extractedRvUser.Name, Phrases.GetGroupTypeString(groupId, lang).TrimEnd(), Phrases.GetGroupLink(groupId, lang));
+            (string rvUserName, string groupType, string groupLink) = (extractedRvUser.Name, Phrases.GetGroupTypeString(groupId, lang).TrimEnd(), Phrases.GetGroupLink(groupId));
 
             var notification = punishmentType switch
             {

@@ -6,14 +6,17 @@ namespace RightVisionBotDb.Services
     public class LocationService : Dictionary<string, RvLocation>
     {
 
-        public LocationService()
+        private readonly IContainer _container;
+
+        public LocationService(IContainer container)
         {
+            _container = container;
         }
 
         public LocationService RegisterLocation<TLocation>(string locationKey) where TLocation : RvLocation
         {
-            App.Container.Register<TLocation>(Reuse.Singleton);
-            Add(locationKey, App.Container.Resolve<TLocation>());
+            _container.Register<TLocation>(Reuse.Singleton);
+            Add(locationKey, _container.Resolve<TLocation>());
 
             return this;
         }
