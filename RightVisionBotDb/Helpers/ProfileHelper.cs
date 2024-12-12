@@ -34,7 +34,7 @@ namespace RightVisionBotDb.Helpers
             ParticipantForm? participantForm;
             CriticForm? criticForm;
 
-            RightVisionDbContext? rvContext = null;
+            IRightVisionDbContext? rvContext = null;
 
             var sb = new StringBuilder(targetRvUser == rvUser
                 ? phrases.Profile.Headers.Private
@@ -81,7 +81,7 @@ namespace RightVisionBotDb.Helpers
             }
 
             if (rvContext != c.RvContext)
-                rvContext?.Dispose();
+                ((RightVisionDbContext)rvContext)?.Dispose();
 
             if (chatType == ChatType.Private)
                 sb.AppendLine( //Подписка на новости

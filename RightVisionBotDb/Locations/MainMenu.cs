@@ -29,7 +29,8 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("forms", FormsCallback)
                 .RegisterCallbackCommand("academy", AcademyCallback)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
-                .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm);
+                .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm)
+                .RegisterCallbackCommand("studentForm", StudentFormCallback, Permission.SendStudentForm);
         }
 
         #endregion
@@ -64,7 +65,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
+            using var rvdb = DatabaseHelper.GetRightVisionContext(App.Configuration.ContestSettings.DefaultRightVision);
 
             if (rvdb.Status == RightVisionStatus.Irrelevant)
             {
@@ -86,7 +87,8 @@ namespace RightVisionBotDb.Locations
             {
                 var (content, keyboard) = AcademyHelper.MainMenu(c);
                 await Bot.Client.EditMessageTextAsync(
-                    c.CallbackQuery.Id,
+                    c.CallbackQuery.Message!.Chat,
+                    c.CallbackQuery.Message.MessageId,
                     content,
                     replyMarkup: keyboard,
                     cancellationToken: token);
@@ -125,6 +127,11 @@ namespace RightVisionBotDb.Locations
             }
             if (form.GetEmptyProperty(out var property))
                 await LocationsFront.ParticipantForm(c, form.GetPropertyStep(property!.Name), token);
+        }
+
+        private async Task StudentFormCallback(CallbackContext c, CancellationToken token)
+        {
+            c.RvUser.Location = LocationService[nameof(StudentFormLocation)];
         }
 
         #endregion

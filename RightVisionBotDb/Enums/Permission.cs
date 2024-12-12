@@ -137,6 +137,10 @@ public enum Permission
     /// <summary>
     /// 
     /// </summary>
+    SendStudentForm,
+    /// <summary>
+    /// 
+    /// </summary>
     StudentCabinet,
     /// <summary>
     /// 

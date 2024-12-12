@@ -6,7 +6,8 @@ namespace RightVisionBotDb.Interfaces
     public interface IContext
     {
         RvUser RvUser { get; }
-        ApplicationDbContext DbContext { get; }
-        RightVisionDbContext RvContext { get; }
+        IApplicationDbContext DbContext { get; }
+        IRightVisionDbContext RvContext { get; }
+        IAcademyDbContext AcademyContext { get; }
     }
 }

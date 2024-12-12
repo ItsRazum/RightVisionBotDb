@@ -2,6 +2,7 @@
 {
     public class ProfileRoles
     {
+        public string None { get; set; }
         public string Designer { get; set; }
         public string Translator { get; set; }
         public string Moderator { get; set; }

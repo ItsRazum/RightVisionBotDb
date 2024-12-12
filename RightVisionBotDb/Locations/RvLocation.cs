@@ -23,7 +23,7 @@ namespace RightVisionBotDb.Locations
 
         #region Constructor
 
-        public RvLocation(
+        protected RvLocation(
             Bot bot,
             LocationService locationService,
             RvLogger logger,

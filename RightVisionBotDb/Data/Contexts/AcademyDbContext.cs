@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Data.Configurations;
 using RightVisionBotDb.Enums;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
 
 namespace RightVisionBotDb.Data.Contexts
 {
-    public class AcademyDbContext : DbContext
+    public class AcademyDbContext : DbContext, IAcademyDbContext
     {
         #region Properties
 
@@ -54,7 +55,7 @@ namespace RightVisionBotDb.Data.Contexts
         #region Data
 
         public DbSet<StudentForm> StudentForms => Set<StudentForm>();
-        private DbSet<DbProperties> Properties => Set<DbProperties>();
+        public DbSet<DbProperties> Properties => Set<DbProperties>();
 
         #endregion
 

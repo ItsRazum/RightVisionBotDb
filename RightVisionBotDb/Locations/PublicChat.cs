@@ -1,5 +1,6 @@
 ﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
@@ -73,7 +74,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.DefaultRightVision, token: token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.Configuration.ContestSettings.DefaultRightVision, token: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -93,7 +94,7 @@ namespace RightVisionBotDb.Locations
                 await Bot.Client.BanChatMemberAsync(c.Message.Chat, targetRvUser.UserId, endDate, cancellationToken: token);
 
                 targetRvUser.Punishments.Add(new(PunishmentType.Ban, c.Message.Chat.Id, c.RvUser.UserId, reason, DateTime.Now, endDate));
-                c.DbContext.Entry(targetRvUser).State = EntityState.Modified;
+                ((ApplicationDbContext)c.DbContext).Entry(targetRvUser).State = EntityState.Modified;
             }
         }
 
@@ -140,7 +141,7 @@ namespace RightVisionBotDb.Locations
                 cancellationToken: token);
 
                 targetRvUser.Punishments.Add(new(PunishmentType.Mute, c.Message.Chat.Id, c.RvUser.UserId, reason, DateTime.Now, endDate));
-                c.DbContext.Entry(targetRvUser).State = EntityState.Modified;
+                ((ApplicationDbContext)c.DbContext).Entry(targetRvUser).State = EntityState.Modified;
             }
         }
 
@@ -178,6 +179,8 @@ namespace RightVisionBotDb.Locations
         {
             var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
 
+            bool dataUpdated = false;
+
             string resultMessage = "Пользователь не найден или не указан!";
 
             if (extractedRvUser != null)
@@ -189,7 +192,7 @@ namespace RightVisionBotDb.Locations
                 {
                     extractedRvUser.ResetPermissions();
                     resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Status}\n{extractedRvUser.Role}";
-                    c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                    dataUpdated = true;
                 }
 
                 else if (Enum.TryParse(args.Last(), out Permission permission))
@@ -200,17 +203,20 @@ namespace RightVisionBotDb.Locations
                         case '+':
                             extractedRvUser.UserPermissions += permission;
                             resultMessage = $"Пользователю успешно выдано право Permission.{permission}";
-                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                            dataUpdated = true;
                             break;
                         case '-':
                             extractedRvUser.UserPermissions -= permission;
                             resultMessage = $"С пользователя успешно снято право Permission.{permission}";
-                            c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                            dataUpdated = true;
                             break;
                     }
                 }
                 else
                     resultMessage = "Запрашиваемое право не найдено!";
+
+                if (dataUpdated)
+                    ((ApplicationDbContext)c.DbContext).Entry(extractedRvUser).State = EntityState.Modified;
             }
 
             await Bot.Client.SendTextMessageAsync(
@@ -236,7 +242,7 @@ namespace RightVisionBotDb.Locations
                     {
                         var description = string.Join(' ', args.Skip(1));
                         extractedRvUser.Rewards.Add(new Reward(args[0], description));
-                        c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                        ((ApplicationDbContext)c.DbContext).Entry(extractedRvUser).State = EntityState.Modified;
                         resultMessage = "Пользователю успешно выдана награда!";
                     }
                     catch
@@ -287,7 +293,7 @@ namespace RightVisionBotDb.Locations
                         targetRvUser.UserPermissions -= Permission.SendCriticForm;
                         break;
                     case FormStatus.Reset:
-                        c.DbContext.Remove(form);
+                        c.DbContext.CriticForms.Remove(form);
                         break;
                 }
             }
@@ -533,7 +539,7 @@ namespace RightVisionBotDb.Locations
                 foreach (var punishment in activePunishments)
                     punishment.EndDateTime = DateTime.Now;
 
-                c.DbContext.Entry(extractedRvUser).State = EntityState.Modified;
+                ((ApplicationDbContext)c.DbContext).Entry(extractedRvUser).State = EntityState.Modified;
 
                 await Bot.Client.SendTextMessageAsync(
                     extractedRvUser.UserId,

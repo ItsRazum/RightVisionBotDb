@@ -98,7 +98,6 @@ namespace RightVisionBotDb
 
             App.Configuration = new(configuration);
 
-            App.DefaultRightVision = App.Configuration.ContestSettings.DefaultRightVision;
             App.RightVisionDatabasesPath = App.Configuration.DataSettings.RightVisionDatabasesPath;
 
             _logger.Information("Проверка баз данных...");
@@ -122,8 +121,8 @@ namespace RightVisionBotDb
 
             if (rightVisions.Length == 0)
             {
-                _logger.Warning("В папке нет ни одной базы данных, создаётся база данных с названием {0}...", App.DefaultRightVision);
-                using var rvdb = DatabaseHelper.GetRightVisionContext(App.DefaultRightVision);
+                _logger.Warning("В папке нет ни одной базы данных, создаётся база данных с названием {0}...", App.Configuration.ContestSettings.DefaultRightVision);
+                using var rvdb = DatabaseHelper.GetRightVisionContext(App.Configuration.ContestSettings.DefaultRightVision);
                 rightVisions =
                     [.. Directory.GetFiles(info.FullName)
                     .Where(s => s.EndsWith(".db"))

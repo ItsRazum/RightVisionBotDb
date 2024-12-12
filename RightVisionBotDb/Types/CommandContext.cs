@@ -11,19 +11,21 @@ namespace RightVisionBotDb.Types
 
         public RvUser RvUser { get; }
         public Message Message { get; }
-        public ApplicationDbContext DbContext { get; }
-        public RightVisionDbContext RvContext { get; }
+        public IApplicationDbContext DbContext { get; }
+        public IRightVisionDbContext RvContext { get; }
+        public IAcademyDbContext AcademyContext { get; }
 
         #endregion
 
         #region Constructor
 
-        public CommandContext(RvUser rvUser, Message message, ApplicationDbContext dbContext, RightVisionDbContext rightVisionDbContext)
+        public CommandContext(RvUser rvUser, Message message, IApplicationDbContext dbContext, IRightVisionDbContext rightVisionDbContext, IAcademyDbContext academyDbContext)
         {
             RvUser = rvUser ?? throw new NullReferenceException(nameof(rvUser));
             Message = message ?? throw new NullReferenceException(nameof(message));
             DbContext = dbContext ?? throw new NullReferenceException(nameof(dbContext));
             RvContext = rightVisionDbContext ?? throw new NullReferenceException(nameof(rightVisionDbContext));
+            AcademyContext = academyDbContext ?? throw new NullReferenceException(nameof(academyDbContext));
         }
 
         #endregion

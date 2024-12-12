@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Data.Configurations;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
 
 
 namespace RightVisionBotDb.Data.Contexts;
 
-public sealed class ApplicationDbContext : DbContext
+public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext() => Database.EnsureCreated();
 

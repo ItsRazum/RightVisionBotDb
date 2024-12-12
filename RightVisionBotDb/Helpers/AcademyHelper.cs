@@ -13,11 +13,14 @@ namespace RightVisionBotDb.Helpers
             var rvUser = c.RvUser;
             var phrases = Phrases.Lang[rvUser.Lang];
 
-            var role = rvUser.Role is Role.Teacher or Role.Student
+            var role = rvUser.Role
+                is Role.Teacher
+                or Role.Student
                 ? rvUser.Role
                 : Role.None;
 
-            var sb = new StringBuilder(phrases.Academy.Greetings)
+            var sb = new StringBuilder()
+                .AppendLine(phrases.Academy.Greetings)
                 .AppendLine(phrases.Academy.Properties.Role + Phrases.GetUserRoleString(role, rvUser.Lang))
                 .AppendLine();
 
@@ -27,16 +30,14 @@ namespace RightVisionBotDb.Helpers
                 return (sb.ToString(), KeyboardsHelper.InlineBack(rvUser.Lang));
             }
 
-            var message = role switch
+            sb.AppendLine(role switch
             {
                 Role.Student => phrases.Academy.Accesses.Student,
                 Role.Teacher => phrases.Academy.Accesses.Teacher,
                 _ => phrases.Academy.Accesses.Allowed
-            };
+            });
 
-            sb.AppendLine(message);
-
-            return (string.Empty, null);
+            return (sb.ToString(), KeyboardsHelper.AcademyMainMenu(role, rvUser.Lang, rvUser.Has(Permission.Academy)));
         }
     }
 }

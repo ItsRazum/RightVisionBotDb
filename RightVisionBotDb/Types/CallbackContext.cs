@@ -11,19 +11,21 @@ namespace RightVisionBotDb.Types
 
         public RvUser RvUser { get; }
         public CallbackQuery CallbackQuery { get; }
-        public ApplicationDbContext DbContext { get; }
-        public RightVisionDbContext RvContext { get; }
+        public IApplicationDbContext DbContext { get; }
+        public IRightVisionDbContext RvContext { get; }
+        public IAcademyDbContext AcademyContext { get; }
 
         #endregion
 
         #region Constructor
 
-        public CallbackContext(RvUser rvUser, CallbackQuery? callbackQuery, ApplicationDbContext dbContext, RightVisionDbContext rightVisionDbContext)
+        public CallbackContext(RvUser rvUser, CallbackQuery? callbackQuery, IApplicationDbContext dbContext, IRightVisionDbContext rightVisionDbContext, IAcademyDbContext academyDbContext)
         {
             RvUser = rvUser ?? throw new NullReferenceException(nameof(rvUser));
             CallbackQuery = callbackQuery ?? throw new NullReferenceException(nameof(callbackQuery));
             DbContext = dbContext ?? throw new NullReferenceException(nameof(dbContext));
             RvContext = rightVisionDbContext ?? throw new NullReferenceException(nameof(rightVisionDbContext));
+            AcademyContext = academyDbContext ?? throw new NullReferenceException(nameof(academyDbContext));
         }
 
         #endregion

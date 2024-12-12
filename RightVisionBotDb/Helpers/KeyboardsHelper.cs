@@ -255,22 +255,22 @@ namespace RightVisionBotDb.Helpers
         public static InlineKeyboardMarkup AcademyMainMenu(Role role, Lang lang, bool hasPermission)
         {
             var phrases = Phrases.Lang[lang].KeyboardButtons;
+            var layers = new List<InlineKeyboardButton[]>();
 
-            if (!hasPermission)
-                return InlineBack(lang);
-
-            var (buttonPhrase, callback) = role switch
+            if (hasPermission)
             {
-                Role.Student => (phrases.StudentMenu, "studentMenu"),
-                Role.Teacher => (phrases.TeacherMenu, "teacherMenu"),
-                _ => (phrases.AcademyForm, "sendAcademyForm"),
-            };
+                var (buttonPhrase, callback) = role switch
+                {
+                    Role.Student => (phrases.StudentMenu, "studentMenu"),
+                    Role.Teacher => (phrases.TeacherMenu, "teacherMenu"),
+                    _ => (phrases.AcademyForm, "sendAcademyForm"),
+                };
+                layers.Add([InlineKeyboardButton.WithCallbackData(buttonPhrase, callback)]);
+            }
 
-            return new InlineKeyboardMarkup(
-                [
-                    [ InlineBack(lang) ],
-                    [ InlineKeyboardButton.WithCallbackData(buttonPhrase, callback) ]
-                ]);
+            layers.Add([InlineBack(lang)]);
+
+            return new InlineKeyboardMarkup([.. layers]);
         }
 
         #endregion

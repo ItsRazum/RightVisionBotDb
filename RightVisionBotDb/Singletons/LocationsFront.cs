@@ -53,7 +53,7 @@ namespace RightVisionBotDb.Singletons
             if (args.First() == "profile")
                 targetUserId = long.Parse(args[1]);
 
-            var rightvision = args.Length < 3 ? App.DefaultRightVision : args[2];
+            var rightvision = args.Length < 3 ? App.Configuration.ContestSettings.DefaultRightVision : args[2];
             var (content, keyboard) = await ProfileHelper.Profile(await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token: token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
