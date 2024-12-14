@@ -52,7 +52,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterTextCommand("resetAcademyPermissions", ResetAcademyPermissionsCommand, Permission.GivePermission)
+                .RegisterTextCommand("resetacademypermissions", ResetAcademyPermissionsCommand, Permission.GivePermission)
                 .RegisterCallbackCommands(["c_take", "p_take", "st_take"], HandleCuratorshipAsync, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
                 .RegisterCallbackCommand("p_form", ParticipantFormCallback)
