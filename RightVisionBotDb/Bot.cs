@@ -98,18 +98,24 @@ namespace RightVisionBotDb
 
             App.Configuration = new(configuration);
 
-            App.RightVisionDatabasesPath = App.Configuration.DataSettings.RightVisionDatabasesPath;
-
             _logger.Information("Проверка баз данных...");
+            if (!Directory.Exists(App.Configuration.AcademySettings.AcademyDatabasesPath))
+            {
+                _logger.Warning("Не удалось найти папку академий. Создаётся новая...");
+                var academyDirInfo = Directory.CreateDirectory(App.Configuration.AcademySettings.AcademyDatabasesPath);
+                _logger.Information("Успешно создана папка по пути {0}", academyDirInfo.FullName);
+            }
+
             DirectoryInfo? info = null;
-            if (!Directory.Exists(App.RightVisionDatabasesPath))
+
+            if (!Directory.Exists(App.Configuration.RightVisionSettings.RightVisionDatabasesPath))
             {
                 _logger.Warning("Не удалось найти папку RightVision. Создаётся новая...");
-                info = Directory.CreateDirectory(App.RightVisionDatabasesPath);
+                info = Directory.CreateDirectory(App.Configuration.RightVisionSettings.RightVisionDatabasesPath);
                 _logger.Information("Успешно создана папка по пути {0}", info.FullName);
             }
 
-            info ??= new DirectoryInfo(App.RightVisionDatabasesPath);
+            info ??= new DirectoryInfo(App.Configuration.RightVisionSettings.RightVisionDatabasesPath);
 
             var rightVisions =
                 Directory.GetFiles(info.FullName)
@@ -121,8 +127,8 @@ namespace RightVisionBotDb
 
             if (rightVisions.Length == 0)
             {
-                _logger.Warning("В папке нет ни одной базы данных, создаётся база данных с названием {0}...", App.Configuration.ContestSettings.DefaultRightVision);
-                using var rvdb = DatabaseHelper.GetRightVisionContext(App.Configuration.ContestSettings.DefaultRightVision);
+                _logger.Warning("В папке нет ни одной базы данных, создаётся база данных с названием {0}...", App.Configuration.RightVisionSettings.DefaultRightVision);
+                using var rvdb = DatabaseHelper.GetRightVisionContext(App.Configuration.RightVisionSettings.DefaultRightVision);
                 rightVisions =
                     [.. Directory.GetFiles(info.FullName)
                     .Where(s => s.EndsWith(".db"))
@@ -151,7 +157,8 @@ namespace RightVisionBotDb
                 .RegisterLocation<MainMenu>(nameof(MainMenu))
                 .RegisterLocation<Profile>(nameof(Profile))
                 .RegisterLocation<CriticFormLocation>(nameof(CriticFormLocation))
-                .RegisterLocation<ParticipantFormLocation>(nameof(ParticipantFormLocation));
+                .RegisterLocation<ParticipantFormLocation>(nameof(ParticipantFormLocation))
+                .RegisterLocation<StudentFormLocation>(nameof(StudentFormLocation));
 
             Build();
         }

@@ -1,5 +1,6 @@
 ﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
@@ -39,7 +40,8 @@ namespace RightVisionBotDb.Locations
             FormHandlerMessages = new()
             {
                 { typeof(ParticipantForm), lang => Phrases.Lang[lang].Messages.Participant },
-                { typeof(CriticForm), lang => Phrases.Lang[lang].Messages.Critic }
+                { typeof(CriticForm), lang => Phrases.Lang[lang].Messages.Critic },
+                { typeof(StudentForm), lang => Phrases.Lang[lang].Messages.Academy }
             };
 
             this
@@ -50,10 +52,10 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterCallbackCommand("c_take", CriticTakeCallback, Permission.Curate)
-                .RegisterCallbackCommand("p_take", ParticipantTakeCallback, Permission.Curate)
+                .RegisterCallbackCommands(["c_take", "p_take", "st_take"], HandleCuratorshipAsync, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
-                .RegisterCallbackCommand("p_form", ParticipantFormCallback);
+                .RegisterCallbackCommand("p_form", ParticipantFormCallback)
+                .RegisterCallbackCommand("st_form", StudentFormCallback);
         }
 
         #endregion
@@ -74,7 +76,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.Configuration.ContestSettings.DefaultRightVision, token: token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, token: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -255,26 +257,6 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, resultMessage, cancellationToken: token);
         }
 
-        private async Task CriticTakeCallback(CallbackContext c, CancellationToken token = default)
-        {
-            var args = c.CallbackQuery.Data!.Split('-');
-            var userId = long.Parse(args.Last());
-
-            var form = await c.DbContext.CriticForms.FirstOrDefaultAsync(c => c.UserId == userId, token);
-
-            await HandleCuratorshipAsync(c.CallbackQuery, form, token);
-        }
-
-        private async Task ParticipantTakeCallback(CallbackContext c, CancellationToken token = default)
-        {
-            var args = c.CallbackQuery.Data!.Split('-');
-            var userId = long.Parse(args.Last());
-
-            var form = await c.RvContext.ParticipantForms.FirstOrDefaultAsync(c => c.UserId == userId, token);
-
-            await HandleCuratorshipAsync(c.CallbackQuery, form, token);
-        }
-
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
         {
             var args = c.CallbackQuery.Data!.Split('-');
@@ -335,10 +317,42 @@ namespace RightVisionBotDb.Locations
                     cancellationToken: token);
         }
 
+        private async Task StudentFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            var args = c.CallbackQuery.Data!.Split('-');
+            var userId = long.Parse(args.Last());
+
+            var targetRvUser = await c.DbContext.RvUsers.FirstAsync(u => u.UserId == userId, token);
+            var form = await c.AcademyContext.StudentForms.FirstAsync(c => c.UserId == userId, token);
+
+            if (form != null)
+            {
+                form.Status = await HandleFormAsync(c, targetRvUser, form, args, token);
+                switch (form.Status)
+                {
+                    case FormStatus.Accepted:
+                        targetRvUser.UserPermissions -= Permission.SendCriticForm;
+                        break;
+                    case FormStatus.Reset:
+                        c.AcademyContext.StudentForms.Remove(form);
+                        break;
+                }
+            }
+            else
+                await Bot.Client.EditMessageTextAsync(
+                    c.CallbackQuery.Message!.Chat,
+                    c.CallbackQuery.Message.MessageId,
+                    "Ошибка: заявки не существует.",
+                    cancellationToken: token);
+        }
+
         #region Handle methods
 
-        private async Task HandleCuratorshipAsync(CallbackQuery callback, IForm? form, CancellationToken token = default)
+        private async Task HandleCuratorshipAsync(CallbackContext c, CancellationToken token = default)
         {
+            var form = await ExtractFormFromArgs(c, c.AcademyContext.StudentForms, token);
+            var callback = c.CallbackQuery;
+
             (string message, InlineKeyboardMarkup? keyboard) =
                 form == null
                 ? ("Ошибка: заявки не существует.", null)
@@ -388,6 +402,13 @@ namespace RightVisionBotDb.Locations
                     string.Format(formHandlerMessages.FormCanceled, form.Name, $"{c.CallbackQuery.From.FirstName}"),
                     $"{messageText}\n[{formattedDate}] ⚠️Заявка сброшена!",
                     FormStatus.Reset,
+                    null
+                ),
+                "accept" => //Academy only
+                (
+                    string.Format(formHandlerMessages.FormAccepted, form.Name, Constants.Links.AcademyGeneralGroup, c.CallbackQuery.From.FirstName),
+                    $"{messageText}\n[{formattedDate}] ✅Заявка принята!",
+                    FormStatus.Accepted,
                     null
                 ),
                 "Bronze"
@@ -553,6 +574,15 @@ namespace RightVisionBotDb.Locations
             }
 
             return (extractedRvUser, message);
+        }
+
+        private async Task<IForm> ExtractFormFromArgs<TForm>(CallbackContext callbackContext, IQueryable<TForm> forms, CancellationToken token = default) 
+            where TForm : IForm
+        {
+            var args = callbackContext.CallbackQuery.Data!.Split('-');
+            var userId = long.Parse(args.Last());
+
+            return await forms.FirstAsync(f => f.UserId == userId, token);
         }
 
         #endregion

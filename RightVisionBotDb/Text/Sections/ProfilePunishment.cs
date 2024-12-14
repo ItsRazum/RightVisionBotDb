@@ -6,6 +6,8 @@
         public string Mute { get; set; }
         public string InParticipants { get; set; }
         public string InCritics { get; set; }
+        public string InAcademyGeneralChat { get; set; }
+        public string InAcademyClassChat { get; set; }
         public string Reason { get; set; }
         public string DateTo { get; set; }
         public string NoReason { get; set; }

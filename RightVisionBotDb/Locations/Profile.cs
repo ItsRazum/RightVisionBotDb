@@ -120,7 +120,7 @@ namespace RightVisionBotDb.Locations
                 ? (c.RvUser.UserPermissions - Permission.Sending, phrases.Messages.Profile.Sending.UnsubscribeSuccess, phrases.KeyboardButtons.Sending.Subscribe)
                 : (c.RvUser.UserPermissions + Permission.Sending, phrases.Messages.Profile.Sending.SubscribeSuccess,   phrases.KeyboardButtons.Sending.Unsubscribe);
 
-            (string profileText, InlineKeyboardMarkup? _) = await ProfileHelper.Profile(c.RvUser, c, c.CallbackQuery.Message!.Chat.Type, App.Configuration.ContestSettings.DefaultRightVision, false, token);
+            (string profileText, InlineKeyboardMarkup? _) = await ProfileHelper.Profile(c.RvUser, c, c.CallbackQuery.Message!.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, false, token);
 
             var newInlineKeyboard = new InlineKeyboardMarkup(c.CallbackQuery.Message!.ReplyMarkup!.InlineKeyboard.Select(row => 
             row.Select(button => button.CallbackData == "sending"

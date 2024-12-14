@@ -1,5 +1,7 @@
-﻿using RightVisionBotDb.Enums;
+﻿using EasyForms.Types;
+using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Singletons;
@@ -65,7 +67,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task FormsCallback(CallbackContext c, CancellationToken token = default)
         {
-            using var rvdb = DatabaseHelper.GetRightVisionContext(App.Configuration.ContestSettings.DefaultRightVision);
+            using var rvdb = DatabaseHelper.GetRightVisionContext(App.Configuration.RightVisionSettings.DefaultRightVision);
 
             if (rvdb.Status == RightVisionStatus.Irrelevant)
             {
@@ -102,36 +104,66 @@ namespace RightVisionBotDb.Locations
                     cancellationToken: token);
         }
 
-        private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
+        private async Task<bool> HandleFormAsync<TForm>(
+            CallbackContext c,
+            IQueryable<TForm> formsQuery,
+            Func<long, string?, TForm> createFormFunc,
+            Func<CallbackContext, int, CancellationToken, Task> showFormStepFunc,
+            Action<TForm> addFormAction,
+            CancellationToken token = default)
+            where TForm : Form, IForm
         {
-            c.RvUser.Location = LocationService[nameof(CriticFormLocation)];
-            var form = c.DbContext.CriticForms.FirstOrDefault(cf => cf.UserId == c.RvUser.UserId);
+            var result = false;
+            var form = formsQuery.FirstOrDefault(f => f.UserId == c.RvUser.UserId);
             if (form == null)
             {
-                form = new CriticForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
-                c.DbContext.CriticForms.Add(form);
+                form = createFormFunc(c.RvUser.UserId, c.CallbackQuery.From.Username);
+                addFormAction(form);
+                result = true;
             }
 
             if (form.GetEmptyProperty(out var property))
-                await LocationsFront.CriticForm(c, form.GetPropertyStep(property!.Name), token);
+            {
+                var step = form.GetPropertyStep(property!.Name);
+                await showFormStepFunc(c, step, token);
+            }
+
+            return result;
+        }
+
+
+        private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await HandleFormAsync(
+                c,
+                c.DbContext.CriticForms,
+                (userId, username) => new CriticForm(userId, username),
+                LocationsFront.CriticForm,
+                f => c.DbContext.CriticForms.Add(f),
+                token);
+
         }
 
         private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationService[nameof(ParticipantFormLocation)];
-            var form = c.RvContext.ParticipantForms.FirstOrDefault(pf => pf.UserId == c.RvUser.UserId);
-            if (form == null)
-            {
-                form = new ParticipantForm(c.RvUser.UserId, c.CallbackQuery.From.Username);
-                c.RvContext.ParticipantForms.Add(form);
-            }
-            if (form.GetEmptyProperty(out var property))
-                await LocationsFront.ParticipantForm(c, form.GetPropertyStep(property!.Name), token);
+            await HandleFormAsync(
+                c,
+                c.RvContext.ParticipantForms,
+                (userId, username) => new ParticipantForm(userId, username),
+                LocationsFront.ParticipantForm,
+                f => c.RvContext.ParticipantForms.Add(f),
+                token);
         }
 
         private async Task StudentFormCallback(CallbackContext c, CancellationToken token)
         {
-            c.RvUser.Location = LocationService[nameof(StudentFormLocation)];
+            await HandleFormAsync(
+                c,
+                c.AcademyContext.StudentForms,
+                (userId, username) => new StudentForm(userId, username),
+                LocationsFront.StudentForm,
+                f => c.AcademyContext.StudentForms.Add(f),
+                token);
         }
 
         #endregion

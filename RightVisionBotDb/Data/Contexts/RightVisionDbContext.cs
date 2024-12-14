@@ -43,7 +43,7 @@ namespace RightVisionBotDb.Data.Contexts
         public RightVisionDbContext(string databaseName)
         {
             Name = databaseName;
-            DatabasesDir = App.RightVisionDatabasesPath;
+            DatabasesDir = App.Configuration.RightVisionSettings.RightVisionDatabasesPath;
             if (Database.EnsureCreated())
             {
                 Properties.Add(new DbProperties());

@@ -68,6 +68,7 @@ namespace RightVisionBotDb.Text
         {
             Constants.GroupId.CriticGroupId => Lang[lang].Profile.Punishments.Punishment.InCritics,
             Constants.GroupId.ParticipantGroupId => Lang[lang].Profile.Punishments.Punishment.InParticipants,
+            Constants.GroupId.AcademyGeneralGroupId => Lang[lang].Profile.Punishments.Punishment.InAcademyGeneralChat,
             _ => string.Empty
         };
 
@@ -75,6 +76,7 @@ namespace RightVisionBotDb.Text
         {
             Constants.GroupId.CriticGroupId => Constants.Links.CriticGroupLink,
             Constants.GroupId.ParticipantGroupId => Constants.Links.ParticipantGroupLink,
+            Constants.GroupId.AcademyGeneralGroupId => Constants.Links.AcademyGeneralGroup,
             _ => string.Empty
         };
     }

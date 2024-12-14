@@ -26,6 +26,7 @@ namespace RightVisionBotDb
             App.Container.Register<LocationsFront>(Reuse.Singleton);
             App.Container.Register<CriticFormService>(Reuse.Singleton);
             App.Container.Register<ParticipantFormService>(Reuse.Singleton);
+            App.Container.Register<StudentFormService>(Reuse.Singleton);
             App.Container.Register<LocationConverter>(Reuse.Singleton);
             App.Container.Register<UserPermissionsConverter>(Reuse.Singleton);
             App.Container.Register<ShellService>(Reuse.Singleton);

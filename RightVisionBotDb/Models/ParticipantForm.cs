@@ -63,5 +63,7 @@ namespace RightVisionBotDb.Models
 
         #endregion
 
+
+
     }
 }

@@ -66,7 +66,7 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.SendTextMessageAsync(-1001968408177,
                 $"Пришла новая заявка на должность судьи!\n\n" +
                 $"Имя: {form.Name}\n" +
-                $"Тег: {form.Telegram}\n" +
+                $"Тег: @{form.Telegram}\n" +
                 $"Ссылка на канал: {form.Link}\n" +
                 $"Субъективная оценка навыков: {form.Rate}\n" +
                 $"Что написал о себе: {form.AboutYou}\n" +

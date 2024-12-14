@@ -27,6 +27,9 @@ namespace RightVisionBotDb.Helpers
 
             if (userTag != null)
             {
+                if (userTag == "@x")
+                    return (null, args);
+
                 rvUser = long.TryParse(userTag, out var userId)
                     ? filteredRvUsers.FirstOrDefault(u => u.UserId == userId)
                     : filteredRvUsers.FirstOrDefault(u => "@" + u.Telegram == userTag);

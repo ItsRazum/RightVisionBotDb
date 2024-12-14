@@ -231,18 +231,32 @@ namespace RightVisionBotDb.Helpers
         public static InlineKeyboardMarkup CandidateOptions(IForm form)
         {
             var type = form.CallbackType;
-            return new(
-            [
-                [
+            var result = new List<InlineKeyboardButton[]>
+            {
+                ([
                     InlineKeyboardButton.WithCallbackData("❌Отклонить",  $"{type}form-deny-{form.UserId}"),
                     InlineKeyboardButton.WithCallbackData("⚠️Сбросить",   $"{type}form-reset-{form.UserId}")
-                ],
-                [ InlineKeyboardButton.WithCallbackData("📩Запросить ЛС", $"{type}form-requestPM-{form.UserId}") ],
-                [ InlineKeyboardButton.WithCallbackData("🥉Bronze",       $"{type}form-Bronze-{form.UserId}") ],
-                [ InlineKeyboardButton.WithCallbackData("🥈Silver",       $"{type}form-Silver-{form.UserId}") ],
-                [ InlineKeyboardButton.WithCallbackData("🥇Gold",         $"{type}form-Gold-{form.UserId}") ],
-                [ InlineKeyboardButton.WithCallbackData("💎Brilliant",    $"{type}form-Brilliant-{form.UserId}") ]
-            ]);
+                ])
+            };
+
+            if (form is StudentForm)
+            {
+                result.Add([InlineKeyboardButton.WithCallbackData("✅Принять", $"{type}form-accept-{form.UserId}")]);
+            }
+
+            else
+            {
+                result.AddRange(
+                    [
+                        [ InlineKeyboardButton.WithCallbackData("📩Запросить ЛС", $"{type}form-requestPM-{form.UserId}") ],
+                        [ InlineKeyboardButton.WithCallbackData("🥉Bronze",       $"{type}form-Bronze-{form.UserId}") ],
+                        [ InlineKeyboardButton.WithCallbackData("🥈Silver",       $"{type}form-Silver-{form.UserId}") ],
+                        [ InlineKeyboardButton.WithCallbackData("🥇Gold",         $"{type}form-Gold-{form.UserId}") ],
+                        [ InlineKeyboardButton.WithCallbackData("💎Brilliant",    $"{type}form-Brilliant-{form.UserId}") ]
+                    ]);
+            }
+
+            return new([.. result]);
         }
 
         public static InlineKeyboardMarkup ControlPanelMainMenu(RvUser rvUser) => new(
@@ -263,7 +277,7 @@ namespace RightVisionBotDb.Helpers
                 {
                     Role.Student => (phrases.StudentMenu, "studentMenu"),
                     Role.Teacher => (phrases.TeacherMenu, "teacherMenu"),
-                    _ => (phrases.AcademyForm, "sendAcademyForm"),
+                    _ => (phrases.AcademyForm, "studentForm"),
                 };
                 layers.Add([InlineKeyboardButton.WithCallbackData(buttonPhrase, callback)]);
             }

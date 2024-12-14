@@ -1,5 +1,7 @@
 ﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Text;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Services
@@ -10,7 +12,12 @@ namespace RightVisionBotDb.Services
 
         public StudentFormService() 
         {
-
+            Messages = new()
+            {
+                { 1, lang => (Phrases.Lang[lang].Messages.Academy.EnterName, KeyboardsHelper.ReplyBack(lang)) },
+                { 2, lang => (Phrases.Lang[lang].Messages.Academy.EnterLink, null) },
+                { 3, lang => (Phrases.Lang[lang].Messages.Academy.EnterRate, KeyboardsHelper.RateSelection(lang)) },
+            };
         }
     }
 }

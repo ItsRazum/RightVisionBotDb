@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Locations;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
 using RightVisionBotDb.Text;
@@ -17,6 +18,7 @@ namespace RightVisionBotDb.Singletons
         private LocationService LocationService { get; }
         private CriticFormService CriticFormService { get; }
         private ParticipantFormService ParticipantFormService { get; }
+        private StudentFormService StudentFormService { get; }
 
         #endregion
 
@@ -24,12 +26,14 @@ namespace RightVisionBotDb.Singletons
             Bot bot,
             LocationService locationService,
             CriticFormService criticFormService,
-            ParticipantFormService participantFormService)
+            ParticipantFormService participantFormService,
+            StudentFormService studentFormService)
         {
             Bot = bot;
             LocationService = locationService;
             CriticFormService = criticFormService;
             ParticipantFormService = participantFormService;
+            StudentFormService = studentFormService;
         }
 
         public async Task MainMenu(CallbackContext c, CancellationToken token = default)
@@ -53,7 +57,7 @@ namespace RightVisionBotDb.Singletons
             if (args.First() == "profile")
                 targetUserId = long.Parse(args[1]);
 
-            var rightvision = args.Length < 3 ? App.Configuration.ContestSettings.DefaultRightVision : args[2];
+            var rightvision = args.Length < 3 ? App.Configuration.RightVisionSettings.DefaultRightVision : args[2];
             var (content, keyboard) = await ProfileHelper.Profile(await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token: token);
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
@@ -142,5 +146,23 @@ namespace RightVisionBotDb.Singletons
                 replyMarkup: keyboard,
                 cancellationToken: token);
         }
-    }
+
+        public async Task StudentForm(CallbackContext c, int messageKey, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationService[nameof(StudentFormLocation)];
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                Phrases.Lang[c.RvUser.Lang].Messages.Common.StartingForm,
+                cancellationToken: token);
+
+            var (message, keyboard) = StudentFormService.Messages[messageKey](c.RvUser.Lang);
+
+            await Bot.Client.SendTextMessageAsync(
+                c.CallbackQuery.Message!.Chat,
+                message,
+                replyMarkup: keyboard,
+                cancellationToken: token);
+        }
+     }
 }

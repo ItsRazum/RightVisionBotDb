@@ -42,7 +42,7 @@ namespace RightVisionBotDb.Data.Contexts
         public AcademyDbContext(string databaseName)
         {
             Name = databaseName;
-            DatabasesDir = App.AcademyDatabasesPath;
+            DatabasesDir = App.Configuration.AcademySettings.AcademyDatabasesPath;
             if (Database.EnsureCreated())
             {
                 Properties.Add(new DbProperties());

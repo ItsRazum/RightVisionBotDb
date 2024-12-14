@@ -52,9 +52,9 @@ namespace RightVisionBotDb.Locations
 
         public override async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken token = default)
         {
-            using var db = DatabaseHelper.GetApplicationDbContext();
-            using var rvContext = DatabaseHelper.GetRightVisionContext(App.Configuration.ContestSettings.DefaultRightVision);
-            using var academyContext = DatabaseHelper.GetAcademyDbContext(App.Configuration.AcademySettings.DefaultAcademy);
+            var db = DatabaseHelper.GetApplicationDbContext();
+            var rvContext = DatabaseHelper.GetRightVisionContext(App.Configuration.RightVisionSettings.DefaultRightVision);
+            var academyContext = DatabaseHelper.GetAcademyDbContext(App.Configuration.AcademySettings.DefaultAcademy);
 
             RvUser? rvUser = null;
             try
@@ -153,6 +153,9 @@ namespace RightVisionBotDb.Locations
 
                 if (rvContext.ChangeTracker.HasChanges())
                     await rvContext.SaveChangesAsync(token);
+
+                if (academyContext.ChangeTracker.HasChanges())
+                    await academyContext.SaveChangesAsync(token);
             }
             catch (Exception ex)
             {
@@ -176,6 +179,7 @@ namespace RightVisionBotDb.Locations
             {
                 await db.DisposeAsync();
                 await rvContext.DisposeAsync();
+                await academyContext.DisposeAsync();
             }
         }
 
@@ -292,7 +296,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.Message.Chat.Type, App.Configuration.ContestSettings.DefaultRightVision, token: token);
+            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.Message.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, token: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
@@ -488,7 +492,7 @@ namespace RightVisionBotDb.Locations
                 return;
             }
 
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.CallbackQuery.Message!.Chat.Type, App.Configuration.ContestSettings.DefaultRightVision, token: token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.CallbackQuery.Message!.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, token: token);
 
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,

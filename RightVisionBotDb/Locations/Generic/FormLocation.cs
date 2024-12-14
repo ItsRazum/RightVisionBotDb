@@ -36,6 +36,35 @@ namespace RightVisionBotDb.Locations.Generic
 
         #endregion
 
+        #region RvLocation overrides
+
+        public override async Task HandleCommandAsync(CommandContext c, bool containsArgs, CancellationToken token = default)
+        {
+            await base.HandleCommandAsync(c, containsArgs, token);
+
+            if (c.Message.Text!.StartsWith('«'))
+                return;
+
+            var form = await GetUserFormAsync(c);
+            if (form == null)
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat,
+                    "Не удалось получить данные твоей заявки. Пожалуйста, вернись в главное меню: /menu",
+                    cancellationToken: token);
+                return;
+            }
+
+            if (form.GetEmptyProperty(out var property))
+            {
+                if (!await TrySetPropertyValueAsync(c, form, property!, c.Message.Text, token))
+                    return;
+
+                await CheckFormCompletion(c, form, token);
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         #region Overridable
@@ -75,7 +104,7 @@ namespace RightVisionBotDb.Locations.Generic
             }
         }
 
-        protected virtual async Task<bool> TrySetPropertyValue(CommandContext c, TForm form, PropertyInfo property, string inputValue, CancellationToken token)
+        protected virtual async Task<bool> TrySetPropertyValueAsync(CommandContext c, TForm form, PropertyInfo property, string inputValue, CancellationToken token)
         {
             var propType = property.PropertyType;
 

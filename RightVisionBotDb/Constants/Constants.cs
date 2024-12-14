@@ -7,15 +7,17 @@ namespace RightVisionBotDb
         public class GroupId
         {
             public const long
-                ParticipantGroupId = -1002074764678,
-                CriticGroupId = -1001968408177;
+                ParticipantGroupId    = -1002074764678,
+                CriticGroupId         = -1001968408177,
+                AcademyGeneralGroupId = -4626475150;
         }
 
         public class Links
         {
             public const string
                 ParticipantGroupLink = "https://t.me/+p-NYz5VLgYBjZTMy",
-                CriticGroupLink = "https://t.me/+vUBCHXqsoP9lOTAy";
+                CriticGroupLink      = "https://t.me/+vUBCHXqsoP9lOTAy",
+                AcademyGeneralGroup  = "https://t.me/+46em44r5_YtlZDUy";
         }
 
     }
