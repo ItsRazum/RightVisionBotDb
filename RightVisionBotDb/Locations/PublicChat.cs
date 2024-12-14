@@ -52,10 +52,23 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
+                .RegisterTextCommand("resetAcademyPermissions", ResetAcademyPermissionsCommand, Permission.GivePermission)
                 .RegisterCallbackCommands(["c_take", "p_take", "st_take"], HandleCuratorshipAsync, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
                 .RegisterCallbackCommand("p_form", ParticipantFormCallback)
                 .RegisterCallbackCommand("st_form", StudentFormCallback);
+        }
+
+        private async Task ResetAcademyPermissionsCommand(CommandContext c, CancellationToken token)
+        {
+            Parallel.ForEach(c.DbContext.RvUsers, rvUser =>
+            {
+                rvUser.UserPermissions += Permission.Academy;
+                rvUser.UserPermissions += Permission.SendStudentForm;
+                c.DbContext.RvUsers.Entry(rvUser).State = EntityState.Modified;
+            });
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Всем пользователям успешно выдан проход в академию!", cancellationToken: token);
         }
 
         #endregion
