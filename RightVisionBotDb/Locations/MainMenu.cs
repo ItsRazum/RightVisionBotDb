@@ -85,23 +85,13 @@ namespace RightVisionBotDb.Locations
 
         private async Task AcademyCallback(CallbackContext c, CancellationToken token = default)
         {
-            if (Bot.Parameters.HasFlag(BotParameters.EnableAcademy))
-            {
-                var (content, keyboard) = AcademyHelper.MainMenu(c);
-                await Bot.Client.EditMessageTextAsync(
-                    c.CallbackQuery.Message!.Chat,
-                    c.CallbackQuery.Message.MessageId,
-                    content,
-                    replyMarkup: keyboard,
-                    cancellationToken: token);
-            }
-
-            else
-                await Bot.Client.AnswerCallbackQueryAsync(
-                    c.CallbackQuery.Id,
-                    Phrases.Lang[c.RvUser.Lang].Messages.Academy.EnrollmentClosed,
-                    true,
-                    cancellationToken: token);
+            var (content, keyboard) = AcademyHelper.MainMenu(c);
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                content,
+                replyMarkup: keyboard,
+                cancellationToken: token);
         }
 
         private async Task<bool> HandleFormAsync<TForm>(
