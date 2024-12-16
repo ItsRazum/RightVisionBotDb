@@ -317,13 +317,16 @@ namespace RightVisionBotDb.Locations
 
         private async Task MainMenuCommand(CommandContext c, CancellationToken token)
         {
-            c.RvUser.Location = LocationService[nameof(MainMenu)];
-            await Bot.Client.SendTextMessageAsync(c.Message.Chat, "✅", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
-            await Bot.Client.SendTextMessageAsync(
-                c.Message.Chat,
-                string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
-                replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
-                cancellationToken: token);
+            if (c.Message.Chat.Type == ChatType.Private)
+            {
+                c.RvUser.Location = LocationService[nameof(MainMenu)];
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "✅", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(
+                    c.Message.Chat,
+                    string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
+                    replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
+                    cancellationToken: token);
+            }
         }
 
         private async Task AppointCommand(CommandContext c, CancellationToken token = default)
