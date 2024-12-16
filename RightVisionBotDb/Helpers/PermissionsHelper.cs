@@ -8,13 +8,15 @@ namespace RightVisionBotDb.Helpers
         public static readonly UserPermissions Default =
         [
             Permission.Messaging,            Permission.OpenProfile,
-            Permission.SendCriticForm,       Permission.SendParticipantForm
+            Permission.SendCriticForm,       Permission.SendParticipantForm,
+            Permission.SendStudentForm,      Permission.Academy
         ];
 
         public static readonly UserPermissions User =
         [
             Permission.Messaging,
             Permission.OpenProfile,
+            Permission.Academy
         ];
 
         public static readonly UserPermissions Critic = new(User + new UserPermissions

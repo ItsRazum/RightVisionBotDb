@@ -2,8 +2,8 @@
 using EasyForms.Types;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RightVisionBotDb.Models
 {
@@ -14,6 +14,7 @@ namespace RightVisionBotDb.Models
 
         [FormField(1)]
         public string Name { get; set; } = string.Empty;
+
         [FormField(2)]
         public string Link { get; set; } = string.Empty;
         public string? StudentClass { get; set; } = null;

@@ -66,16 +66,16 @@ namespace RightVisionBotDb.Text
 
         public static string GetGroupTypeString(long groupId, Lang lang) => groupId switch
         {
-            Constants.GroupId.CriticGroupId => Lang[lang].Profile.Punishments.Punishment.InCritics,
-            Constants.GroupId.ParticipantGroupId => Lang[lang].Profile.Punishments.Punishment.InParticipants,
+            Constants.GroupId.CriticGroupId         => Lang[lang].Profile.Punishments.Punishment.InCritics,
+            Constants.GroupId.ParticipantGroupId    => Lang[lang].Profile.Punishments.Punishment.InParticipants,
             Constants.GroupId.AcademyGeneralGroupId => Lang[lang].Profile.Punishments.Punishment.InAcademyGeneralChat,
             _ => string.Empty
         };
 
         public static string GetGroupLink(long groupId) => groupId switch
         {
-            Constants.GroupId.CriticGroupId => Constants.Links.CriticGroupLink,
-            Constants.GroupId.ParticipantGroupId => Constants.Links.ParticipantGroupLink,
+            Constants.GroupId.CriticGroupId         => Constants.Links.CriticGroupLink,
+            Constants.GroupId.ParticipantGroupId    => Constants.Links.ParticipantGroupLink,
             Constants.GroupId.AcademyGeneralGroupId => Constants.Links.AcademyGeneralGroup,
             _ => string.Empty
         };

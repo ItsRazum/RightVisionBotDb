@@ -31,7 +31,8 @@ namespace RightVisionBotDb.Locations.Generic
             : base(bot, locationService, logger, locationsFront)
         {
             FormService = formService;
-            this.RegisterTextCommand("«", BackCommand);
+            this
+                .RegisterTextCommand("«", BackCommand);
         }
 
         #endregion
@@ -40,12 +41,7 @@ namespace RightVisionBotDb.Locations.Generic
 
         public override async Task HandleCommandAsync(CommandContext c, bool containsArgs, CancellationToken token = default)
         {
-            await base.HandleCommandAsync(c, containsArgs, token);
-
-            if (c.Message.Text!.StartsWith('«'))
-                return;
-
-            var form = await GetUserFormAsync(c);
+            var form = await GetUserFormAsync(c, token);
             if (form == null)
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat,
@@ -53,6 +49,14 @@ namespace RightVisionBotDb.Locations.Generic
                     cancellationToken: token);
                 return;
             }
+
+            if (form.Status != Enums.FormStatus.NotFinished)
+                return;
+
+            await base.HandleCommandAsync(c, containsArgs, token);
+
+            if (c.Message.Text!.StartsWith('«'))
+                return;
 
             if (form.GetEmptyProperty(out var property))
             {
