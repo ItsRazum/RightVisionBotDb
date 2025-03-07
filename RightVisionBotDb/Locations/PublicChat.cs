@@ -259,18 +259,19 @@ namespace RightVisionBotDb.Locations
 
         private async Task RemoveReward(CommandContext c, CancellationToken token = default)
         {
-            (var rvUser, var args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
+            (var extractedRvUser, var args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
             string message;
 
-            if (rvUser == null)
+            if (extractedRvUser == null)
                 message = "Пользователь не указан или не найден!";
 
-            else if (!int.TryParse(args.First(), out var rewardIndex) || rvUser.Rewards.Count < rewardIndex - 1)
+            else if (!int.TryParse(args.First(), out var rewardIndex) || extractedRvUser.Rewards.Count < rewardIndex - 1)
                 message = "Индекс награды указан неверно!";
 
             else
             {
-                rvUser.Rewards.RemoveAt(rewardIndex - 1);
+                extractedRvUser.Rewards.RemoveAt(rewardIndex - 1);
+                ((ApplicationDbContext)c.DbContext).Entry(extractedRvUser).State = EntityState.Modified;
                 message = "Награда успешно снята!";
             }
 
