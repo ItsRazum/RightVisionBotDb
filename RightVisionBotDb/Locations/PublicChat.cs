@@ -270,7 +270,7 @@ namespace RightVisionBotDb.Locations
 
             else
             {
-                rvUser.Rewards.RemoveAt(rewardIndex);
+                rvUser.Rewards.RemoveAt(rewardIndex - 1);
                 message = "Награда успешно снята!";
             }
 
