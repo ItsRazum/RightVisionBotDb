@@ -1,6 +1,5 @@
 ﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
@@ -51,6 +50,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
                 .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
+                .RegisterTextCommand("-reward", RemoveReward, Permission.Rewarding)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommands(["c_take", "p_take", "st_take"], HandleCuratorshipAsync, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
@@ -188,7 +188,7 @@ namespace RightVisionBotDb.Locations
             if (extractedRvUser != null)
             {
                 if (extractedRvUser == c.RvUser)
-                    resultMessage = "Извини, но ты не можешь снимать права у самого себя!";
+                    resultMessage = "Извини, но ты не можешь изменять права у самого себя!";
 
                 else if (c.Message.Text!.StartsWith('~'))
                 {
@@ -255,6 +255,26 @@ namespace RightVisionBotDb.Locations
             }
 
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, resultMessage, cancellationToken: token);
+        }
+
+        private async Task RemoveReward(CommandContext c, CancellationToken token = default)
+        {
+            (var rvUser, var args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
+            string message;
+
+            if (rvUser == null)
+                message = "Пользователь не указан или не найден!";
+
+            else if (!int.TryParse(args.First(), out var rewardIndex) || rvUser.Rewards.Count < rewardIndex - 1)
+                message = "Индекс награды указан неверно!";
+
+            else
+            {
+                rvUser.Rewards.RemoveAt(rewardIndex);
+                message = "Награда успешно снята!";
+            }
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
         }
 
         private async Task CriticFormCallback(CallbackContext c, CancellationToken token = default)
@@ -486,6 +506,10 @@ namespace RightVisionBotDb.Locations
                     args = args.RemoveAt(0);
                 }
             }
+
+            if (minutes < 0)
+                return (null, "Временной промеуток не может быть меньше нуля!", string.Empty, DateTime.MinValue);
+
 
             string reason = args.Length > 0 ? string.Join(" ", args) : Phrases.Lang[extractedRvUser.Lang].Profile.Punishments.Punishment.NoReason ?? "Не указано";
 
