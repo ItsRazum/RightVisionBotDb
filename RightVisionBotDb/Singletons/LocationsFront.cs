@@ -47,6 +47,16 @@ namespace RightVisionBotDb.Singletons
                 cancellationToken: token);
         }
 
+        public async Task MainMenu(CommandContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationService[nameof(Locations.MainMenu)];
+            await Bot.Client.SendTextMessageAsync(
+                c.Message!.Chat,
+                string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
+                replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
+                cancellationToken: token);
+        }
+
         public async Task Profile(CallbackContext c, CancellationToken token, bool changeLocation = true)
         {
             if (changeLocation) c.RvUser.Location = LocationService[nameof(Locations.Profile)];
@@ -131,7 +141,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task ParticipantForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
-            c.RvUser.Location = LocationService[nameof(Locations.ParticipantFormLocation)];
+            c.RvUser.Location = LocationService[nameof(ParticipantFormLocation)];
             await Bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
@@ -142,7 +152,7 @@ namespace RightVisionBotDb.Singletons
 
             await Bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
-                message,
+                string.Format(message, App.Configuration.RightVisionSettings.DefaultRightVision),
                 replyMarkup: keyboard,
                 cancellationToken: token);
         }

@@ -8,6 +8,7 @@ namespace RightVisionBotDb.Text.Sections
         public string EnterLink { get; set; }
         public string EnterRate { get; set; }
         public string EnterTrack { get; set; }
+        public string IncorrectTrackFormat { get; set; }
         public string FormSubmitted { get; set; }
         public string PMRequested { get; set; }
         public string FormAccepted { get; set; }

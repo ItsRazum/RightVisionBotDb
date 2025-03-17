@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
+using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Locations.Generic;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Services;
@@ -31,9 +32,28 @@ namespace RightVisionBotDb.Locations
 
         #region FormLocation overrides
 
+        protected override async Task<bool> ValidateStringPropertyAsync(PropertyInfo property, string value, CommandContext c, CancellationToken token)
+        {
+            if (property.Name == nameof(ParticipantForm.Track))
+            {
+                if (value.Contains(" - ") && value.Split(" - ").Length == 2)
+                    return true;
+                else
+                {
+                    await Bot.Client.SendTextMessageAsync(
+                        c.Message.Chat, 
+                        Phrases.Lang[c.RvUser.Lang].Messages.Participant.IncorrectTrackFormat, 
+                        cancellationToken: token);
+
+                    return false;
+                }
+            }
+            return true;
+        }
+
         protected override async Task<bool> ValidateIntPropertyAsync(PropertyInfo property, int value, CommandContext c, CancellationToken token)
         {
-            if (property.Name == nameof(CriticForm.Rate) && (value < 1 || value > 4))
+            if (property.Name == nameof(IForm.Rate) && (value < 1 || value > 4))
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.EnterAnInteger, cancellationToken: token);
                 return false;
@@ -64,6 +84,12 @@ namespace RightVisionBotDb.Locations
 
             c.RvUser.UserPermissions -= Permission.SendParticipantForm;
             form.Status = FormStatus.Waiting;
+        }
+
+        protected override async Task CancelFormAsync(CommandContext c, ParticipantForm form, CancellationToken token = default)
+        {
+            c.RvContext.ParticipantForms.Remove(form);
+            await LocationsFront.MainMenu(c, token);
         }
 
         #endregion

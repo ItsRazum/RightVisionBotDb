@@ -78,6 +78,12 @@ namespace RightVisionBotDb.Locations
             form.Status = FormStatus.Waiting;
         }
 
+        protected override async Task CancelFormAsync(CommandContext c, CriticForm form, CancellationToken token = default)
+        {
+            c.DbContext.CriticForms.Remove(form);
+            await LocationsFront.MainMenu(c, token);
+        }
+
         #endregion
 
     }

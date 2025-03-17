@@ -30,7 +30,11 @@ namespace RightVisionBotDb.Models
             set => telegram = value;
         }
         public Lang Lang { get; set; }
-        public Status Status { get; set; } = Status.User;
+        public Status Status 
+        { 
+            get; 
+            set; 
+        } = Status.User;
         public Role Role { get; set; } = Role.None;
         public RvLocation Location
         {

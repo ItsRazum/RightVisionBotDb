@@ -146,6 +146,8 @@ namespace RightVisionBotDb.Locations.Generic
             return true;
         }
 
+        protected abstract Task CancelFormAsync(CommandContext c, TForm form, CancellationToken token = default);
+
         #endregion
 
         private async Task BackCommand(CommandContext c, CancellationToken token = default)
@@ -166,6 +168,8 @@ namespace RightVisionBotDb.Locations.Generic
 
                     await CheckFormCompletion(c, form, token);
                 }
+                else
+                    await CancelFormAsync(c, form, token);
             }
         }
 

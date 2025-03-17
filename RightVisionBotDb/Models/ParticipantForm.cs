@@ -16,6 +16,7 @@ namespace RightVisionBotDb.Models
         public string Name { get; set; } = string.Empty;
         [FormField(2)]
         public string Link { get; set; } = string.Empty;
+
         [FormField(4)]
         public string Track { get; set; } = string.Empty;
 
@@ -62,8 +63,6 @@ namespace RightVisionBotDb.Models
         }
 
         #endregion
-
-
 
     }
 }

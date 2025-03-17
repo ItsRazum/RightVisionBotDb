@@ -51,6 +51,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommand("-reward", RemoveReward, Permission.Rewarding)
+                .RegisterTextCommand("-судейство", CancelCritic, Permission.Curate)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommands(["c_take", "p_take", "st_take"], HandleCuratorshipAsync, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
@@ -273,6 +274,38 @@ namespace RightVisionBotDb.Locations
                 extractedRvUser.Rewards.RemoveAt(rewardIndex - 1);
                 ((ApplicationDbContext)c.DbContext).Entry(extractedRvUser).State = EntityState.Modified;
                 message = "Награда успешно снята!";
+            }
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
+        }
+
+        private async Task CancelCritic(CommandContext c, CancellationToken token)
+        {
+            (var extractedRvUser, var args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
+            string message;
+
+            if (extractedRvUser == null)
+                message = "Пользователь не указан или не найден!";
+
+            else if (extractedRvUser.Role > c.RvUser.Role)
+                message = "Извини, но ты не можешь снимать судейство с пользователя, чья должность выше твоей!";
+
+            else
+            {
+                var form = await c.DbContext.CriticForms.FirstOrDefaultAsync(critic => extractedRvUser.Is(critic), token);
+
+                if (form != null)
+                {
+                    c.DbContext.CriticForms.Remove(form);
+                    message = "С пользователя успешно снято судейство!";
+
+                    await Bot.Client.SendTextMessageAsync(
+                        extractedRvUser.UserId, 
+                        Phrases.Lang[extractedRvUser.Lang].Messages.Critic.FormCanceled, 
+                        cancellationToken: token);
+                }
+                else
+                    message = "Пользователь итак не является судьёй!";
             }
 
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);

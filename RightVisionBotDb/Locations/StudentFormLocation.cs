@@ -65,6 +65,12 @@ namespace RightVisionBotDb.Locations
             form.Status = FormStatus.Waiting;
         }
 
+        protected override async Task CancelFormAsync(CommandContext c, StudentForm form, CancellationToken token = default)
+        {
+            c.AcademyContext.StudentForms.Remove(form);
+            await LocationsFront.MainMenu(c, token);
+        }
+
         #endregion
 
     }
