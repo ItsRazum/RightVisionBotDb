@@ -362,6 +362,7 @@ namespace RightVisionBotDb.Locations
                         break;
                     case FormStatus.Reset:
                         c.RvContext.ParticipantForms.Remove(form);
+                        targetRvUser.UserPermissions += Permission.SendParticipantForm;
                         break;
                 }
             }
@@ -391,6 +392,7 @@ namespace RightVisionBotDb.Locations
                         break;
                     case FormStatus.Reset:
                         c.AcademyContext.StudentForms.Remove(form);
+                        targetRvUser.UserPermissions += Permission.SendCriticForm;
                         break;
                 }
             }
