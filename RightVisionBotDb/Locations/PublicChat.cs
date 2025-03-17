@@ -53,7 +53,9 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("-reward", RemoveReward, Permission.Rewarding)
                 .RegisterTextCommand("-судейство", CancelCritic, Permission.Curate)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
-                .RegisterCallbackCommands(["c_take", "p_take", "st_take"], HandleCuratorshipAsync, Permission.Curate)
+                .RegisterCallbackCommand("c_take", TakeCriticFormCallback, Permission.Curate)
+                .RegisterCallbackCommand("p_take", TakeParticipantFormCallback, Permission.Curate)
+                .RegisterCallbackCommand("st_take", TakeStudentFormCallback, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
                 .RegisterCallbackCommand("p_form", ParticipantFormCallback)
                 .RegisterCallbackCommand("st_form", StudentFormCallback);
@@ -356,7 +358,7 @@ namespace RightVisionBotDb.Locations
                 {
                     case FormStatus.Accepted:
                         form.Category = Enum.Parse<Category>(args[1]);
-                        targetRvUser.UserPermissions -= Permission.SendCriticForm;
+                        targetRvUser.UserPermissions -= Permission.SendParticipantForm;
                         break;
                     case FormStatus.Reset:
                         c.RvContext.ParticipantForms.Remove(form);
@@ -400,11 +402,27 @@ namespace RightVisionBotDb.Locations
                     cancellationToken: token);
         }
 
+
+        private async Task TakeCriticFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await HandleCuratorshipAsync(c, c.DbContext.CriticForms, token);
+        }
+
+        private async Task TakeParticipantFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await HandleCuratorshipAsync(c, c.RvContext.ParticipantForms, token);
+        }
+
+        private async Task TakeStudentFormCallback(CallbackContext c, CancellationToken token = default)
+        {
+            await HandleCuratorshipAsync(c, c.AcademyContext.StudentForms, token);
+        }
+
         #region Handle methods
 
-        private async Task HandleCuratorshipAsync(CallbackContext c, CancellationToken token = default)
+        private async Task HandleCuratorshipAsync<TForm>(CallbackContext c, DbSet<TForm> forms, CancellationToken token = default) where TForm : class, IForm
         {
-            var form = await ExtractFormFromArgs(c, c.AcademyContext.StudentForms, token);
+            var form = await ExtractFormFromArgs(c, forms, token);
             var callback = c.CallbackQuery;
 
             (string message, InlineKeyboardMarkup? keyboard) =
@@ -635,7 +653,7 @@ namespace RightVisionBotDb.Locations
         }
 
         private async Task<IForm> ExtractFormFromArgs<TForm>(CallbackContext callbackContext, IQueryable<TForm> forms, CancellationToken token = default) 
-            where TForm : IForm
+            where TForm : class, IForm
         {
             var args = callbackContext.CallbackQuery.Data!.Split('-');
             var userId = long.Parse(args.Last());
