@@ -52,6 +52,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommand("-reward", RemoveReward, Permission.Rewarding)
                 .RegisterTextCommand("-судейство", CancelCritic, Permission.Curate)
+                .RegisterTextCommand("+всем", AddPermissionToAllCommand, Permission.Audit)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", TakeCriticFormCallback, Permission.Curate)
                 .RegisterCallbackCommand("p_take", TakeParticipantFormCallback, Permission.Curate)
@@ -182,6 +183,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task AddOrRemovePermissionCommand(CommandContext c, CancellationToken token = default)
         {
+            var rvUsers = new List<RvUser>();
             var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
 
             bool dataUpdated = false;
@@ -418,6 +420,28 @@ namespace RightVisionBotDb.Locations
         private async Task TakeStudentFormCallback(CallbackContext c, CancellationToken token = default)
         {
             await HandleCuratorshipAsync(c, c.AcademyContext.StudentForms, token);
+        }
+
+        private async Task AddPermissionToAllCommand(CommandContext c, CancellationToken token)
+        {
+            var args = c.Message.Text!.Split(' ');
+            string message;
+            if (!Enum.TryParse<Permission>(args.Last(), out var permission))
+            {
+                message = "Указанного права не существует!";
+            }
+            else
+            {
+                foreach (var rvUser in c.DbContext.RvUsers)
+                {
+                    rvUser.UserPermissions += permission;
+                    c.DbContext.RvUsers.Entry(rvUser).State = EntityState.Modified;
+                }
+
+                message = $"Всем пользователям бота ({c.DbContext.RvUsers.Count()} шт.) выдано право Permission.{permission}!";
+            }
+
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
         }
 
         #region Handle methods
