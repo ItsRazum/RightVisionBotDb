@@ -51,7 +51,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/unmute", UnmuteCommand, Permission.Unmute)
                 .RegisterTextCommand("+reward", AddReward, Permission.Rewarding)
                 .RegisterTextCommand("-reward", RemoveReward, Permission.Rewarding)
-                .RegisterTextCommand("-судейство", CancelCritic, Permission.Curate)
+                .RegisterTextCommand("-судейство", CancelCriticCommand, Permission.Curate)
                 .RegisterTextCommand("+всем", AddPermissionToAllCommand, Permission.Audit)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", TakeCriticFormCallback, Permission.Curate)
@@ -283,7 +283,7 @@ namespace RightVisionBotDb.Locations
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, message, cancellationToken: token);
         }
 
-        private async Task CancelCritic(CommandContext c, CancellationToken token)
+        private async Task CancelCriticCommand(CommandContext c, CancellationToken token)
         {
             (var extractedRvUser, var args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
             string message;
@@ -296,7 +296,7 @@ namespace RightVisionBotDb.Locations
 
             else
             {
-                var form = await c.DbContext.CriticForms.FirstOrDefaultAsync(critic => extractedRvUser.Is(critic), token);
+                var form = await c.DbContext.CriticForms.FirstOrDefaultAsync(critic => critic.UserId == extractedRvUser.UserId, token);
 
                 if (form != null)
                 {
