@@ -72,7 +72,7 @@ namespace RightVisionBotDb.Helpers
 
                 sb.AppendLine( //Трек
                     "- " + phrases.Profile.Properties.Track +
-                    (rvContext.Status == RightVisionStatus.Relevant
+                    (rvContext.Status == RightVisionStatus.Relevant && chatType != ChatType.Private
                     ? phrases.Profile.Track.Hidden
                     : participantForm.Track
                     )
