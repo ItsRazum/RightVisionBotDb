@@ -33,12 +33,25 @@ namespace RightVisionBotDb.Text
             App.RegisteredLangs = langs;
         }
 
-        public static string GetUserStatusString(Status s, Lang lang) =>
-            (string)Lang[lang].Profile.StatusHeaders
+        public static string GetUserStatusString(Status s, Lang lang)
+        {
+            var statusHeaders = Lang[lang].Profile.StatusHeaders;
+            if (s.HasFlag(Status.Critic))
+            {
+                if (s.HasFlag(Status.Participant))
+                    return statusHeaders.CriticAndParticipant;
+                else if (s.HasFlag(Status.ExParticipant))
+                    return statusHeaders.CriticAndExParticipant;
+                else 
+                    return statusHeaders.Critic;
+            }
+
+            return (string)Lang[lang].Profile.StatusHeaders
             .GetType()
             .GetProperty(s.ToString())?
             .GetValue(Lang[lang].Profile.StatusHeaders)!
             ?? throw new NullReferenceException(nameof(s));
+        }
 
         public static string GetUserRoleString(Role r, Lang lang) =>
             (string)Lang[lang].Profile.Roles

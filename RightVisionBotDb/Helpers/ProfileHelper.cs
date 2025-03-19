@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DryIoc;
+using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Interfaces;
 using RightVisionBotDb.Models;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Text.Interfaces;
+using RightVisionBotDb.Text.Sections;
 using RightVisionBotDb.Types;
 using System.Globalization;
 using System.Text;
@@ -44,7 +46,7 @@ namespace RightVisionBotDb.Helpers
 
             sb.AppendLine( //Статус
                 "- " + phrases.Profile.Properties.Status
-                + Phrases.GetUserStatusString(targetRvUser.Status, lang));
+                + Phrases.GetUserStatusString(await GetUserStatus(targetRvUser, c, token), lang));
 
             if (targetRvUser.Role != Role.None)
                 sb.AppendLine( //Должность
@@ -122,8 +124,9 @@ namespace RightVisionBotDb.Helpers
             return (sb.ToString(), includeKeyboard ? await KeyboardsHelper.Profile(targetRvUser, chatType, rightvision, rvUser.Lang) : null);
         }
 
-        public static (string content, InlineKeyboardMarkup? keyboard) RvUserPermissions(RvUser rvUser, RvUser targetRvUser, bool minimize)
+        public static async Task<(string content, InlineKeyboardMarkup? keyboard)> RvUserPermissions(IContext c, RvUser targetRvUser, bool minimize, CancellationToken token = default)
         {
+            var rvUser = c.RvUser;
             var lang = rvUser.Lang;
 
             StringBuilder sb = new(
@@ -132,7 +135,7 @@ namespace RightVisionBotDb.Helpers
                 : string.Format(Phrases.Lang[lang].Profile.Permissions.HeaderGlobal, targetRvUser.Name));
 
             IEnumerable<Permission> permissions;
-            UserPermissions layout = new(PermissionsHelper.Layouts[targetRvUser.Status] + PermissionsHelper.Layouts[targetRvUser.Role]);
+            UserPermissions layout = new(PermissionsHelper.Layouts[await GetUserStatus(targetRvUser, c, token)] + PermissionsHelper.Layouts[targetRvUser.Role]);
 
             sb.AppendLine();
             if (minimize)
@@ -280,6 +283,28 @@ namespace RightVisionBotDb.Helpers
         #endregion
 
         #region Private methods
+
+        public static async Task<Status> GetUserStatus(RvUser rvUser, IContext c, CancellationToken token = default)
+        {
+            Status status = Status.User;
+            if (await c.DbContext.CriticForms.AnyAsync(c => c.UserId == rvUser.UserId && c.Status == FormStatus.Accepted, token))
+                status |= Status.Critic;
+
+            if (await c.RvContext.ParticipantForms.AnyAsync(p => p.UserId == rvUser.UserId && p.Status == FormStatus.Accepted, token))
+                status |= Status.Participant;
+
+            foreach (var rightvision in App.AllRightVisions.Where(rv => rv != App.Configuration.RightVisionSettings.DefaultRightVision))
+            {
+                using var database = DatabaseHelper.GetRightVisionContext(rightvision);
+                if (await database.ParticipantForms.AnyAsync(p => p.UserId == rvUser.UserId, token))
+                {
+                    status |= Status.ExParticipant;
+                    break;
+                }
+            }
+
+            return status;
+        }
 
         private static string GetCandidateStatus(Lang lang, IForm? form = null)
         {

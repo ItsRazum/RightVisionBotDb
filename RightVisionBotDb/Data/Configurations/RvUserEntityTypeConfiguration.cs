@@ -19,9 +19,6 @@ namespace RightVisionBotDb.Data.Configurations
             builder.Property(u => u.Lang)
                 .HasConversion<string>();
 
-            builder.Property(u => u.Status)
-                .HasConversion<string>();
-
             builder.Property(u => u.Role)
                 .HasConversion<string>();
 

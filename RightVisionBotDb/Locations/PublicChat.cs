@@ -1,4 +1,5 @@
-﻿using DryIoc.ImTools;
+﻿using DryIoc;
+using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
@@ -183,7 +184,6 @@ namespace RightVisionBotDb.Locations
 
         private async Task AddOrRemovePermissionCommand(CommandContext c, CancellationToken token = default)
         {
-            var rvUsers = new List<RvUser>();
             var (extractedRvUser, args) = await CommandFormatHelper.ExtractRvUserFromArgs(c, token);
 
             bool dataUpdated = false;
@@ -197,8 +197,10 @@ namespace RightVisionBotDb.Locations
 
                 else if (c.Message.Text!.StartsWith('~'))
                 {
-                    extractedRvUser.ResetPermissions();
-                    resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Status}\n{extractedRvUser.Role}";
+                    extractedRvUser.UserPermissions = 
+                        PermissionsHelper.Layouts[await ProfileHelper.GetUserStatus(extractedRvUser, c, token)] 
+                        + PermissionsHelper.Layouts[extractedRvUser.Role];
+                    resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Role}";
                     dataUpdated = true;
                 }
 
@@ -301,6 +303,7 @@ namespace RightVisionBotDb.Locations
                 if (form != null)
                 {
                     c.DbContext.CriticForms.Remove(form);
+                    extractedRvUser.UserPermissions -= PermissionsHelper.Layouts[Status.Critic];
                     message = "С пользователя успешно снято судейство!";
 
                     await Bot.Client.SendTextMessageAsync(

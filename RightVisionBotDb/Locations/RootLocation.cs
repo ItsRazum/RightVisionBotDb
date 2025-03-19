@@ -347,7 +347,7 @@ namespace RightVisionBotDb.Locations
                     else
                     {
                         extractedRvUser.Role = role;
-                        extractedRvUser.ResetPermissions();
+                        extractedRvUser.UserPermissions += PermissionsHelper.Layouts[role];
                         message = $"Пользователь успешно назначен на должность {role}!";
                         await Bot.Client.SendTextMessageAsync(
                             extractedRvUser.UserId,

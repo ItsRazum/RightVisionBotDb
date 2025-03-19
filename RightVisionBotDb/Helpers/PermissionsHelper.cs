@@ -1,4 +1,6 @@
 ﻿using RightVisionBotDb.Enums;
+using RightVisionBotDb.Interfaces;
+using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 
 namespace RightVisionBotDb.Helpers

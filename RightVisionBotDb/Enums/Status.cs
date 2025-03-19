@@ -1,5 +1,6 @@
 ﻿namespace RightVisionBotDb.Enums;
 
+[Flags]
 public enum Status
 {
     User,

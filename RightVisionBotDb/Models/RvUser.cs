@@ -30,11 +30,6 @@ namespace RightVisionBotDb.Models
             set => telegram = value;
         }
         public Lang Lang { get; set; }
-        public Status Status 
-        { 
-            get; 
-            set; 
-        } = Status.User;
         public Role Role { get; set; } = Role.None;
         public RvLocation Location
         {
@@ -101,7 +96,6 @@ namespace RightVisionBotDb.Models
 
         #region Public
 
-        public void ResetPermissions() => UserPermissions = new UserPermissions(PermissionsHelper.Layouts[Status] + PermissionsHelper.Layouts[Role]);
         public bool Has(Permission permission) => UserPermissions.Contains(permission);
         public bool Is(IForm form) => form.UserId == UserId;
 
