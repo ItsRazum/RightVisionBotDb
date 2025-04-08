@@ -118,9 +118,9 @@ namespace RightVisionBotDb.Helpers
 
             if (rvUser.Has(Permission.TrackCard))
                 keyboardLayers.Add([
-				//InlineKeyboardButton.WithCallbackData("✏️" + Language.GetPhrase("Keyboard_Choice_EditTrack", lang), "m_edittrack"),
+				InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.EditTrack, "m_edittrack"),
 				//InlineKeyboardButton.WithCallbackData("📇" + Language.GetPhrase("Keyboard_Choice_SendTrack", lang), "m_openmenu"),
-				InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.GetVisual, "getvisual")
+				//InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.GetVisual, "getvisual")
             ]);
 
             if (rvUser.Has(Permission.CriticMenu))

@@ -151,14 +151,15 @@ namespace RightVisionBotDb
             _logger.Information("Регистрация локаций...");
 
             LocationService
-                .RegisterLocation<RootLocation>(nameof(RootLocation))
-                .RegisterLocation<PublicChat>(nameof(PublicChat))
-                .RegisterLocation<Start>(nameof(Start))
-                .RegisterLocation<MainMenu>(nameof(MainMenu))
-                .RegisterLocation<Profile>(nameof(Profile))
-                .RegisterLocation<CriticFormLocation>(nameof(CriticFormLocation))
-                .RegisterLocation<ParticipantFormLocation>(nameof(ParticipantFormLocation))
-                .RegisterLocation<StudentFormLocation>(nameof(StudentFormLocation));
+                .RegisterLocation<RootLocation>()
+                .RegisterLocation<PublicChat>()
+                .RegisterLocation<Start>()
+                .RegisterLocation<MainMenu>()
+                .RegisterLocation<Profile>()
+                .RegisterLocation<CriticFormLocation>()
+                .RegisterLocation<ParticipantFormLocation>()
+                .RegisterLocation<StudentFormLocation>()
+                .RegisterLocation<ChangeTrackLocation>();
 
             Build();
         }

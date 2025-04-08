@@ -174,5 +174,16 @@ namespace RightVisionBotDb.Singletons
                 replyMarkup: keyboard,
                 cancellationToken: token);
         }
+
+        public async Task EditTrack(CallbackContext c, CancellationToken token = default)
+        {
+            c.RvUser.Location = LocationService[nameof(ChangeTrackLocation)];
+            await Bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                Phrases.Lang[c.RvUser.Lang].Messages.Participant.EnterNewTrack,
+                replyMarkup: KeyboardsHelper.InlineBack(c.RvUser.Lang),
+                cancellationToken: token);
+        }
      }
 }

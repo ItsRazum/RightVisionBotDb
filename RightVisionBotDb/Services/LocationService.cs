@@ -13,8 +13,9 @@ namespace RightVisionBotDb.Services
             _container = container;
         }
 
-        public LocationService RegisterLocation<TLocation>(string locationKey) where TLocation : RvLocation
+        public LocationService RegisterLocation<TLocation>() where TLocation : RvLocation
         {
+            var locationKey = typeof(TLocation).Name;
             _container.Register<TLocation>(Reuse.Singleton);
             Add(locationKey, _container.Resolve<TLocation>());
 

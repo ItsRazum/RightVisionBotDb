@@ -32,12 +32,18 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("academy", AcademyCallback)
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm)
+                .RegisterCallbackCommand("m_edittrack", EditTrackCallback)
                 .RegisterCallbackCommand("studentForm", StudentFormCallback, Permission.SendStudentForm);
         }
 
         #endregion
 
         #region Methods
+
+        private async Task EditTrackCallback(CallbackContext context, CancellationToken token)
+        {
+            await LocationsFront.EditTrack(context, token);
+        }
 
         private async Task MainMenuCallback(CallbackContext c, CancellationToken token = default)
         {
