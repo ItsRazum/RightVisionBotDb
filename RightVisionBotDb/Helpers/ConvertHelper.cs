@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using RightVisionBotDb.Enums;
+using RightVisionBotDb.Models;
 using RightVisionBotDb.Types;
 using Serilog;
 using System.Text;
@@ -42,6 +43,16 @@ namespace RightVisionBotDb.Helpers
             sb.Append(']');
             return sb.ToString();
         }
+
+        #endregion
+
+        #region string <-> TrackCard
+
+        public static TrackCard StringToTrackCard(string value)
+            => JsonConvert.DeserializeObject<TrackCard>(value)!;
+
+        public static string TrackCardToString(TrackCard value)
+            => JsonConvert.SerializeObject(value);
 
         #endregion
     }

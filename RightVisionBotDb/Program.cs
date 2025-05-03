@@ -30,6 +30,7 @@ namespace RightVisionBotDb
             App.Container.Register<LocationConverter>(Reuse.Singleton);
             App.Container.Register<UserPermissionsConverter>(Reuse.Singleton);
             App.Container.Register<ShellService>(Reuse.Singleton);
+            App.Container.Register<TrackCardService>(Reuse.Singleton);
 
             App.Container.Register<Bot>(Reuse.Singleton);
 

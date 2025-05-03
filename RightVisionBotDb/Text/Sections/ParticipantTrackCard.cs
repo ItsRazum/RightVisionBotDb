@@ -22,6 +22,9 @@
         public string TextHereItIs { get; set; }
         public string SendTextInstruction { get; set; }
         public string SendTextSuccess { get; set; }
+        public string SendVisual { get; set; }
+        public string SendVisualInstruction { get; set; }
+        public string SendVisualSuccess { get; set; }
 
         public string CheckTrack { get; set; }
         public string CheckImage { get; set; }

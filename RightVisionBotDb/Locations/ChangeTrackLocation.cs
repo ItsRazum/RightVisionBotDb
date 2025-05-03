@@ -41,6 +41,7 @@ namespace RightVisionBotDb.Locations
 
         private async Task BackToProfileCallback(CallbackContext c, CancellationToken token)
         {
+            c.RvUser.Location = LocationService[nameof(MainMenu)];
             (var content, var keyboard) = await ProfileHelper.Profile(
                 c.RvUser, 
                 c, Telegram.Bot.Types.Enums.ChatType.Private,

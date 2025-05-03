@@ -45,7 +45,7 @@ namespace RightVisionBotDb.Locations
             };
 
             this
-                .RegisterTextCommand("/profile", ProfileCommand)
+                //.RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
                 .RegisterTextCommand("/unban", UnbanCommand, Permission.Unban)
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)

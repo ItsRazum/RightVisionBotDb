@@ -119,7 +119,7 @@ namespace RightVisionBotDb.Helpers
             if (rvUser.Has(Permission.TrackCard))
                 keyboardLayers.Add([
 				InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.EditTrack, "m_edittrack"),
-				//InlineKeyboardButton.WithCallbackData("📇" + Language.GetPhrase("Keyboard_Choice_SendTrack", lang), "m_openmenu"),
+				InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.SendTrack, "m_trackcard"),
 				//InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.GetVisual, "getvisual")
             ]);
 

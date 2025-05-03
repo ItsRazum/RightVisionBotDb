@@ -159,7 +159,8 @@ namespace RightVisionBotDb
                 .RegisterLocation<CriticFormLocation>()
                 .RegisterLocation<ParticipantFormLocation>()
                 .RegisterLocation<StudentFormLocation>()
-                .RegisterLocation<ChangeTrackLocation>();
+                .RegisterLocation<ChangeTrackLocation>()
+                .RegisterLocation<TrackCardLocation>();
 
             Build();
         }

@@ -36,6 +36,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("/menu", MainMenuCommand)
                 .RegisterTextCommand("назначить", AppointCommand, Permission.Grant)
                 .RegisterTextCommand("/news", NewsCommand, Permission.News)
+                .RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterCallbackCommand("profile", ProfileCallback)
                 .RegisterCallbackCommand("participations", ParticipationsCallback)
                 .RegisterCallbackCommand("rvProperties", RvPropertiesCallback)
@@ -110,6 +111,10 @@ namespace RightVisionBotDb.Locations
                 else if (update.Message != null)
                 {
                     var message = update.Message;
+
+                    if (message.Caption != null)
+                        message.Text = message.Caption;
+
                     _logger.Information("=== {0} ===" +
                         $"\nId отправителя: {from.Id}" +
                         $"\nUsername отправителя: {"@" + from.Username}" +
@@ -281,30 +286,28 @@ namespace RightVisionBotDb.Locations
             }
         }
 
-        private async Task ProfileCommand(CommandContext c, CancellationToken token = default)
+        private async Task ProfileCommand(CommandContext c, CancellationToken token)
         {
-            var targetRvUser = c.Message.ReplyToMessage == null
-                ? c.RvUser
-                : c.DbContext.RvUsers.FirstOrDefault(u => u.UserId == c.Message.ReplyToMessage.From!.Id);
+            var args = c.Message.Text!.Split(' ');
 
-            if (targetRvUser == null)
+            var (extractedRvUser, _) = args.Length > 1 || c.Message.ReplyToMessage != null
+                ? await CommandFormatHelper.ExtractRvUserFromArgs(c, token)
+                : (c.RvUser, null);
+
+            if (extractedRvUser == null)
             {
-                await Bot.Client.SendTextMessageAsync(
-                    c.Message.Chat,
-                    Phrases.Lang[c.RvUser.Lang].Messages.Common.UserNotFound,
-                    cancellationToken: token);
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.UserNotFound, cancellationToken: token);
                 return;
             }
 
-            var (content, keyboard) = await ProfileHelper.Profile(targetRvUser, c, c.Message.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, token: token);
+            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, token: token);
 
             await Bot.Client.SendTextMessageAsync(
                 c.Message.Chat,
-                content,
+                message,
                 replyMarkup: keyboard,
                 cancellationToken: token);
         }
-
 
         private async Task HideCommand(CommandContext c, CancellationToken token = default)
         {

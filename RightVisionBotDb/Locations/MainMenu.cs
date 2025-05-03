@@ -33,6 +33,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("criticForm", CriticFormCallback, Permission.SendCriticForm)
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm)
                 .RegisterCallbackCommand("m_edittrack", EditTrackCallback)
+                .RegisterCallbackCommand("m_trackcard", TrackCardCallback)
                 .RegisterCallbackCommand("studentForm", StudentFormCallback, Permission.SendStudentForm);
         }
 
@@ -137,7 +138,6 @@ namespace RightVisionBotDb.Locations
                 LocationsFront.CriticForm,
                 f => c.DbContext.CriticForms.Add(f),
                 token);
-
         }
 
         private async Task ParticipantFormCallback(CallbackContext c, CancellationToken token = default)
@@ -160,6 +160,11 @@ namespace RightVisionBotDb.Locations
                 LocationsFront.StudentForm,
                 f => c.AcademyContext.StudentForms.Add(f),
                 token);
+        }
+
+        private async Task TrackCardCallback(CallbackContext c, CancellationToken token)
+        {
+            await LocationsFront.TrackCard(c, token);
         }
 
         #endregion

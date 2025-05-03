@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Locations;
 using RightVisionBotDb.Models;
@@ -10,36 +11,18 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RightVisionBotDb.Singletons
 {
-    public sealed class LocationsFront
+    public sealed class LocationsFront(
+        Bot bot,
+        LocationService LocationService,
+        CriticFormService CriticFormService,
+        ParticipantFormService ParticipantFormService,
+        StudentFormService StudentFormService,
+        TrackCardService TrackCardService)
     {
-        #region Properties
-
-        private Bot Bot { get; }
-        private LocationService LocationService { get; }
-        private CriticFormService CriticFormService { get; }
-        private ParticipantFormService ParticipantFormService { get; }
-        private StudentFormService StudentFormService { get; }
-
-        #endregion
-
-        public LocationsFront(
-            Bot bot,
-            LocationService locationService,
-            CriticFormService criticFormService,
-            ParticipantFormService participantFormService,
-            StudentFormService studentFormService)
-        {
-            Bot = bot;
-            LocationService = locationService;
-            CriticFormService = criticFormService;
-            ParticipantFormService = participantFormService;
-            StudentFormService = studentFormService;
-        }
-
         public async Task MainMenu(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationService[nameof(Locations.MainMenu)];
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
@@ -50,7 +33,7 @@ namespace RightVisionBotDb.Singletons
         public async Task MainMenu(CommandContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationService[nameof(Locations.MainMenu)];
-            await Bot.Client.SendTextMessageAsync(
+            await bot.Client.SendTextMessageAsync(
                 c.Message!.Chat,
                 string.Format(Phrases.Lang[c.RvUser.Lang].Messages.Common.Greetings, c.RvUser.Name),
                 replyMarkup: KeyboardsHelper.MainMenu(c.RvUser),
@@ -69,7 +52,7 @@ namespace RightVisionBotDb.Singletons
 
             var rightvision = args.Length < 3 ? App.Configuration.RightVisionSettings.DefaultRightVision : args[2];
             var (content, keyboard) = await ProfileHelper.Profile(await c.DbContext.RvUsers.FirstAsync(u => u.UserId == targetUserId, token), c, c.CallbackQuery.Message!.Chat.Type, rightvision, token: token);
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 content,
@@ -79,7 +62,7 @@ namespace RightVisionBotDb.Singletons
 
         public async Task FormSelection(CallbackContext c, CancellationToken token = default)
         {
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Phrases.Lang[c.RvUser.Lang].Messages.Common.SendFormRightNow,
@@ -90,7 +73,7 @@ namespace RightVisionBotDb.Singletons
         public async Task PermissionsList(CallbackContext c, RvUser targetRvUser, bool minimize, CancellationToken token = default)
         {
             (string content, InlineKeyboardMarkup? keyboard) = await ProfileHelper.RvUserPermissions(c, targetRvUser, minimize, token);
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 content,
@@ -102,7 +85,7 @@ namespace RightVisionBotDb.Singletons
         {
             if (targetRvUser.Punishments.Count == 0)
             {
-                await Bot.Client.AnswerCallbackQueryAsync(
+                await bot.Client.AnswerCallbackQueryAsync(
                     c.CallbackQuery.Id,
                     Phrases.Lang[c.RvUser.Lang].Profile.Punishments.Punishment.NoPunishments,
                     showAlert: true,
@@ -113,7 +96,7 @@ namespace RightVisionBotDb.Singletons
 
             (string content, InlineKeyboardMarkup? keyboard) = ProfileHelper.RvUserPunishments(c, targetRvUser, showBans, showMutes);
 
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 content,
@@ -124,7 +107,7 @@ namespace RightVisionBotDb.Singletons
         public async Task CriticForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
             c.RvUser.Location = LocationService[nameof(Locations.CriticFormLocation)];
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Phrases.Lang[c.RvUser.Lang].Messages.Common.StartingForm,
@@ -132,7 +115,7 @@ namespace RightVisionBotDb.Singletons
 
             var (message, keyboard) = CriticFormService.Messages[messageKey](c.RvUser.Lang);
 
-            await Bot.Client.SendTextMessageAsync(
+            await bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
                 message,
                 replyMarkup: keyboard,
@@ -142,7 +125,7 @@ namespace RightVisionBotDb.Singletons
         public async Task ParticipantForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
             c.RvUser.Location = LocationService[nameof(ParticipantFormLocation)];
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Phrases.Lang[c.RvUser.Lang].Messages.Common.StartingForm,
@@ -150,7 +133,7 @@ namespace RightVisionBotDb.Singletons
 
             var (message, keyboard) = ParticipantFormService.Messages[messageKey](c.RvUser.Lang);
 
-            await Bot.Client.SendTextMessageAsync(
+            await bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
                 string.Format(message, App.Configuration.RightVisionSettings.DefaultRightVision),
                 replyMarkup: keyboard,
@@ -160,7 +143,7 @@ namespace RightVisionBotDb.Singletons
         public async Task StudentForm(CallbackContext c, int messageKey, CancellationToken token = default)
         {
             c.RvUser.Location = LocationService[nameof(StudentFormLocation)];
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Phrases.Lang[c.RvUser.Lang].Messages.Common.StartingForm,
@@ -168,7 +151,7 @@ namespace RightVisionBotDb.Singletons
 
             var (message, keyboard) = StudentFormService.Messages[messageKey](c.RvUser.Lang);
 
-            await Bot.Client.SendTextMessageAsync(
+            await bot.Client.SendTextMessageAsync(
                 c.CallbackQuery.Message!.Chat,
                 message,
                 replyMarkup: keyboard,
@@ -178,10 +161,31 @@ namespace RightVisionBotDb.Singletons
         public async Task EditTrack(CallbackContext c, CancellationToken token = default)
         {
             c.RvUser.Location = LocationService[nameof(ChangeTrackLocation)];
-            await Bot.Client.EditMessageTextAsync(
+            await bot.Client.EditMessageTextAsync(
                 c.CallbackQuery.Message!.Chat,
                 c.CallbackQuery.Message.MessageId,
                 Phrases.Lang[c.RvUser.Lang].Messages.Participant.EnterNewTrack,
+                replyMarkup: KeyboardsHelper.InlineBack(c.RvUser.Lang),
+                cancellationToken: token);
+        }
+
+        public async Task TrackCard(CallbackContext c, CancellationToken token = default)
+        {
+            var form = await c.RvContext.ParticipantForms.FirstAsync(p => p.UserId == c.RvUser.UserId, token);
+            var userTrackCard = form.TrackCard;
+            if (userTrackCard == null)
+            {
+                form.TrackCard = new();
+                ((RightVisionDbContext)c.RvContext).Entry(form).State = EntityState.Modified;
+
+                userTrackCard = form.TrackCard;
+            }
+
+            c.RvUser.Location = LocationService[nameof(TrackCardLocation)];
+            await bot.Client.EditMessageTextAsync(
+                c.CallbackQuery.Message!.Chat,
+                c.CallbackQuery.Message.MessageId,
+                TrackCardService.GetStatus(userTrackCard!),
                 replyMarkup: KeyboardsHelper.InlineBack(c.RvUser.Lang),
                 cancellationToken: token);
         }
