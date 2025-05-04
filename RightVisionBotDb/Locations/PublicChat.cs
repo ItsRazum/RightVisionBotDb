@@ -89,6 +89,12 @@ namespace RightVisionBotDb.Locations
             if (!success) return;
             if (form == null) return;
 
+            if (c.Message.Document == null)
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Необходимо загрузить видео без сжатия в формате .mp4!", cancellationToken: token);
+                return;
+            }
+
             form.TrackCard.VisualFileId = c.Message.Document!.FileId;
             await Bot.Client.SendTextMessageAsync(c.Message.Chat, $"Визуал для трека \"{form.Track}\" успешно сохранён!", cancellationToken: token);
             c.RvContext.ParticipantForms.Entry(form).State = EntityState.Modified;
@@ -110,12 +116,6 @@ namespace RightVisionBotDb.Locations
             if (!int.TryParse(c.Message.Text!.Split(' ').Last(), out var index))
             {
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Индекс указан неверно!", cancellationToken: token);
-                return (false, null);
-            }
-
-            if (c.Message.Document == null)
-            {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Необходимо загрузить видео без сжатия в формате .mp4!", cancellationToken: token);
                 return (false, null);
             }
 
