@@ -1,6 +1,7 @@
 ﻿using DryIoc;
 using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
@@ -45,7 +46,6 @@ namespace RightVisionBotDb.Locations
             };
 
             this
-                //.RegisterTextCommand("/profile", ProfileCommand)
                 .RegisterTextCommand("/ban", BanCommand, Permission.Ban)
                 .RegisterTextCommand("/unban", UnbanCommand, Permission.Unban)
                 .RegisterTextCommand("/mute", MuteCommand, Permission.Mute)
@@ -54,6 +54,8 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("-reward", RemoveReward, Permission.Rewarding)
                 .RegisterTextCommand("-судейство", CancelCriticCommand, Permission.Curate)
                 .RegisterTextCommand("+всем", AddPermissionToAllCommand, Permission.Audit)
+                .RegisterTextCommand("/get", GetCommand, Permission.CriticChat)
+                .RegisterTextCommand("/visual", VisualCommand, Permission.CriticChat)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", TakeCriticFormCallback, Permission.Curate)
                 .RegisterCallbackCommand("p_take", TakeParticipantFormCallback, Permission.Curate)
@@ -67,27 +69,64 @@ namespace RightVisionBotDb.Locations
 
         #region Methods
 
-        private async Task ProfileCommand(CommandContext c, CancellationToken token)
+        private async Task GetCommand(CommandContext c, CancellationToken token)
         {
-            var args = c.Message.Text!.Split(' ');
+            var (success, form) = await ValidateParticipantForm(c, token);
+            if (!success) return;
+            if (form == null) return;
 
-            var (extractedRvUser, _) = args.Length > 1 || c.Message.ReplyToMessage != null
-                ? await CommandFormatHelper.ExtractRvUserFromArgs(c, token)
-                : (c.RvUser, null);
+            string caption = $"Трек: {form.Track}\nКатегория: {form.Category}";
 
-            if (extractedRvUser == null)
+            await SendMediaOrTextAsync(form.TrackCard.TrackFileId, f => Bot.Client.SendAudioAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Трек отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.ImageFileId, f => Bot.Client.SendPhotoAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Обложка отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.TextFileId, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Текст отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.VisualFileId, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Визуал отсутствует");
+        }
+
+        private async Task VisualCommand(CommandContext c, CancellationToken token)
+        {
+            var (success, form) = await ValidateParticipantForm(c, token);
+            if (!success) return;
+            if (form == null) return;
+
+            form.TrackCard.VisualFileId = c.Message.Document!.FileId;
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, $"Визуал для трека \"{form.Track}\" успешно сохранён!", cancellationToken: token);
+            c.RvContext.ParticipantForms.Entry(form).State = EntityState.Modified;
+        }
+
+        private async Task SendMediaOrTextAsync(string? fileId, Func<string, Task> sendFunc, string fallbackMessage)
+        {
+            if (fileId == null)
+                await Bot.Client.SendTextMessageAsync(Constants.GroupId.CriticGroupId, fallbackMessage);
+            else
+                await sendFunc(fileId);
+        }
+
+        private async Task<(bool success, ParticipantForm? form)> ValidateParticipantForm(CommandContext c, CancellationToken token = default)
+        {
+            if (c.Message.Chat.Id != Constants.GroupId.CriticGroupId)
+                return (false, null);
+
+            if (!int.TryParse(c.Message.Text!.Split(' ').Last(), out var index))
             {
-                await Bot.Client.SendTextMessageAsync(c.Message.Chat, Phrases.Lang[c.RvUser.Lang].Messages.Common.UserNotFound, cancellationToken: token);
-                return;
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Индекс указан неверно!", cancellationToken: token);
+                return (false, null);
             }
 
-            (string message, InlineKeyboardMarkup? keyboard) = await ProfileHelper.Profile(extractedRvUser, c, c.Message.Chat.Type, App.Configuration.RightVisionSettings.DefaultRightVision, token: token);
+            if (c.Message.Document == null)
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Необходимо загрузить видео без сжатия в формате .mp4!", cancellationToken: token);
+                return (false, null);
+            }
 
-            await Bot.Client.SendTextMessageAsync(
-                c.Message.Chat,
-                message,
-                replyMarkup: keyboard,
-                cancellationToken: token);
+            var form = c.RvContext.ParticipantForms.Skip(index - 1).FirstOrDefault();
+            if (form == null)
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Карточки под этим номером не существует!", cancellationToken: token);
+                return (false, null);
+            }
+
+            return (true, form);
         }
 
         private async Task BanCommand(CommandContext c, CancellationToken token)
