@@ -13,6 +13,7 @@ using RightVisionBotDb.Text;
 using RightVisionBotDb.Text.Interfaces;
 using RightVisionBotDb.Types;
 using System.Globalization;
+using System.Text;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -76,11 +77,15 @@ namespace RightVisionBotDb.Locations
             if (form == null) return;
 
             string caption = $"Трек: {form.Track}\nКатегория: {form.Category}";
+            var sb = new StringBuilder();
 
-            await SendMediaOrTextAsync(form.TrackCard.TrackFileId, f => Bot.Client.SendAudioAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Трек отсутствует");
-            await SendMediaOrTextAsync(form.TrackCard.ImageFileId, f => Bot.Client.SendPhotoAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Обложка отсутствует");
-            await SendMediaOrTextAsync(form.TrackCard.TextFileId, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Текст отсутствует");
-            await SendMediaOrTextAsync(form.TrackCard.VisualFileId, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Визуал отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.TrackFileId, sb, f => Bot.Client.SendAudioAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Трек отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.ImageFileId, sb, f => Bot.Client.SendPhotoAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Обложка отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.TextFileId, sb, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Текст отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard.VisualFileId, sb, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Визуал отсутствует");
+
+            if (sb.Length > 0)
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, sb.ToString(), cancellationToken: token);
         }
 
         private async Task VisualCommand(CommandContext c, CancellationToken token)
@@ -100,10 +105,10 @@ namespace RightVisionBotDb.Locations
             c.RvContext.ParticipantForms.Entry(form).State = EntityState.Modified;
         }
 
-        private async Task SendMediaOrTextAsync(string? fileId, Func<string, Task> sendFunc, string fallbackMessage)
+        private async Task SendMediaOrTextAsync(string? fileId, StringBuilder sb, Func<string, Task> sendFunc, string fallbackMessage)
         {
             if (fileId == null)
-                await Bot.Client.SendTextMessageAsync(Constants.GroupId.CriticGroupId, fallbackMessage);
+                sb.AppendLine(fallbackMessage);
             else
                 await sendFunc(fileId);
         }
