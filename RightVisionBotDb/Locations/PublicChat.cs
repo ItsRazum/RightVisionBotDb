@@ -1,7 +1,5 @@
-﻿using DryIoc;
-using DryIoc.ImTools;
+﻿using DryIoc.ImTools;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using RightVisionBotDb.Data.Contexts;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
@@ -57,6 +55,7 @@ namespace RightVisionBotDb.Locations
                 .RegisterTextCommand("+всем", AddPermissionToAllCommand, Permission.Audit)
                 .RegisterTextCommand("/get", GetCommand, Permission.CriticChat)
                 .RegisterTextCommand("/visual", VisualCommand, Permission.CriticChat)
+                .RegisterTextCommand("/category", CategoryCommand, Permission.CriticChat)
                 .RegisterTextCommands(["+permission", "-permission", "~permission"], AddOrRemovePermissionCommand, Permission.GivePermission)
                 .RegisterCallbackCommand("c_take", TakeCriticFormCallback, Permission.Curate)
                 .RegisterCallbackCommand("p_take", TakeParticipantFormCallback, Permission.Curate)
@@ -66,9 +65,43 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("st_form", StudentFormCallback);
         }
 
+
+
         #endregion
 
         #region Methods
+
+        private async Task CategoryCommand(CommandContext c, CancellationToken token)
+        {
+            var args = c.Message.Text!.Split(' '); //[0]Command, [1]Form Number, [2]Category
+            if (!int.TryParse(args[1], out var number))
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Индекс указан неверно!", cancellationToken: token);
+                return;
+            }
+
+            if (!Enum.TryParse<Category>(args.Last(), out var category))
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, 
+                    "Указанная категория не найдена! Формат категорий выглядит так:\n" +
+                    "- Bronze\n" +
+                    "- Silver\n" +
+                    "- Gold\n" +
+                    "- Brilliant", cancellationToken: token);
+                return;
+            }
+
+            var form = c.RvContext.ParticipantForms.Skip(number - 1).FirstOrDefault();
+            if (form == null)
+            {
+                await Bot.Client.SendTextMessageAsync(c.Message.Chat, "Карточки под этим номером не существует!", cancellationToken: token);
+                return;
+            }
+
+            form.Category = category;
+            await Bot.Client.SendTextMessageAsync(c.Message.Chat, $"Ремикс \"{form.Track}\" получает категорию {Phrases.GetCategoryString(category)}!", cancellationToken: token);
+            await Bot.Client.SendTextMessageAsync(form.UserId, $"Приветствую, {form.Name}!\nВ ходе предварительных прослушиваний твоя категория участия сменилась, теперь это {Phrases.GetCategoryString(category)}! Желаем удачи в новой категории!", cancellationToken: token);
+        }
 
         private async Task GetCommand(CommandContext c, CancellationToken token)
         {
@@ -86,6 +119,14 @@ namespace RightVisionBotDb.Locations
 
             if (sb.Length > 0)
                 await Bot.Client.SendTextMessageAsync(c.Message.Chat, sb.ToString(), cancellationToken: token);
+
+            async Task SendMediaOrTextAsync(string? fileId, StringBuilder sb, Func<string, Task> sendFunc, string fallbackMessage)
+            {
+                if (fileId == null)
+                    sb.AppendLine(fallbackMessage);
+                else
+                    await sendFunc(fileId);
+            }
         }
 
         private async Task VisualCommand(CommandContext c, CancellationToken token)
@@ -105,13 +146,7 @@ namespace RightVisionBotDb.Locations
             c.RvContext.ParticipantForms.Entry(form).State = EntityState.Modified;
         }
 
-        private async Task SendMediaOrTextAsync(string? fileId, StringBuilder sb, Func<string, Task> sendFunc, string fallbackMessage)
-        {
-            if (fileId == null)
-                sb.AppendLine(fallbackMessage);
-            else
-                await sendFunc(fileId);
-        }
+
 
         private async Task<(bool success, ParticipantForm? form)> ValidateParticipantForm(CommandContext c, CancellationToken token = default)
         {
@@ -241,8 +276,8 @@ namespace RightVisionBotDb.Locations
 
                 else if (c.Message.Text!.StartsWith('~'))
                 {
-                    extractedRvUser.UserPermissions = 
-                        PermissionsHelper.Layouts[await ProfileHelper.GetUserStatus(extractedRvUser, c, token)] 
+                    extractedRvUser.UserPermissions =
+                        PermissionsHelper.Layouts[await ProfileHelper.GetUserStatus(extractedRvUser, c, token)]
                         + PermissionsHelper.Layouts[extractedRvUser.Role];
                     resultMessage = $"Выполнен сброс прав до стандартных для пользователя.\n\nИспользованные шаблоны:\n{extractedRvUser.Role}";
                     dataUpdated = true;
@@ -351,8 +386,8 @@ namespace RightVisionBotDb.Locations
                     message = "С пользователя успешно снято судейство!";
 
                     await Bot.Client.SendTextMessageAsync(
-                        extractedRvUser.UserId, 
-                        Phrases.Lang[extractedRvUser.Lang].Messages.Critic.FormCanceled, 
+                        extractedRvUser.UserId,
+                        Phrases.Lang[extractedRvUser.Lang].Messages.Critic.FormCanceled,
                         cancellationToken: token);
                 }
                 else
@@ -657,7 +692,7 @@ namespace RightVisionBotDb.Locations
                     translatedRestrictionType,
                     Phrases.GetGroupTypeString(c.Message.Chat.Id, extractedRvUser.Lang),
                     endDate.ToString("g", new CultureInfo("ru-RU")),
-                    reason) 
+                    reason)
                 + Phrases.Lang[extractedRvUser.Lang].Profile.Punishments.Contacts,
                 cancellationToken: token);
 
@@ -718,14 +753,14 @@ namespace RightVisionBotDb.Locations
             }
             else
             {
-                message = $"В настоящий момент {extractedRvUser.Name} не имеет активных наказаний заданного типа!"; 
+                message = $"В настоящий момент {extractedRvUser.Name} не имеет активных наказаний заданного типа!";
                 return (null, message);
             }
 
             return (extractedRvUser, message);
         }
 
-        private async Task<IForm> ExtractFormFromArgs<TForm>(CallbackContext callbackContext, IQueryable<TForm> forms, CancellationToken token = default) 
+        private async Task<IForm> ExtractFormFromArgs<TForm>(CallbackContext callbackContext, IQueryable<TForm> forms, CancellationToken token = default)
             where TForm : class, IForm
         {
             var args = callbackContext.CallbackQuery.Data!.Split('-');
