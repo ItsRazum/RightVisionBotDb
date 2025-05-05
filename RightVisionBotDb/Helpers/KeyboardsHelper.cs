@@ -53,9 +53,9 @@ namespace RightVisionBotDb.Helpers
                 InlineKeyboardButton.WithCallbackData(Phrases.Lang[lang].KeyboardButtons.Back, "about")
             };
 
-        public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, ChatType type, string rightvision, Lang lang)
+        public static async Task<InlineKeyboardMarkup> Profile(RvUser rvUser, RvUser targetRvUser, ChatType type, string rightvision, Lang lang)
         {
-            var userId = rvUser.UserId;
+            var userId = targetRvUser.UserId;
             var rightVisions = App.AllRightVisions;
             var isOldParticipant = false;
             string? firstParticipationRightVision = null;
@@ -86,18 +86,19 @@ namespace RightVisionBotDb.Helpers
             if (isOldParticipant)
                 keyboardLayers.Add(
                     [
-                        InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.Participations, $"participations-{rvUser.UserId}-{firstParticipationRightVision ?? rightvision}")
+                        InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.Participations, $"participations-{targetRvUser.UserId}-{firstParticipationRightVision ?? rightvision}")
                     ]);
 
             List<InlineKeyboardButton> keyboardButtons = [];
 
             keyboardLayers.Add(
                 [
-                    InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.PermissionsList, $"permissions_minimized-{rvUser.UserId}"),
-                    InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.PunishmentsHistory, $"punishments_history-{rvUser.UserId}")
+                    InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.PermissionsList, $"permissions_minimized-{targetRvUser.UserId}"),
+                    InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.PunishmentsHistory, $"punishments_history-{targetRvUser.UserId}")
                 ]);
 
-            if (type != ChatType.Private) return keyboardLayers.ToArray();
+            if (type != ChatType.Private || rvUser.UserId != targetRvUser.UserId) 
+                return keyboardLayers.ToArray();
 
             keyboardLayers.Add([
                 InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.Apply, "forms")
@@ -107,7 +108,7 @@ namespace RightVisionBotDb.Helpers
                 InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.Back, "mainmenu")
             ]);
 
-            string subscribeContent = !rvUser.Has(Permission.Sending)
+            string subscribeContent = !targetRvUser.Has(Permission.Sending)
                 ? phrases.KeyboardButtons.Sending.Subscribe
                 : phrases.KeyboardButtons.Sending.Unsubscribe;
 
@@ -116,14 +117,14 @@ namespace RightVisionBotDb.Helpers
             ]);
 
 
-            if (rvUser.Has(Permission.TrackCard))
+            if (targetRvUser.Has(Permission.TrackCard))
                 keyboardLayers.Add([
 				InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.EditTrack, "m_edittrack"),
 				InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.SendTrack, "m_trackcard"),
 				//InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.GetVisual, "getvisual")
             ]);
 
-            if (rvUser.Has(Permission.CriticMenu))
+            if (targetRvUser.Has(Permission.CriticMenu))
                 keyboardLayers.Add(
                     [
                         InlineKeyboardButton.WithCallbackData(phrases.KeyboardButtons.CriticMenu.Open, "opencriticmenu")

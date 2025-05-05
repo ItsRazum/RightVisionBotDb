@@ -29,7 +29,7 @@ namespace RightVisionBotDb.Helpers
         {
             var rvUser = c.RvUser;
             var lang = rvUser.Lang;
-            var phrases = Phrases.Lang[lang];
+            var phrases = Phrases.Lang[lang]; 
             Category? participationCategory;
             ParticipantForm? participantForm;
             CriticForm? criticForm;
@@ -72,7 +72,7 @@ namespace RightVisionBotDb.Helpers
 
                 sb.AppendLine( //Трек
                     "- " + phrases.Profile.Properties.Track +
-                    (rvContext.Status == RightVisionStatus.Relevant && chatType != ChatType.Private
+                    (rvContext.Status == RightVisionStatus.Relevant && (chatType != ChatType.Private || rvUser.UserId != targetRvUser.UserId)
                     ? phrases.Profile.Track.Hidden
                     : participantForm.Track
                     )
@@ -83,7 +83,7 @@ namespace RightVisionBotDb.Helpers
             if (rvContext != c.RvContext)
                 ((RightVisionDbContext)rvContext)?.Dispose();
 
-            if (chatType == ChatType.Private)
+            if (chatType == ChatType.Private && rvUser.UserId == targetRvUser.UserId)
                 sb.AppendLine( //Подписка на новости
                     "- " + phrases.Profile.Properties.Sending
                     + (targetRvUser.Has(Permission.Sending)
@@ -101,7 +101,7 @@ namespace RightVisionBotDb.Helpers
                     "- " + phrases.Profile.Properties.CategoryParticipant
                     + Phrases.GetCategoryString(participantForm.Category));
 
-            if (chatType == ChatType.Private)
+            if (chatType == ChatType.Private && rvUser.UserId == targetRvUser.UserId)
             {
                 sb
                     .AppendLine(phrases.Profile.Properties.CandidacyStatus) //Статус кандидатур                    
@@ -119,7 +119,7 @@ namespace RightVisionBotDb.Helpers
             else
                 sb.AppendLine("- " + phrases.Profile.Rewards.NoRewards);
 
-            return (sb.ToString(), includeKeyboard ? await KeyboardsHelper.Profile(targetRvUser, chatType, rightvision, rvUser.Lang) : null);
+            return (sb.ToString(), includeKeyboard ? await KeyboardsHelper.Profile(rvUser, targetRvUser, chatType, rightvision, rvUser.Lang) : null);
         }
 
         public static async Task<(string content, InlineKeyboardMarkup? keyboard)> RvUserPermissions(IContext c, RvUser targetRvUser, bool minimize, CancellationToken token = default)

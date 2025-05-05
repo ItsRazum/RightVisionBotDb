@@ -167,7 +167,13 @@ namespace RightVisionBotDb.Locations
                 _logger.Error(ex, "Произошла ошибка при обработке входящего обновления!");
                 if (rvUser != null)
                 {
-                    await botClient.SendTextMessageAsync(rvUser.UserId, "Произошла непредвиденная ошибка", cancellationToken: token);
+                    try
+                    {
+                        await botClient.SendTextMessageAsync(rvUser.UserId, "Произошла непредвиденная ошибка", cancellationToken: token);
+                    }
+                    catch (Exception)
+                    {
+                    }
                     await botClient.SendTextMessageAsync(-4074101060,
                         $"Произошла ошибка: {ex.Message}" +
                         $"\n" +
