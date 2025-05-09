@@ -656,6 +656,8 @@ namespace RightVisionBotDb.Locations
                     {
                         'm' => timeValue,
                         'h' => timeValue * 60,
+                        'd' => timeValue * 60 * 24,
+                        'y' => timeValue * 60 * 24 * 365,
                         _ => 60
                     };
                     args = args.RemoveAt(0);
