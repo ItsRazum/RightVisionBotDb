@@ -112,7 +112,7 @@ namespace RightVisionBotDb.Locations
             string caption = $"Трек: {form.Track}\nКатегория: {form.Category}";
             var sb = new StringBuilder();
 
-            await SendMediaOrTextAsync(form.TrackCard.TrackFileId, sb, f => Bot.Client.SendAudioAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Трек отсутствует");
+            await SendMediaOrTextAsync(form.TrackCard!.TrackFileId, sb, f => Bot.Client.SendAudioAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Трек отсутствует");
             await SendMediaOrTextAsync(form.TrackCard.ImageFileId, sb, f => Bot.Client.SendPhotoAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Обложка отсутствует");
             await SendMediaOrTextAsync(form.TrackCard.TextFileId, sb, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Текст отсутствует");
             await SendMediaOrTextAsync(form.TrackCard.VisualFileId, sb, f => Bot.Client.SendDocumentAsync(c.Message.Chat, new InputFileId(f), caption: caption, cancellationToken: token), "Визуал отсутствует");

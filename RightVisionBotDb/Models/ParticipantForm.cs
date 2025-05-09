@@ -20,7 +20,7 @@ namespace RightVisionBotDb.Models
         [FormField(4)]
         public string Track { get; set; } = string.Empty;
 
-        public TrackCard TrackCard { get; set; }
+        public TrackCard? TrackCard { get; set; } = new();
 
         #region Legacy
 

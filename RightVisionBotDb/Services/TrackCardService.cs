@@ -53,7 +53,7 @@ namespace RightVisionBotDb.Services
                 return;
             }
 
-            form.TrackCard.TrackFileId = fileId;
+            form.TrackCard!.TrackFileId = fileId;
             ((RightVisionDbContext)c.RvContext).Entry(form).State = EntityState.Modified;
 
             await _bot.Client.SendTextMessageAsync(
@@ -74,7 +74,7 @@ namespace RightVisionBotDb.Services
                 return;
             }
 
-            form.TrackCard.TextFileId = doc.FileId;
+            form.TrackCard!.TextFileId = doc.FileId;
             ((RightVisionDbContext)c.RvContext).Entry(form).State = EntityState.Modified;
 
             await _bot.Client.SendTextMessageAsync(
@@ -96,7 +96,7 @@ namespace RightVisionBotDb.Services
             }
 
             var largest = photos[^1];
-            form.TrackCard.ImageFileId = largest.FileId;
+            form.TrackCard!.ImageFileId = largest.FileId;
             ((RightVisionDbContext)c.RvContext).Entry(form).State = EntityState.Modified;
 
             await _bot.Client.SendTextMessageAsync(
@@ -117,7 +117,7 @@ namespace RightVisionBotDb.Services
                 return;
             }
 
-            form.TrackCard.VisualFileId = doc.FileId;
+            form.TrackCard!.VisualFileId = doc.FileId;
             ((RightVisionDbContext)c.RvContext).Entry(form).State = EntityState.Modified;
 
             await _bot.Client.SendTextMessageAsync(
