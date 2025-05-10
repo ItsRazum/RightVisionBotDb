@@ -1,4 +1,5 @@
 ﻿using EasyForms.Types;
+using Microsoft.EntityFrameworkCore;
 using RightVisionBotDb.Enums;
 using RightVisionBotDb.Helpers;
 using RightVisionBotDb.Interfaces;
@@ -8,6 +9,7 @@ using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Types;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace RightVisionBotDb.Locations
 {
@@ -34,12 +36,29 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("participantForm", ParticipantFormCallback, Permission.SendParticipantForm)
                 .RegisterCallbackCommand("m_edittrack", EditTrackCallback)
                 .RegisterCallbackCommand("m_trackcard", TrackCardCallback)
+                .RegisterCallbackCommand("getvisual", GetVisualCallback)
                 .RegisterCallbackCommand("studentForm", StudentFormCallback, Permission.SendStudentForm);
         }
 
         #endregion
 
         #region Methods
+
+        private async Task GetVisualCallback(CallbackContext c, CancellationToken token)
+        {
+            var form = await c.RvContext.ParticipantForms.FirstAsync(p => c.RvUser.UserId == p.UserId, token);
+            if (form.TrackCard?.VisualFileId != null)
+                await Bot.Client.SendDocumentAsync(c.CallbackQuery.Message!.Chat, new InputFileId(form.TrackCard.VisualFileId), caption:
+                    "Это твой визуал!\n" +
+                    $"Рекомендуемое название для видео: {App.Configuration.RightVisionSettings.DefaultRightVision} {Phrases.GetCategoryString(form.Category)} | {form.Track}\n" +
+                    $"Теги для видео: gachi, gachimuchi, right, right version, right vision, rightvision, rightvision25, райтвижн, райтвижн25, гачи, гачимучи, гачи ремикс, правильная версия\n" +
+                    $"Рекомендуем также добавить тегов, связанных с названием твоей песни! Спасибо тебе за участие в RightVision25.", cancellationToken: token);
+
+            else
+            {
+                await Bot.Client.SendTextMessageAsync(c.CallbackQuery.Message!.Chat, "Кажется, визуала у тебя нет!", cancellationToken: token);
+            }
+        }
 
         private async Task EditTrackCallback(CallbackContext context, CancellationToken token)
         {
