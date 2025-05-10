@@ -50,9 +50,9 @@ namespace RightVisionBotDb.Locations
             if (form.TrackCard?.VisualFileId != null)
                 await Bot.Client.SendDocumentAsync(c.CallbackQuery.Message!.Chat, new InputFileId(form.TrackCard.VisualFileId), caption:
                     "Это твой визуал!\n" +
-                    $"Рекомендуемое название для видео: {App.Configuration.RightVisionSettings.DefaultRightVision} {Phrases.GetCategoryString(form.Category)} | {form.Track}\n" +
+                    $"Рекомендуемое название для видео: {App.Configuration.RightVisionSettings.DefaultRightVision} {Phrases.GetCategoryString(form.Category)} | {form.Track}\n\n" +
                     $"Теги для видео: gachi, gachimuchi, right, right version, right vision, rightvision, rightvision25, райтвижн, райтвижн25, гачи, гачимучи, гачи ремикс, правильная версия\n" +
-                    $"Рекомендуем также добавить тегов, связанных с названием твоей песни! Спасибо тебе за участие в RightVision25.", cancellationToken: token);
+                    $"ℹ️Рекомендуем также добавить тегов, связанных с названием твоей песни! Спасибо тебе за участие в RightVision25.", cancellationToken: token);
 
             else
             {
