@@ -10,6 +10,7 @@ using RightVisionBotDb.Singletons;
 using RightVisionBotDb.Text;
 using RightVisionBotDb.Text.Interfaces;
 using RightVisionBotDb.Types;
+using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Text;
 using Telegram.Bot;
@@ -62,7 +63,24 @@ namespace RightVisionBotDb.Locations
                 .RegisterCallbackCommand("st_take", TakeStudentFormCallback, Permission.Curate)
                 .RegisterCallbackCommand("c_form", CriticFormCallback)
                 .RegisterCallbackCommand("p_form", ParticipantFormCallback)
+                .RegisterCallbackCommand("getvisual", GetVisualCallback)
                 .RegisterCallbackCommand("st_form", StudentFormCallback);
+        }
+
+        private async Task GetVisualCallback(CallbackContext c, CancellationToken token)
+        {
+            var form = await c.RvContext.ParticipantForms.FirstAsync(p => c.RvUser.UserId == p.UserId, token);
+            if (form.TrackCard?.VisualFileId != null)
+                await Bot.Client.SendDocumentAsync(c.CallbackQuery.Message!.Chat, new InputFileId(form.TrackCard.VisualFileId), caption:
+                    "Это твой визуал!\n" +
+                    $"Рекомендуемое название для видео: {App.Configuration.RightVisionSettings.DefaultRightVision} {Phrases.GetCategoryString(form.Category)} | {form.Track}\n" +
+                    $"Теги для видео: gachi, gachimuchi, right, right version, right vision, rightvision, rightvision25, райтвижн, райтвижн25, гачи, гачимучи, гачи ремикс, правильная версия\n" +
+                    $"Рекомендуем также добавить тегов, связанных с названием твоей песни! Спасибо тебе за участие в RightVision25.", cancellationToken: token);
+
+            else
+            {
+                await Bot.Client.SendTextMessageAsync(c.CallbackQuery.Message!.Chat, "Кажется, визуала у тебя нет!", cancellationToken: token);
+            }
         }
 
 
